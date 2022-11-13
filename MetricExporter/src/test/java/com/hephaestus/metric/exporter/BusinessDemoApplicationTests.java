@@ -1,4 +1,4 @@
-package com.hephaestus.businessdemo;
+package com.hephaestus.metric.exporter;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

@@ -1,4 +1,4 @@
-package com.hephaestus.businessdemo;
+package com.hephaestus.metric.exporter;
 
 import io.prometheus.client.CollectorRegistry;
 import io.prometheus.client.Gauge;
