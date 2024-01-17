@@ -1,0 +1,158 @@
+import io.github.hephaestusmetrics.model.metrics.Metric;
+import com.example.droolsprototype.execution.ExecutionService;
+import com.example.droolsprototype.DroolsPrototypeApplication;
+import java.lang.Double;
+import java.lang.System;
+
+
+/**
+ * Used metrics:
+ * __name__: node_network_up
+ * __name__: kube_node_status_condition
+ * __name__: node_memory_Active_bytes
+ * __name__: node_memory_MemTotal_bytes
+ * __name__: node_filesystem_avail_bytes, mountpoint: /tmp
+ * __name__: node_filesystem_size_bytes, mountpoint: /tmp
+ * custom query metric
+ */
+
+
+/**
+ * Informs about disk pressure
+ */
+rule "disk_pressure_alert"
+    dialect "mvel"
+    when
+        metric : Metric(
+            name == "kube_node_status_condition",
+            labels["condition"] == "DiskPressure",
+            labels["status"] == "true",
+            value == 1
+        )
+        executor: ExecutionService()
+    then
+        executor.log("Disk pressure detected");
+end
+
+/**
+ * Informs about node status condition
+ */
+rule "node_status_condition"
+    dialect "mvel"
+    when
+        metric : Metric(
+            name == "kube_node_status_condition",
+            value == 1
+        )
+        executor : ExecutionService()
+    then
+        executor.log("Condition for " + metric.labels.get("condition") + ": " + metric.labels.get("status") );
+end
+
+/**
+ * Lsits devices without network
+ */
+rule "network_down_alert"
+    dialect "mvel"
+    when
+        metric : Metric(
+            name == "node_network_up",
+            value == 0
+        )
+        executor : ExecutionService()
+    then
+        executor.log("Network is down: " + metric.labels.get("device"));
+end
+
+/**
+ * Lsits devices with network
+ */
+rule "network_up_alert"
+    dialect "mvel"
+    when
+        metric : Metric(
+            name == "node_network_up",
+            value == 1
+        )
+        executor : ExecutionService()
+    then
+        executor.log("Network is up: " + metric.labels.get("device"));
+end
+
+/**
+ * Logs if memory is taken in more than 10%
+ */
+rule "more_than_10_percent_memory_taken"
+    dialect "mvel"
+    when
+        active_bytes_m : Metric(
+            name == "node_memory_Active_bytes",
+            active_bytes : value
+        )
+        total_bytes_m : Metric(
+            name == "node_memory_MemTotal_bytes",
+            total_bytes : value
+        )
+        executor : ExecutionService()
+        eval(active_bytes / total_bytes > 0.10)
+    then
+         executor.log("More than 10% memory taken: " + active_bytes / total_bytes * 100 + "%");
+end
+
+/**
+ * Logs if memory is taken in less than 10%
+ */
+rule "less_than_10_percent_memory_taken"
+    dialect "mvel"
+    when
+        active_bytes_m : Metric(
+            name == "node_memory_Active_bytes",
+            active_bytes : value
+        )
+        total_bytes_m : Metric(
+            name == "node_memory_MemTotal_bytes",
+            total_bytes : value
+        )
+        executor : ExecutionService()
+        eval(active_bytes / total_bytes < 0.10)
+    then
+        executor.log("Less than 10% memory taken: " + active_bytes / total_bytes * 100 + "%");
+end
+
+/**
+ * Logs if filesystem is taken in more than 80% in /tmp
+ */
+rule "more_than_80_percent_filesystem_taken"
+    dialect "mvel"
+    when
+        avail_bytes_m : Metric(
+            name == "node_filesystem_avail_bytes",
+            labels["mountpoint"] == "/tmp",
+            avail_bytes : value
+        )
+        size_bytes_m : Metric(
+            name == "node_filesystem_size_bytes",
+            labels["mountpoint"] == "/tmp",
+            size : value
+        )
+        executor : ExecutionService()
+        eval(1 - (avail_bytes / size) > 0.8)
+    then
+        executor.log("More than 80% of file system taken in \"/tmp\": " + (1 - (avail_bytes / size)) * 100 + "%");
+end
+
+/**
+ * Custom query
+ */
+rule "custom_query_rule"
+    dialect "mvel"
+    when
+        metric : Metric(
+            queryTag == "custom_tag"
+        )
+        executor: ExecutionService()
+    then
+        executor.log("Custom metric found, current value: " + metric.getValue());
+end
+
+
