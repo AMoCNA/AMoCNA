@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: hephaestus-gui-pv
+spec:
+  storageClassName: hephaestus-manual
+  capacity:
+    storage: 25Mi
+  accessModes:
+  - ReadWriteOnce
+  hostPath:
+    path: "/mnt/hephaestus-gui-pv"

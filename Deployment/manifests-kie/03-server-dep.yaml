@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kie-server
+  namespace: kie
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kie-server
+  template:
+    metadata:
+      labels:
+        app: kie-server
+    spec:
+      containers:
+        - name: kie-server
+          image: quay.io/kiegroup/kie-server-showcase:latest
+          env:
+          - name: KIE_SERVER_ID
+            value: sample-server # TODO
+          - name: KIE_SERVER_LOCATION
+            value: http://kie-server:7080/kie-server/services/rest/server
+          - name: KIE_SERVER_CONTROLLER
+            value: http://kie-workbench.kie:6080/business-central/rest/controller # TODO
+          - name: KIE_MAVEN_REPO
+            value: http://kie-workbench.kie:6080/business-central/maven2 # TODO
+          ports:
+            - containerPort: 8080
+            - containerPort: 9990

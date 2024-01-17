@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: metrics-adapter
+  namespace: metrics-adapter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: metrics-adapter
+  template:
+    metadata:
+      labels:
+        app: metrics-adapter
+    spec:
+      containers:
+        - name: metrics-adapter
+          image: hephaestusmetrics/metrics-adapter:latest
+          env:
+          - name: backend
+            value: http://hephaestus-gui.hephaestus:8080
+          - name: kubernetes-management
+            value: http://kubernetes-management.kubernetes-management:8097
+          - name: mode
+            value: BUSINESS_DEMO_TEST
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8085 

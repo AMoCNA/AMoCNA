@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kie-workbench
+  namespace: kie
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kie-workbench
+  template:
+    metadata:
+      labels:
+        app: kie-workbench
+    spec:
+      containers:
+        - name: kie-workbench
+          image: quay.io/kiegroup/business-central-workbench-showcase:latest
+          env:
+          - name: KIE_SERVER_LOCATION
+            value: http://kie-server.kie:7080/kie-server/services/rest/server # TODO
+          ports:
+            - containerPort: 8080
+            - containerPort: 8001
+            - containerPort: 9990

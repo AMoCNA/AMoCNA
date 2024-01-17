@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hephaestus-gui
+  namespace: hephaestus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hephaestus-gui
+  template:
+    metadata:
+      labels:
+        app: hephaestus-gui
+    spec:
+      containers:
+        - name: hephaestus-gui
+          image: hephaestusmetrics/gui:latest
+          env:
+          - name: prometheus.address
+            value: prometheus.monitoring:9090
+          - name: saved.path
+            value: /../storage/metrics/savedMetrics/metrics.json
+          - name: config.path
+            value: /../storage/metrics/configMetrics/metrics.json
+          - name: logs.path
+            value: /../storage/logs
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: storage
+              mountPath: storage
+            - name: config-volume
+              mountPath: storage/metrics/configMetrics
+      volumes:
+        - name: storage
+          persistentVolumeClaim:
+            claimName: hepheastus-gui-pvc
+        - name: config-volume
+          configMap:
+            name: gui-configmap
+            items:
+            - key: metrics.json
+              path: metrics.json 

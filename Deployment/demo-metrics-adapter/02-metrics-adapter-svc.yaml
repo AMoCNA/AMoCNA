@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: metrics-adapter
+  namespace: metrics-adapter
+spec:
+  selector:
+    app: metrics-adapter
+  type: NodePort
+  ports:
+    - protocol: "TCP"
+      port: 8085
+      targetPort: 8085
+      nodePort: 31111
