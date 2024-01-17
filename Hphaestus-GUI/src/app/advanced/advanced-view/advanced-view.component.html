@@ -1,0 +1,42 @@
+<form class="custom-form" (submit)="addCustomQuery($event)">
+    <mat-form-field class="tag" appearance="legacy">
+        <mat-label>Enter tag</mat-label>
+        <input
+            #tagInput
+            autocomplete="off"
+            matInput>
+    </mat-form-field>
+    <mat-form-field class="query" appearance="legacy">
+        <mat-label>Enter query</mat-label>
+        <input
+            #queryInput
+            autocomplete="off"
+            matInput>
+    </mat-form-field>
+    <span class="spacer"></span>
+    <button mat-button class="addButton">
+        Add custom query
+    </button>
+</form>
+
+<div class="queries-container">
+    <div class="header">
+        <div class="table-header-text">Custom queries</div>
+        <button mat-icon-button matTooltip="Save custom queries" class="saveButton metric-button" (click)="saveCustomQuery()">
+            <mat-icon>save</mat-icon>
+        </button>
+    </div>
+    <div class="scrollable">
+        <div class="placeholder" *ngIf="customQueries.length == 0">
+            <p>To add a custom query, enter tag and query itself at the top of the page.</p>
+        </div>
+        <div class="query-container" *ngFor="let query of customQueries">
+            TAG: {{query.tag}}
+            <br/>
+            QUERY: {{query.query}}
+            <button mat-icon-button class="metric-button" (click)="removeCustomQuery(customQueries.indexOf(query))" matTooltip="Remove custom query">
+                <mat-icon>delete</mat-icon>
+            </button>
+        </div>
+    </div>
+</div>

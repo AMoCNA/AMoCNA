@@ -1,0 +1,29 @@
+.spacer {
+  flex: 1 1 auto;
+}
+
+.mat-button-base {
+  margin: 8px;
+}
+
+.mat-toolbar {
+  background-color: #222;
+}
+
+.mat-button {
+  color: #EEE2DC;
+}
+
+.mat-button:hover {
+  text-decoration: underline;
+}
+
+.mat-divider {
+  height: 64px;
+  border-right-color: white;
+  margin-right: 8px;
+}
+
+.mat-icon-button {
+  background-color: #EEE2DC;
+}

@@ -1,0 +1,37 @@
+<form class="example-form">
+        <mat-form-field appearance="legacy">
+                <mat-label>Filter using label:value pairs</mat-label>
+                <mat-chip-list #chipList aria-label="Filter">
+                    <mat-chip *ngIf="activeLabel" (removed)="onActiveLabelRemoved(activeLabel)">
+                        <button matChipRemove>
+                            <mat-icon>cancel</mat-icon>
+                        </button>
+                        Value for label {{activeLabel}}:
+                    </mat-chip>
+                    <input
+                            [placeholder]="placeholderText"
+                            #filterInput
+                            matInput
+                            [formControl]="formControl"
+                            [matAutocomplete]="auto"
+                            [matChipInputFor]="chipList"
+                            [matChipInputSeparatorKeyCodes]="separatorKeysCodes">
+                </mat-chip-list>
+                <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" (optionSelected)='onOptionSelected($event.option.value)'>
+                    <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
+                        {{option}}
+                    </mat-option>
+                </mat-autocomplete>
+        </mat-form-field>
+</form>
+
+<div class="chip-wrapper">
+    <mat-chip-list aria-label="Selected Filters">
+      <mat-chip *ngFor="let entry of filters.filters | keyvalue" (removed)="onFilterRemoved(entry.key)">
+            {{entry.key}}:{{entry.value}}
+            <button matChipRemove>
+                <mat-icon>cancel</mat-icon>
+            </button>
+        </mat-chip>
+    </mat-chip-list>
+</div>

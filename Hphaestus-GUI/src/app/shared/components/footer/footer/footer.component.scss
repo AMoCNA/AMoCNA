@@ -1,0 +1,23 @@
+.footer {
+  position: absolute;
+  bottom: -50px;
+  width: 100%;
+  text-align: center;
+  display: flex;
+}
+
+span {
+  color: #EEE2DC;
+  margin-top: 5px;
+}
+
+.center-text {
+  display: inline-block;
+  margin: 0 auto;
+  font-size: 14px;
+}
+
+.mat-toolbar {
+  background-color: #222;
+  height: 50px;
+}
