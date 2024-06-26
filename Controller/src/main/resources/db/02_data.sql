@@ -1,0 +1,1 @@
+-- INSERT INTO `action` (id, action_name, perform_time, state, success_perform_time, idempotency_id, priority, parent_id, sharing_counter, arguments) VALUES (100, 'MOCK_ACTION', '2023-01-23 14:10:55', 'PENDING', '2023-01-23 14:10:55', 'id', 4, null, 0, '{\"name\":\"John\"}');
