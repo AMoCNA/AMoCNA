@@ -1,0 +1,11 @@
+services:
+  graphdb:
+    image: ontotext/graphdb:11.3.3
+    ports:
+      - "127.0.0.1:7200:7200"
+    volumes:
+      - ./data:/opt/graphdb/home
+    environment:
+      - GDB_HEAP_SIZE=2G
+    restart: unless-stopped
+
