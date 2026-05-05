@@ -49,7 +49,7 @@ class ActionServiceImplTest {
         // Given
         String resourceId = "worker-1";
         ResourceRequest request = ResourceRequest.newBuilder().setResourceId(resourceId).build();
-        ActionData.SimpleAction mockAction = new ActionData.SimpleAction("action-1", "DeletePod", "pod-1", Map.of());
+        ActionData.SimpleAction mockAction = new ActionData.SimpleAction("action-1", "DeletePod", "REST", "http://mgmt", "pod-1", Map.of());
         when(graphDBGateway.findActionsForResource(resourceId)).thenReturn(List.of(mockAction));
 
         // When
@@ -88,7 +88,7 @@ class ActionServiceImplTest {
     void shouldExecuteRemediation() {
         // Given
         ActionRequest request = ActionRequest.newBuilder().setActionId("action-1").setTargetId("pod-1").build();
-        when(actionDispatcher.dispatch(any(ActionData.class))).thenReturn(true);
+        when(actionDispatcher.dispatch(any(ActionData.class), any(java.util.UUID.class))).thenReturn(true);
 
         // When
         actionService.executeRemediation(request, executionStatusObserver);
@@ -102,6 +102,6 @@ class ActionServiceImplTest {
         
         List<ExecutionStatus> statuses = captor.getAllValues();
         assertEquals("IN_PROGRESS", statuses.get(0).getState());
-        assertEquals("SUCCESS", statuses.get(1).getState());
+        assertEquals("SUCCESS", statuses.get(statuses.size() - 1).getState());
     }
 }
