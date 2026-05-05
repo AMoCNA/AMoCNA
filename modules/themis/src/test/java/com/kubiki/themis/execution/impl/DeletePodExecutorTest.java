@@ -19,8 +19,9 @@ class DeletePodExecutorTest {
 
     @BeforeEach
     void setUp() {
-        ThemisProperties.Kubernetes kubernetes = new ThemisProperties.Kubernetes(managementUrl);
-        ThemisProperties properties = new ThemisProperties(null, kubernetes);
+        ThemisProperties.Executors.Kubernetes kubernetes = new ThemisProperties.Executors.Kubernetes(managementUrl, 5000);
+        ThemisProperties.Executors executors = new ThemisProperties.Executors(kubernetes, new ThemisProperties.Executors.Logging("INFO"));
+        ThemisProperties properties = new ThemisProperties(null, executors);
         
         RestTemplate restTemplate = new RestTemplate();
         mockServer = MockRestServiceServer.createServer(restTemplate);

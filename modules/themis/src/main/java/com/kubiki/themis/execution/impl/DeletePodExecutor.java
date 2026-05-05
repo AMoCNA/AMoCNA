@@ -12,7 +12,7 @@ public class DeletePodExecutor implements ActionExecutor {
     private final String managementUrl;
 
     public DeletePodExecutor(ThemisProperties properties, RestTemplateBuilder restTemplateBuilder) {
-        this.managementUrl = properties.kubernetes().managementUrl();
+        this.managementUrl = properties.executors().kubernetes().managementUrl();
         this.restTemplate = restTemplateBuilder.build();
     }
 

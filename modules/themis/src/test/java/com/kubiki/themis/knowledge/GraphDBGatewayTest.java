@@ -37,9 +37,11 @@ class GraphDBGatewayTest {
 
     @BeforeEach
     void setUp() {
+        ThemisProperties.Executors.Kubernetes kubernetes = new ThemisProperties.Executors.Kubernetes("http://localhost:8080", 5000);
+        ThemisProperties.Executors executors = new ThemisProperties.Executors(kubernetes, new ThemisProperties.Executors.Logging("INFO"));
         ThemisProperties properties = new ThemisProperties(
                 new ThemisProperties.GraphDB("http://localhost:7200", "themis"),
-                new ThemisProperties.Kubernetes("http://localhost:8080")
+                executors
         );
         gateway = new GraphDBGateway(properties);
         // Inject mocked repository because the constructor creates a real HTTPRepository
