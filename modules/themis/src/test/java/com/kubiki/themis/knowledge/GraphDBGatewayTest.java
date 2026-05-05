@@ -35,6 +35,9 @@ class GraphDBGatewayTest {
     @Mock
     private TupleQueryResult tupleQueryResult;
 
+    @Mock
+    private MoaMapper moaMapper;
+
     @BeforeEach
     void setUp() {
         ThemisProperties.Executors.Kubernetes kubernetes = new ThemisProperties.Executors.Kubernetes("http://localhost:8080", 5000);
@@ -43,7 +46,7 @@ class GraphDBGatewayTest {
                 new ThemisProperties.GraphDB("http://localhost:7200", "themis"),
                 executors
         );
-        gateway = new GraphDBGateway(properties);
+        gateway = new GraphDBGateway(properties, moaMapper);
         // Inject mocked repository because the constructor creates a real HTTPRepository
         ReflectionTestUtils.setField(gateway, "repository", repository);
     }
@@ -60,18 +63,19 @@ class GraphDBGatewayTest {
         when(tupleQueryResult.hasNext()).thenReturn(true, false);
         
         org.eclipse.rdf4j.query.BindingSet bindingSet = mock(org.eclipse.rdf4j.query.BindingSet.class);
-        org.eclipse.rdf4j.model.Value actionValue = mock(org.eclipse.rdf4j.model.Value.class);
-        
         when(tupleQueryResult.next()).thenReturn(bindingSet);
-        when(bindingSet.getValue("action")).thenReturn(actionValue);
-        when(actionValue.stringValue()).thenReturn(actionUri);
+        
+        com.kubiki.themis.model.ActionData.SimpleAction mockAction = new com.kubiki.themis.model.ActionData.SimpleAction(
+            actionUri, "ScaleUp", "worker-1", java.util.Map.of()
+        );
+        when(moaMapper.mapSimpleAction(bindingSet)).thenReturn(mockAction);
 
         // When
-        List<String> actions = gateway.findActionsForResource(resourceId);
+        java.util.List<com.kubiki.themis.model.ActionData> actions = gateway.findActionsForResource(resourceId);
 
         // Then
         assertEquals(1, actions.size());
-        assertEquals(actionUri, actions.get(0));
+        assertEquals(actionUri, actions.get(0).id());
         
         verify(connection).prepareTupleQuery(contains("targetsEntity <" + resourceId + ">"));
     }

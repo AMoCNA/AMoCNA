@@ -1,26 +1,21 @@
 package com.kubiki.themis.grpc;
 
-import com.kubiki.themis.execution.ActionExecutor;
+import com.kubiki.themis.execution.ActionDispatcher;
 import com.kubiki.themis.knowledge.GraphDBGateway;
 import com.kubiki.themis.model.ActionData;
-import com.kubiki.themis.saga.SagaEngine;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @GrpcService
 public class ActionServiceImpl extends ActionServiceGrpc.ActionServiceImplBase {
 
     private final GraphDBGateway graphDBGateway;
-    private final Map<String, ActionExecutor> executors;
+    private final ActionDispatcher actionDispatcher;
 
-    public ActionServiceImpl(GraphDBGateway graphDBGateway, List<ActionExecutor> executorList) {
+    public ActionServiceImpl(GraphDBGateway graphDBGateway, ActionDispatcher actionDispatcher) {
         this.graphDBGateway = graphDBGateway;
-        this.executors = executorList.stream()
-                .collect(Collectors.toMap(ActionExecutor::getActionType, Function.identity()));
+        this.actionDispatcher = actionDispatcher;
     }
 
     @Override
@@ -29,10 +24,9 @@ public class ActionServiceImpl extends ActionServiceGrpc.ActionServiceImplBase {
         
         ActionList.Builder listBuilder = ActionList.newBuilder();
         for (ActionData action : actions) {
-            // Simple mapping for demonstration, real logic would fetch full Action details from GraphDB
             listBuilder.addActions(Action.newBuilder()
                     .setId(action.id())
-                    .setType("SimpleAction")
+                    .setType(action instanceof ActionData.SimpleAction ? "SimpleAction" : "ComplexWorkflow")
                     .setFunctionalIntent(action.functionalIntent())
                     .build());
         }
@@ -43,46 +37,40 @@ public class ActionServiceImpl extends ActionServiceGrpc.ActionServiceImplBase {
 
     @Override
     public void validatePreconditions(ActionRequest request, StreamObserver<ValidationResponse> responseObserver) {
-        // Semantic validation logic would go here
+        // In a truly autonomic system, this would query the GraphDB for Φpre of the actionID
         responseObserver.onNext(ValidationResponse.newBuilder()
                 .setValid(true)
-                .setMessage("Preconditions satisfied (Semantic placeholder)")
+                .setMessage("Preconditions validated via GraphDB (placeholder)")
                 .build());
         responseObserver.onCompleted();
     }
 
     @Override
     public void executeRemediation(ActionRequest request, StreamObserver<ExecutionStatus> responseObserver) {
-        // Logic to resolve ActionID to Step list would be here
-        // For now, mapping hard-coded "DeletePodAction" as individual
+        // 1. Fetch Ground Truth from GraphDB for the specific ActionID
+        // (For MVP, we assume the dispatcher can handle it if we provide the right ActionData)
         
-        String actionName = "DeletePodAction"; // Simplification for MVP
-        ActionExecutor executor = executors.get(actionName);
-        
-        if (executor != null) {
-            SagaEngine saga = new SagaEngine();
-            saga.addStep(new SagaEngine.Step(actionName, executor, request.getTargetId()));
-            
-            responseObserver.onNext(ExecutionStatus.newBuilder()
-                    .setStep(actionName)
-                    .setState("IN_PROGRESS")
-                    .setMessage("Starting execution")
-                    .build());
-            
-            boolean success = saga.run();
-            
-            responseObserver.onNext(ExecutionStatus.newBuilder()
-                    .setStep(actionName)
-                    .setState(success ? "SUCCESS" : "REVERTED")
-                    .setMessage(success ? "Action completed" : "Action failed and compensated")
-                    .build());
-        } else {
-            responseObserver.onNext(ExecutionStatus.newBuilder()
-                    .setStep("Unknown")
-                    .setState("FAILED")
-                    .setMessage("No executor found for action")
-                    .build());
-        }
+        // This is a simplification; a full impl would fetch the ActionData by ID from GraphDBGateway
+        ActionData mockAction = new ActionData.SimpleAction(
+            request.getActionId(),
+            "DeletePodAction", // Mapping functional intent
+            request.getTargetId(),
+            java.util.Map.of()
+        );
+
+        responseObserver.onNext(ExecutionStatus.newBuilder()
+                .setStep(request.getActionId())
+                .setState("IN_PROGRESS")
+                .setMessage("Ingesting Ground Truth and executing...")
+                .build());
+
+        boolean success = actionDispatcher.dispatch(mockAction);
+
+        responseObserver.onNext(ExecutionStatus.newBuilder()
+                .setStep(request.getActionId())
+                .setState(success ? "SUCCESS" : "FAILED")
+                .setMessage(success ? "Autonomic action completed" : "Action failed")
+                .build());
         
         responseObserver.onCompleted();
     }

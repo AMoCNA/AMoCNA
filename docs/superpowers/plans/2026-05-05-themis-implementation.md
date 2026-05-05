@@ -10,105 +10,48 @@
 
 ---
 
-### Task 1: Project Scaffolding (Spring Boot & Multi-profile Config)
+### Task 1: DOP Model & Configuration at Scale
 
 **Files:**
-- Create: `modules/themis/pom.xml`
-- Create: `modules/themis/src/main/java/com/kubiki/themis/ThemisApplication.java`
+- Create: `modules/themis/src/main/java/com/kubiki/themis/model/ActionData.java`
+- Create: `modules/themis/src/main/java/com/kubiki/themis/config/ThemisProperties.java`
 - Create: `modules/themis/src/main/resources/application.yml`
 - Create: `modules/themis/src/main/resources/application-dev.yml`
 - Create: `modules/themis/src/main/resources/application-prod.yml`
-- Create: `modules/themis/src/main/java/com/kubiki/themis/config/ThemisProperties.java`
 
-- [ ] **Step 1: Create `modules/themis/pom.xml`**
-
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.4.0</version>
-		<relativePath/>
-	</parent>
-	<groupId>com.kubiki</groupId>
-	<artifactId>themis</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<name>themis</name>
-	<description>Themis Autonomic Action Executor</description>
-
-	<properties>
-		<java.version>25</java.version>
-		<grpc-spring-boot-starter.version>3.1.0.RELEASE</grpc-spring-boot-starter.version>
-		<rdf4j.version>4.3.9</rdf4j.version>
-		<graphdb.version>10.8.13</graphdb.version>
-	</properties>
-
-	<dependencies>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>net.devh</groupId>
-			<artifactId>grpc-server-spring-boot-starter</artifactId>
-			<version>${grpc-spring-boot-starter.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-configuration-processor</artifactId>
-			<optional>true</optional>
-		</dependency>
-
-		<!-- RDF4J / GraphDB -->
-		<dependency>
-			<groupId>com.ontotext.graphdb</groupId>
-			<artifactId>graphdb-runtime</artifactId>
-			<version>${graphdb.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
-
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.xolstice.maven.plugins</groupId>
-				<artifactId>protobuf-maven-plugin</artifactId>
-				<version>0.6.1</version>
-				<configuration>
-					<protocArtifact>com.google.protobuf:protoc:3.25.3:exe:${os.detected.classifier}</protocArtifact>
-					<pluginId>grpc-java</pluginId>
-					<pluginArtifact>io.grpc:protoc-gen-grpc-java:1.62.2:exe:${os.detected.classifier}</pluginArtifact>
-				</configuration>
-				<executions>
-					<execution>
-						<goals>
-							<goal>compile</goal>
-							<goal>compile-custom</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
-</project>
-```
-
-- [ ] **Step 2: Create `ThemisApplication.java` and `ThemisProperties.java`**
+- [ ] **Step 1: Define Immutable DOP Model (`ActionData.java`)**
 
 ```java
-// ThemisProperties.java
+package com.kubiki.themis.model;
+
+import java.util.List;
+import java.util.Map;
+
+public sealed interface ActionData 
+    permits ActionData.SimpleAction, ActionData.ComplexWorkflow {
+    
+    String id();
+    String functionalIntent();
+
+    record SimpleAction(
+        String id,
+        String functionalIntent,
+        String targetIri,
+        Map<String, String> parameters
+    ) implements ActionData {}
+
+    record ComplexWorkflow(
+        String id,
+        String functionalIntent,
+        List<ActionData> steps,
+        Map<String, ActionData> compensations
+    ) implements ActionData {}
+}
+```
+
+- [ ] **Step 2: Implement Configuration at Scale (`ThemisProperties.java`)**
+
+```java
 package com.kubiki.themis.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -121,30 +64,21 @@ import org.springframework.boot.context.properties.NestedConfigurationProperty;
 @ConfigurationProperties(prefix = "themis")
 public record ThemisProperties(
     @NestedConfigurationProperty GraphDB graphdb,
-    @NestedConfigurationProperty Kubernetes kubernetes
+    @NestedConfigurationProperty Executors executors
 ) {
     public record GraphDB(String url, String repositoryId) {}
-    public record Kubernetes(String managementUrl) {}
-}
-
-// ThemisApplication.java
-package com.kubiki.themis;
-
-import com.kubiki.themis.config.ThemisProperties;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-
-@SpringBootApplication
-@EnableConfigurationProperties(ThemisProperties.class)
-public class ThemisApplication {
-    public static void main(String[] args) {
-        SpringApplication.run(ThemisApplication.class, args);
+    
+    public record Executors(
+        @NestedConfigurationProperty Kubernetes kubernetes,
+        @NestedConfigurationProperty Logging logging
+    ) {
+        public record Kubernetes(String managementUrl, int timeoutMs) {}
+        public record Logging(String level) {}
     }
 }
 ```
 
-- [ ] **Step 3: Create multi-profile YAML configuration**
+- [ ] **Step 3: Define Multi-profile YAML (Dev/Prod/K8s overrides)**
 
 `application.yml`:
 ```yaml
@@ -165,8 +99,12 @@ themis:
   graphdb:
     url: http://localhost:7200
     repository-id: moamont
-  kubernetes:
-    management-url: http://localhost:8080
+  executors:
+    kubernetes:
+      management-url: http://localhost:8080
+      timeout-ms: 5000
+    logging:
+      level: INFO
 ```
 
 `application-prod.yml`:
@@ -175,8 +113,12 @@ themis:
   graphdb:
     url: ${GRAPHDB_URL:http://graphdb:7200}
     repository-id: ${GRAPHDB_REPO:moamont}
-  kubernetes:
-    management-url: ${K8S_MGMT_URL:http://kubernetes-management:8080}
+  executors:
+    kubernetes:
+      management-url: ${K8S_MGMT_URL:http://kubernetes-management:8080}
+      timeout-ms: ${K8S_TIMEOUT:30000}
+    logging:
+      level: ${LOG_LEVEL:WARN}
 ```
 
 - [ ] **Step 4: Verify build**
@@ -188,7 +130,7 @@ Expected: BUILD SUCCESS
 
 ```bash
 git add modules/themis
-git commit -m "feat(themis): initialize spring boot 3.4 with multi-profile config"
+git commit -m "feat(themis): implement DOP model and scaled configuration"
 ```
 
 ---
@@ -260,170 +202,113 @@ git commit -m "feat(themis): define ActionService gRPC interface"
 
 ---
 
-### Task 3: GraphDB Gateway (Spring Bean)
+### Task 4: Ground Truth Ingestion (SPARQL to Record)
 
 **Files:**
-- Create: `modules/themis/src/main/java/com/kubiki/themis/knowledge/GraphDBGateway.java`
+- Create: `modules/themis/src/main/java/com/kubiki/themis/knowledge/MoaMapper.java`
+- Modify: `modules/themis/src/main/java/com/kubiki/themis/knowledge/GraphDBGateway.java`
 
-- [ ] **Step 1: Implement `GraphDBGateway` as a Spring Service**
+- [ ] **Step 1: Implement `MoaMapper`**
 
 ```java
 package com.kubiki.themis.knowledge;
 
-import com.kubiki.themis.config.ThemisProperties;
-import org.eclipse.rdf4j.repository.Repository;
-import org.eclipse.rdf4j.repository.RepositoryConnection;
-import org.eclipse.rdf4j.repository.http.HTTPRepository;
-import org.eclipse.rdf4j.query.TupleQuery;
-import org.eclipse.rdf4j.query.TupleQueryResult;
-import org.springframework.stereotype.Service;
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
-import java.util.ArrayList;
+import com.kubiki.themis.model.ActionData;
+import org.eclipse.rdf4j.query.BindingSet;
+import org.springframework.stereotype.Component;
+import java.util.HashMap;
 import java.util.List;
 
-@Service
-public class GraphDBGateway {
-    private final Repository repository;
-    private static final String NAMESPACE = "http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#";
-
-    public GraphDBGateway(ThemisProperties properties) {
-        this.repository = new HTTPRepository(properties.graphdb().url(), properties.graphdb().repositoryId());
-    }
-
-    @PostConstruct
-    public void init() {
-        this.repository.init();
-    }
-
-    public List<String> findActionsForResource(String resourceId) {
-        String sparql = "PREFIX moa: <" + NAMESPACE + "> " +
-                        "SELECT ?action WHERE { " +
-                        "  ?action moa:targetsEntity <" + resourceId + "> . " +
-                        "  ?action a moa:AutonomicAction . " +
-                        "}";
-        
-        List<String> actions = new ArrayList<>();
-        try (RepositoryConnection conn = repository.getConnection()) {
-            TupleQuery query = conn.prepareTupleQuery(sparql);
-            try (TupleQueryResult result = query.evaluate()) {
-                while (result.hasNext()) {
-                    actions.add(result.next().getValue("action").stringValue());
-                }
-            }
-        }
-        return actions;
-    }
-
-    @PreDestroy
-    public void shutDown() {
-        repository.shutDown();
-    }
-}
-```
-
-- [ ] **Step 2: Commit**
-
-```bash
-git add modules/themis/src/main/java/com/kubiki/themis/knowledge/GraphDBGateway.java
-git commit -m "feat(themis): implement GraphDBGateway as a Spring Service"
-```
-
----
-
-### Task 4: Action Executors (Spring Integrated)
-
-**Files:**
-- Create: `modules/themis/src/main/java/com/kubiki/themis/execution/ActionExecutor.java`
-- Create: `modules/themis/src/main/java/com/kubiki/themis/execution/impl/DeletePodExecutor.java`
-
-- [ ] **Step 1: Define `ActionExecutor`**
-
-```java
-package com.kubiki.themis.execution;
-
-public interface ActionExecutor {
-    boolean execute(String targetId);
-    boolean compensate(String targetId);
-    String getActionType();
-}
-```
-
-- [ ] **Step 2: Implement `DeletePodExecutor` using `RestTemplate` or `WebClient`**
-
-```java
-package com.kubiki.themis.execution.impl;
-
-import com.kubiki.themis.execution.ActionExecutor;
-import com.kubiki.themis.config.ThemisProperties;
-import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
-
 @Component
-public class DeletePodExecutor implements ActionExecutor {
-    private final RestTemplate restTemplate = new RestTemplate();
-    private final String managementUrl;
-
-    public DeletePodExecutor(ThemisProperties properties) {
-        this.managementUrl = properties.kubernetes().managementUrl();
-    }
-
-    @Override
-    public boolean execute(String targetId) {
-        String[] parts = targetId.split("/");
-        if (parts.length != 2) return false;
-
-        String url = String.format("%s/kubernetes/management/pod/delete?namespace=%s&podName=%s",
-                managementUrl, parts[0], parts[1]);
-
-        try {
-            restTemplate.getForObject(url, String.class);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    @Override
-    public boolean compensate(String targetId) {
-        return true;
-    }
-
-    @Override
-    public String getActionType() {
-        return "DeletePodAction";
+public class MoaMapper {
+    public ActionData.SimpleAction mapSimpleAction(BindingSet bindings) {
+        return new ActionData.SimpleAction(
+            bindings.getValue("action").stringValue(),
+            bindings.getValue("intent").stringValue(),
+            bindings.getValue("target").stringValue(),
+            new HashMap<>() // Parameters would be fetched in a second query or JOIN
+        );
     }
 }
 ```
+
+- [ ] **Step 2: Update `GraphDBGateway` to use the mapper**
+
+Update `findActionsForResource` to return `List<ActionData>`.
 
 - [ ] **Step 3: Commit**
 
 ```bash
-git add modules/themis/src/main/java/com/kubiki/themis/execution
-git commit -m "feat(themis): implement DeletePodExecutor as a Spring Component"
+git add modules/themis/src/main/java/com/kubiki/themis/knowledge
+git commit -m "feat(themis): implement semantic mapper for Ground Truth ingestion"
 ```
 
 ---
 
-### Task 5: Saga Engine (Virtual Threads Optimized)
+### Task 5: Generic Dispatcher & Saga Engine
 
 **Files:**
+- Create: `modules/themis/src/main/java/com/kubiki/themis/execution/ActionDispatcher.java`
 - Create: `modules/themis/src/main/java/com/kubiki/themis/saga/SagaEngine.java`
 
-- [ ] **Step 1: Implement `SagaEngine`**
+- [ ] **Step 1: Implement `ActionDispatcher` using Java 25 switch expressions**
 
-- [ ] **Step 2: Commit**
+```java
+package com.kubiki.themis.execution;
+
+import com.kubiki.themis.model.ActionData;
+import com.kubiki.themis.saga.SagaEngine;
+import org.springframework.stereotype.Service;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+@Service
+public class ActionDispatcher {
+    private final Map<String, ActionExecutor> simpleExecutors;
+
+    public ActionDispatcher(List<ActionExecutor> executors) {
+        this.simpleExecutors = executors.stream()
+            .collect(Collectors.toMap(ActionExecutor::getActionType, Function.identity()));
+    }
+
+    public boolean dispatch(ActionData action) {
+        return switch (action) {
+            case ActionData.SimpleAction s -> executeSimple(s);
+            case ActionData.ComplexWorkflow c -> executeWorkflow(c);
+        };
+    }
+
+    private boolean executeSimple(ActionData.SimpleAction action) {
+        ActionExecutor executor = simpleExecutors.get(action.functionalIntent());
+        return executor != null && executor.execute(action.targetIri());
+    }
+
+    private boolean executeWorkflow(ActionData.ComplexWorkflow workflow) {
+        SagaEngine saga = new SagaEngine();
+        for (ActionData step : workflow.steps()) {
+            if (step instanceof ActionData.SimpleAction s) {
+                saga.addStep(new SagaEngine.Step(s.id(), simpleExecutors.get(s.functionalIntent()), s.targetIri()));
+            }
+        }
+        return saga.run();
+    }
+}
+```
 
 ---
 
-### Task 6: gRPC Service Implementation
+### Task 6: gRPC Service Integration
 
 **Files:**
 - Create: `modules/themis/src/main/java/com/kubiki/themis/grpc/ActionServiceImpl.java`
 
-- [ ] **Step 1: Implement `ActionServiceImpl` using `@GrpcService`**
+- [ ] **Step 1: Implement `ActionServiceImpl`**
 
-- [ ] **Step 2: Final Verification**
+Connect `GraphDBGateway` and `ActionDispatcher` to the gRPC endpoints.
+
+- [ ] **Step 2: Final Integration Test**
 
 Run: `mvn clean install`
 Expected: BUILD SUCCESS
