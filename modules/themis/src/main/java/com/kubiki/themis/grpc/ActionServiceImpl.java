@@ -2,6 +2,7 @@ package com.kubiki.themis.grpc;
 
 import com.kubiki.themis.execution.ActionExecutor;
 import com.kubiki.themis.knowledge.GraphDBGateway;
+import com.kubiki.themis.model.ActionData;
 import com.kubiki.themis.saga.SagaEngine;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
@@ -24,15 +25,15 @@ public class ActionServiceImpl extends ActionServiceGrpc.ActionServiceImplBase {
 
     @Override
     public void getExecutableActions(ResourceRequest request, StreamObserver<ActionList> responseObserver) {
-        List<String> actionIris = graphDBGateway.findActionsForResource(request.getResourceId());
+        List<ActionData> actions = graphDBGateway.findActionsForResource(request.getResourceId());
         
         ActionList.Builder listBuilder = ActionList.newBuilder();
-        for (String iri : actionIris) {
+        for (ActionData action : actions) {
             // Simple mapping for demonstration, real logic would fetch full Action details from GraphDB
             listBuilder.addActions(Action.newBuilder()
-                    .setId(iri)
+                    .setId(action.id())
                     .setType("SimpleAction")
-                    .setFunctionalIntent("LifecycleControlAction")
+                    .setFunctionalIntent(action.functionalIntent())
                     .build());
         }
         
