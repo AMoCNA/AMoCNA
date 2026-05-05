@@ -1,0 +1,602 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont/"
+     xml:base="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont/"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+    <owl:Ontology rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont">
+        <rdfs:comment>Ontology about knowledge representation of actions used in Cloud Native Execution Enviroment by autonomic computing components</rdfs:comment>
+    </owl:Ontology>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#dependsOn -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#dependsOn">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#TransitiveProperty"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#AutonomicAction"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#AutonomicAction"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#hasCompensation -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#hasCompensation">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#AutonomicAction"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#AutonomicAction"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#hasCondition -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#hasCondition">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#AutonomicAction"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#ExecutionCondition"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#hasExecutionCost -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#hasExecutionCost">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#AutonomicAction"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#ExecutionCost"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#hasFunctionalIntent -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#hasFunctionalIntent">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#AutonomicAction"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#FunctionalIntent"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#hasLayerBoundary -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#hasLayerBoundary">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#AutonomicAction"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#LayerBoundary"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#hasPostCondition -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#hasPostCondition">
+        <rdfs:subPropertyOf rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#hasCondition"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#AutonomicAction"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#ExecutionCondition"/>
+        <owl:propertyDisjointWith rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#hasPreCondition"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#hasPreCondition -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#hasPreCondition">
+        <rdfs:subPropertyOf rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#hasCondition"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#AutonomicAction"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#ExecutionCondition"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#isDecomposedInto -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#isDecomposedInto">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AsymmetricProperty"/>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#IrreflexiveProperty"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#ComplexWorkflow"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#AutonomicAction"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#targetsEntity -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#targetsEntity">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#AutonomicAction"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#TargetResource"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Data properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#costValue -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#costValue">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#ExecutionCost"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#hasActionID -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#hasActionID">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#AutonomicAction"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#isIdempotent -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#isIdempotent">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#SimpleAction"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#boolean"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#maxRetries -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#maxRetries">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#SimpleAction"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#int"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#policyQueryString -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#policyQueryString">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#ExecutionCondition"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#timeoutSeconds -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#timeoutSeconds">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#AutonomicAction"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#int"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#AutonomicAction -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#AutonomicAction">
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#targetsEntity"/>
+                <owl:someValuesFrom rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#TargetResource"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#hasPreCondition"/>
+                <owl:minQualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minQualifiedCardinality>
+                <owl:onClass rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#ExecutionCondition"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#hasExecutionCost"/>
+                <owl:qualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:qualifiedCardinality>
+                <owl:onClass rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#ExecutionCost"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#hasLayerBoundary"/>
+                <owl:qualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:qualifiedCardinality>
+                <owl:onClass rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#LayerBoundary"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#hasActionID"/>
+                <owl:qualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:qualifiedCardinality>
+                <owl:onDataRange rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#timeoutSeconds"/>
+                <owl:qualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:qualifiedCardinality>
+                <owl:onDataRange rdf:resource="http://www.w3.org/2001/XMLSchema#int"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#CircuitBreakAction -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#CircuitBreakAction">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#TrafficRoutingAction"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#ComplexWorkflow -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#ComplexWorkflow">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#AutonomicAction"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#isDecomposedInto"/>
+                <owl:minQualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minQualifiedCardinality>
+                <owl:onClass rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#AutonomicAction"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <owl:disjointWith rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#SimpleAction"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#ConfigurationAction -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#ConfigurationAction">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#FunctionalIntent"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#EvacuateAction -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#EvacuateAction">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#MobilityAction"/>
+        <owl:disjointWith rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#MigrateAction"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#ExecutionCondition -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#ExecutionCondition">
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#policyQueryString"/>
+                <owl:qualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:qualifiedCardinality>
+                <owl:onDataRange rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#ExecutionCost -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#ExecutionCost">
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#costValue"/>
+                <owl:qualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:qualifiedCardinality>
+                <owl:onDataRange rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#FunctionalIntent -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#FunctionalIntent"/>
+    
+
+
+    <!-- http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#HorizontalScalingAction -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#HorizontalScalingAction">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#ScalingAction"/>
+        <owl:disjointWith rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#VerticalScalingAction"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#LayerBoundary -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#LayerBoundary"/>
+    
+
+
+    <!-- http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#LifecycleControlAction -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#LifecycleControlAction">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#FunctionalIntent"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#MetricBasedCondition -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#MetricBasedCondition">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#ExecutionCondition"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#MigrateAction -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#MigrateAction">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#MobilityAction"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#MobilityAction -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#MobilityAction">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#FunctionalIntent"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#PatchAction -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#PatchAction">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#ConfigurationAction"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#RestartAction -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#RestartAction">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#LifecycleControlAction"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#RollbackAction -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#RollbackAction">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#ConfigurationAction"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#ScalingAction -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#ScalingAction">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#FunctionalIntent"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#SecurityPolicyCondition -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#SecurityPolicyCondition">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#ExecutionCondition"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#SimpleAction -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#SimpleAction">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#AutonomicAction"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#hasCompensation"/>
+                <owl:qualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:qualifiedCardinality>
+                <owl:onClass rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#SimpleAction"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#isDecomposedInto"/>
+                <owl:maxQualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</owl:maxQualifiedCardinality>
+                <owl:onClass rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#AutonomicAction"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#isIdempotent"/>
+                <owl:qualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:qualifiedCardinality>
+                <owl:onDataRange rdf:resource="http://www.w3.org/2001/XMLSchema#boolean"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#maxRetries"/>
+                <owl:qualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:qualifiedCardinality>
+                <owl:onDataRange rdf:resource="http://www.w3.org/2001/XMLSchema#int"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#StartAction -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#StartAction">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#LifecycleControlAction"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#StateBasedCondition -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#StateBasedCondition">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#ExecutionCondition"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#StopAction -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#StopAction">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#LifecycleControlAction"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#TargetResource -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#TargetResource"/>
+    
+
+
+    <!-- http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#TemporalCondition -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#TemporalCondition">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#ExecutionCondition"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#TerminateAction -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#TerminateAction">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#LifecycleControlAction"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#TrafficDrainingAction -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#TrafficDrainingAction">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#TrafficRoutingAction"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#TrafficMirroringAction -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#TrafficMirroringAction">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#TrafficRoutingAction"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#TrafficRoutingAction -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#TrafficRoutingAction">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#FunctionalIntent"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#UpdateAction -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#UpdateAction">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#ConfigurationAction"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#VerticalScalingAction -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#VerticalScalingAction">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#ScalingAction"/>
+    </owl:Class>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // General axioms
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#AutonomicAction"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#ExecutionCondition"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#ExecutionCost"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#FunctionalIntent"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#LayerBoundary"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#TargetResource"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#CircuitBreakAction"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#TrafficDrainingAction"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#TrafficMirroringAction"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#ConfigurationAction"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#LifecycleControlAction"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#MobilityAction"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#ScalingAction"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#TrafficRoutingAction"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#MetricBasedCondition"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#SecurityPolicyCondition"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#StateBasedCondition"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#TemporalCondition"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#PatchAction"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#RollbackAction"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#UpdateAction"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#RestartAction"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#StartAction"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#StopAction"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#TerminateAction"/>
+        </owl:members>
+    </rdf:Description>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 4.5.29.2024-05-13T12:11:03Z) https://github.com/owlcs/owlapi -->
+
