@@ -22,19 +22,25 @@ public class ActionServiceImpl extends ActionServiceGrpc.ActionServiceImplBase {
 
     @Override
     public void getExecutableActions(ResourceRequest request, StreamObserver<ActionList> responseObserver) {
-        List<ActionData> actions = graphDBGateway.findActionsForResource(request.getResourceId());
-        
-        ActionList.Builder listBuilder = ActionList.newBuilder();
-        for (ActionData action : actions) {
-            listBuilder.addActions(Action.newBuilder()
-                    .setId(action.id())
-                    .setType(action instanceof ActionData.SimpleAction ? "SimpleAction" : "ComplexWorkflow")
-                    .setFunctionalIntent(action.functionalIntent())
-                    .build());
+        try {
+            List<ActionData> actions = graphDBGateway.findActionsForResource(request.getResourceId());
+            
+            ActionList.Builder listBuilder = ActionList.newBuilder();
+            for (ActionData action : actions) {
+                listBuilder.addActions(Action.newBuilder()
+                        .setId(action.id())
+                        .setType(action instanceof ActionData.SimpleAction ? "SimpleAction" : "ComplexWorkflow")
+                        .setFunctionalIntent(action.functionalIntent())
+                        .build());
+            }
+            
+            responseObserver.onNext(listBuilder.build());
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            responseObserver.onError(io.grpc.Status.UNAVAILABLE
+                .withDescription("GraphDB Knowledge Base is not reachable: " + e.getMessage())
+                .asRuntimeException());
         }
-        
-        responseObserver.onNext(listBuilder.build());
-        responseObserver.onCompleted();
     }
 
     @Override
