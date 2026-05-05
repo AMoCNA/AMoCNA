@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.4.0</version>
+		<version>4.0.6</version>
 		<relativePath/>
 	</parent>
 	<groupId>com.kubiki</groupId>
@@ -16,9 +16,23 @@
 
 	<properties>
 		<java.version>25</java.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+		<!-- Dependencies -->
 		<grpc-spring-boot-starter.version>3.1.0.RELEASE</grpc-spring-boot-starter.version>
 		<rdf4j.version>4.3.9</rdf4j.version>
 		<graphdb.version>10.8.13</graphdb.version>
+		<wiremock.version>3.5.4</wiremock.version>
+
+		<!-- Build Plugins -->
+		<os-maven-plugin.version>1.7.1</os-maven-plugin.version>
+		<maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
+		<protobuf-maven-plugin.version>0.6.1</protobuf-maven-plugin.version>
+
+		<!-- Protocol Buffers & gRPC -->
+		<protobuf.version>3.25.3</protobuf.version>
+		<grpc-java.version>1.62.2</grpc-java.version>
 	</properties>
 
 	<dependencies>
@@ -40,6 +54,10 @@
 			<artifactId>spring-boot-configuration-processor</artifactId>
 			<optional>true</optional>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-restclient</artifactId>
+		</dependency>
 
 		<!-- RDF4J / GraphDB -->
 		<dependency>
@@ -53,6 +71,12 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.wiremock</groupId>
+			<artifactId>wiremock-standalone</artifactId>
+			<version>${wiremock.version}</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -60,18 +84,21 @@
 			<extension>
 				<groupId>kr.motd.maven</groupId>
 				<artifactId>os-maven-plugin</artifactId>
-				<version>1.7.1</version>
+				<version>${os-maven-plugin.version}</version>
 			</extension>
 		</extensions>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<mainClass>com.kubiki.themis.ThemisApplication</mainClass>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>3.5.2</version>
+				<version>${maven-surefire-plugin.version}</version>
 				<configuration>
 					<argLine>-Dnet.bytebuddy.experimental=true</argLine>
 				</configuration>
@@ -79,11 +106,11 @@
 			<plugin>
 				<groupId>org.xolstice.maven.plugins</groupId>
 				<artifactId>protobuf-maven-plugin</artifactId>
-				<version>0.6.1</version>
+				<version>${protobuf-maven-plugin.version}</version>
 				<configuration>
-					<protocArtifact>com.google.protobuf:protoc:3.25.3:exe:${os.detected.classifier}</protocArtifact>
+					<protocArtifact>com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}</protocArtifact>
 					<pluginId>grpc-java</pluginId>
-					<pluginArtifact>io.grpc:protoc-gen-grpc-java:1.62.2:exe:${os.detected.classifier}</pluginArtifact>
+					<pluginArtifact>io.grpc:protoc-gen-grpc-java:${grpc-java.version}:exe:${os.detected.classifier}</pluginArtifact>
 				</configuration>
 				<executions>
 					<execution>
