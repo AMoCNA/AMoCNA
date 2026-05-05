@@ -11,8 +11,10 @@ public class MoaMapper {
         return new ActionData.SimpleAction(
             bindings.getValue("action").stringValue(),
             bindings.getValue("intent").stringValue(),
+            bindings.hasBinding("protocol") ? bindings.getValue("protocol").stringValue() : "REST",
+            bindings.hasBinding("instruction") ? bindings.getValue("instruction").stringValue() : "http://localhost:8080/mgmt?target={target}",
             bindings.getValue("target").stringValue(),
-            new HashMap<>() // Parameters would be fetched in a second query or JOIN if needed
+            new java.util.HashMap<>()
         );
     }
 }

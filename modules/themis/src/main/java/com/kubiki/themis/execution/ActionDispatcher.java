@@ -2,56 +2,44 @@ package com.kubiki.themis.execution;
 
 import com.kubiki.themis.model.ActionData;
 import com.kubiki.themis.saga.SagaEngine;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
 public class ActionDispatcher {
-    private static final Logger logger = LoggerFactory.getLogger(ActionDispatcher.class);
-    private final Map<String, ActionExecutor> simpleExecutors;
+    private final Map<String, ProtocolExecutor> protocolExecutors;
 
-    public ActionDispatcher(List<ActionExecutor> executors) {
-        this.simpleExecutors = executors.stream()
-            .collect(Collectors.toMap(ActionExecutor::getActionType, Function.identity()));
+    public ActionDispatcher(List<ProtocolExecutor> executors) {
+        this.protocolExecutors = executors.stream()
+            .collect(Collectors.toMap(ProtocolExecutor::getSupportedProtocol, Function.identity()));
     }
 
-    public boolean dispatch(ActionData action) {
+    public boolean dispatch(ActionData action, UUID executionId) {
         return switch (action) {
-            case ActionData.SimpleAction s -> executeSimple(s);
-            case ActionData.ComplexWorkflow c -> executeWorkflow(c);
+            case ActionData.SimpleAction s -> executeSimple(s, executionId);
+            case ActionData.ComplexWorkflow c -> executeWorkflow(c, executionId);
         };
     }
 
-    private boolean executeSimple(ActionData.SimpleAction action) {
-        ActionExecutor executor = simpleExecutors.get(action.functionalIntent());
+    private boolean executeSimple(ActionData.SimpleAction action, UUID executionId) {
+        ProtocolExecutor executor = protocolExecutors.get(action.protocol());
         if (executor == null) {
-            logger.error("No executor for intent: {}", action.functionalIntent());
+            System.err.println("Unsupported protocol: " + action.protocol());
             return false;
         }
-        return executor.execute(action.targetIri());
+        return executor.execute(action, executionId);
     }
 
-    private boolean executeWorkflow(ActionData.ComplexWorkflow workflow) {
+    private boolean executeWorkflow(ActionData.ComplexWorkflow workflow, UUID executionId) {
         SagaEngine saga = new SagaEngine();
         for (ActionData step : workflow.steps()) {
             if (step instanceof ActionData.SimpleAction s) {
-                ActionExecutor executor = simpleExecutors.get(s.functionalIntent());
-                if (executor != null) {
-                    saga.addStep(new SagaEngine.Step(s.id(), executor, s.targetIri()));
-                } else {
-                    logger.error("No executor for step: {} (intent: {})", s.id(), s.functionalIntent());
-                    // Depending on policy, we might fail here or continue. 
-                    // For a saga, we probably want to fail fast if we can't build it.
-                    return false;
-                }
-            } else {
-                // Nested ComplexWorkflows are possible in the model but not handled in this basic dispatcher yet.
-                logger.warn("Nested workflows are not supported in this MVP version: {}", step.id());
+                ProtocolExecutor executor = protocolExecutors.get(s.protocol());
+                saga.addStep(new SagaEngine.Step(s.id(), executor, s, executionId));
             }
         }
         return saga.run();

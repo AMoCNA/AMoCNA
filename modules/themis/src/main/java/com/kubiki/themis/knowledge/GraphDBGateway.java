@@ -31,11 +31,13 @@ public class GraphDBGateway {
 
     public List<ActionData> findActionsForResource(String resourceId) {
         String sparql = "PREFIX moa: <" + NAMESPACE + "> " +
-                        "SELECT ?action ?intent ?target WHERE { " +
+                        "SELECT ?action ?intent ?target ?protocol ?instruction WHERE { " +
                         "  ?action moa:targetsEntity <" + resourceId + "> . " +
                         "  ?action a moa:AutonomicAction . " +
                         "  ?action a ?intent . " +
                         "  ?action moa:targetsEntity ?target . " +
+                        "  OPTIONAL { ?action moa:executionProtocol ?protocol } . " +
+                        "  OPTIONAL { ?action moa:executionInstruction ?instruction } . " +
                         "  FILTER(?intent != moa:AutonomicAction && ?intent != moa:SimpleAction) " +
                         "}";
         
@@ -47,6 +49,9 @@ public class GraphDBGateway {
                     actions.add(moaMapper.mapSimpleAction(result.next()));
                 }
             }
+        } catch (Exception e) {
+            System.err.println("CRITICAL: Failed to connect to GraphDB at " + repository.toString() + ". Is it running? Error: " + e.getMessage());
+            throw new RuntimeException("Knowledge Base unavailable", e);
         }
         return actions;
     }
