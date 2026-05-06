@@ -1,0 +1,85 @@
+# ==========================================
+# STAGE 1: Build Angular Frontend
+# ==========================================
+FROM node:16-alpine AS gui-builder
+WORKDIR /app/gui
+COPY Hphaestus-GUI/package*.json ./
+RUN npm install
+COPY Hphaestus-GUI/ ./
+RUN npm run build -- --base-href /app/
+
+# ==========================================
+# STAGE 2: Build Java Components (Maven)
+# ==========================================
+# Using adoptopenjdk for the builder stage
+FROM maven:3.8.6-openjdk-11 AS java-builder
+WORKDIR /app
+
+# 1. Build Translator (Local dependency)
+COPY Metrics-Translator/ /app/Metrics-Translator/
+RUN cd Metrics-Translator/Translator && mvn clean install -DskipTests
+
+# 2. Prepare GUI Backend (with Angular artifacts)
+COPY Hphaestus-GUI-Backend/ /app/Hphaestus-GUI-Backend/
+COPY --from=gui-builder /app/gui/dist/hephaestus-gui/* /app/Hphaestus-GUI-Backend/hephaestus-backend/src/main/resources/static/app/
+RUN cd Hphaestus-GUI-Backend/hephaestus-backend && mvn clean package -DskipTests
+
+# 3. Build Metrics Adapter
+COPY Metrics-Adapter/ /app/Metrics-Adapter/
+RUN cd Metrics-Adapter && mvn clean package -DskipTests
+
+# 4. Build Business Demo Components
+COPY Business-Demo/ /app/Business-Demo/
+COPY Controller/ /app/Controller/
+RUN cd Business-Demo/MetricExporter && mvn clean package -DskipTests
+RUN cd Business-Demo/KubernetesManagment && mvn clean package -DskipTests
+
+# ==========================================
+# STAGE 3: Final Runtime Base Image
+# ==========================================
+# Using adoptopenjdk for the runtime stage
+FROM adoptopenjdk/openjdk11 AS runtime-base
+WORKDIR /app
+
+# ==========================================
+# TARGET: GUI Backend
+# ==========================================
+FROM runtime-base AS gui
+COPY --from=java-builder /app/Hphaestus-GUI-Backend/hephaestus-backend/target/*.jar app.jar
+EXPOSE 8080
+ENTRYPOINT ["java","-jar","app.jar"]
+
+# ==========================================
+# TARGET: Metrics Adapter
+# ==========================================
+FROM runtime-base AS metrics-adapter
+COPY --from=java-builder /app/Metrics-Adapter/target/*.jar app.jar
+EXPOSE 8080
+ENTRYPOINT ["java","-jar","app.jar"]
+
+# ==========================================
+# TARGET: Business Demo
+# ==========================================
+FROM runtime-base AS business-demo
+COPY --from=java-builder /app/Business-Demo/MetricExporter/target/*.jar app.jar
+EXPOSE 8099
+ENTRYPOINT ["java","-jar","app.jar"]
+
+# ==========================================
+# TARGET: Kubernetes Management
+# ==========================================
+FROM runtime-base AS kubernetes-management
+COPY --from=java-builder /app/Business-Demo/KubernetesManagment/target/*.jar app.jar
+EXPOSE 8097
+ENTRYPOINT ["java","-jar","app.jar"]
+
+# ==========================================
+# DEFAULT TARGET (Artifacts List)
+# ==========================================
+FROM alpine:latest AS artifacts
+WORKDIR /artifacts
+COPY --from=java-builder /app/Hphaestus-GUI-Backend/hephaestus-backend/target/*.jar ./gui-backend.jar
+COPY --from=java-builder /app/Metrics-Adapter/target/*.jar ./metrics-adapter.jar
+COPY --from=java-builder /app/Business-Demo/MetricExporter/target/*.jar ./business-demo.jar
+COPY --from=java-builder /app/Business-Demo/KubernetesManagment/target/*.jar ./kubernetes-management.jar
+CMD ["ls", "-la"]

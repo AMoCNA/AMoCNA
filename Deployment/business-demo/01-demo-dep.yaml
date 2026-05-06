@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: business-demo
-          image: hephaestusmetrics/business-demo:latest
+          image: sglomski/business-demo:latest
           env:
           - name: pod
             valueFrom:

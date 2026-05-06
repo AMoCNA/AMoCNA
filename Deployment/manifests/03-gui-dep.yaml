@@ -15,10 +15,10 @@ spec:
     spec:
       containers:
         - name: hephaestus-gui
-          image: hephaestusmetrics/gui:latest
+          image: sglomski/gui:latest
           env:
           - name: prometheus.address
-            value: prometheus.monitoring:9090
+            value: prometheus-kube-prometheus-prometheus.monitoring:9090
           - name: saved.path
             value: /../storage/metrics/savedMetrics/metrics.json
           - name: config.path
