@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.kubiki.palamedes.grpc";
+option java_outer_classname = "PalamedesProto";
+
+package palamedes;
+
+service ReasonerService {
+  rpc TriggerUpdate (ResourceUpdate) returns (TriggerResponse);
+}
+
+message ResourceUpdate {
+  string resource_id = 1;
+  string status = 2;
+  string ontology_type = 3; // e.g., cnee:Pod
+}
+
+message TriggerResponse {
+  bool accepted = 1;
+  string tracking_id = 2;
+}

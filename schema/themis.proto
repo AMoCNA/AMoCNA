@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.kubiki.themis.grpc";
+option java_outer_classname = "ThemisProto";
+
+package themis;
+
+service ActionService {
+  rpc GetExecutableActions (ResourceRequest) returns (ActionList);
+  rpc ValidatePreconditions (ActionRequest) returns (ValidationResponse);
+  rpc ExecuteRemediation (ActionRequest) returns (stream ExecutionStatus);
+}
+
+message ResourceRequest {
+  string resource_id = 1;
+}
+
+message ActionRequest {
+  string action_id = 1;
+  string target_id = 2;
+}
+
+message ActionList {
+  repeated Action actions = 1;
+}
+
+message Action {
+  string id = 1;
+  string type = 2; // SimpleAction or ComplexWorkflow
+  string functional_intent = 3;
+}
+
+message ValidationResponse {
+  bool valid = 1;
+  string message = 2;
+}
+
+message ExecutionStatus {
+  string step = 1;
+  string state = 2; // IN_PROGRESS, SUCCESS, FAILED, COMPENSATING, REVERTED
+  string message = 3;
+}
