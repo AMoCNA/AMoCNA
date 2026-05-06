@@ -146,6 +146,24 @@
         <DataProperty IRI="#hasActionID"/>
     </Declaration>
     <Declaration>
+        <DataProperty IRI="#hasAuthMechanism"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty IRI="#hasExecutionInstruction"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty IRI="#hasExecutionPayload"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty IRI="#hasExecutionProtocol"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty IRI="#hasExpectedStatusCode"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty IRI="#hasHttpMethod"/>
+    </Declaration>
+    <Declaration>
         <DataProperty IRI="#isIdempotent"/>
     </Declaration>
     <Declaration>
@@ -297,6 +315,34 @@
     <SubClassOf>
         <Class IRI="#SimpleAction"/>
         <DataExactCardinality cardinality="1">
+            <DataProperty IRI="#hasAuthMechanism"/>
+            <Datatype abbreviatedIRI="xsd:string"/>
+        </DataExactCardinality>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#SimpleAction"/>
+        <DataExactCardinality cardinality="1">
+            <DataProperty IRI="#hasExecutionInstruction"/>
+            <Datatype abbreviatedIRI="xsd:string"/>
+        </DataExactCardinality>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#SimpleAction"/>
+        <DataExactCardinality cardinality="1">
+            <DataProperty IRI="#hasExecutionProtocol"/>
+            <Datatype abbreviatedIRI="xsd:string"/>
+        </DataExactCardinality>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#SimpleAction"/>
+        <DataExactCardinality cardinality="1">
+            <DataProperty IRI="#hasExpectedStatusCode"/>
+            <Datatype abbreviatedIRI="xsd:int"/>
+        </DataExactCardinality>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#SimpleAction"/>
+        <DataExactCardinality cardinality="1">
             <DataProperty IRI="#isIdempotent"/>
             <Datatype abbreviatedIRI="xsd:boolean"/>
         </DataExactCardinality>
@@ -307,6 +353,20 @@
             <DataProperty IRI="#maxRetries"/>
             <Datatype abbreviatedIRI="xsd:int"/>
         </DataExactCardinality>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#SimpleAction"/>
+        <DataMaxCardinality cardinality="1">
+            <DataProperty IRI="#hasExecutionPayload"/>
+            <Datatype abbreviatedIRI="xsd:string"/>
+        </DataMaxCardinality>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#SimpleAction"/>
+        <DataMaxCardinality cardinality="1">
+            <DataProperty IRI="#hasHttpMethod"/>
+            <Datatype abbreviatedIRI="xsd:string"/>
+        </DataMaxCardinality>
     </SubClassOf>
     <SubClassOf>
         <Class IRI="#StartAction"/>
@@ -519,6 +579,30 @@
         <Class IRI="#AutonomicAction"/>
     </DataPropertyDomain>
     <DataPropertyDomain>
+        <DataProperty IRI="#hasAuthMechanism"/>
+        <Class IRI="#SimpleAction"/>
+    </DataPropertyDomain>
+    <DataPropertyDomain>
+        <DataProperty IRI="#hasExecutionInstruction"/>
+        <Class IRI="#SimpleAction"/>
+    </DataPropertyDomain>
+    <DataPropertyDomain>
+        <DataProperty IRI="#hasExecutionPayload"/>
+        <Class IRI="#SimpleAction"/>
+    </DataPropertyDomain>
+    <DataPropertyDomain>
+        <DataProperty IRI="#hasExecutionProtocol"/>
+        <Class IRI="#SimpleAction"/>
+    </DataPropertyDomain>
+    <DataPropertyDomain>
+        <DataProperty IRI="#hasExpectedStatusCode"/>
+        <Class IRI="#SimpleAction"/>
+    </DataPropertyDomain>
+    <DataPropertyDomain>
+        <DataProperty IRI="#hasHttpMethod"/>
+        <Class IRI="#SimpleAction"/>
+    </DataPropertyDomain>
+    <DataPropertyDomain>
         <DataProperty IRI="#isIdempotent"/>
         <Class IRI="#SimpleAction"/>
     </DataPropertyDomain>
@@ -540,6 +624,30 @@
     </DataPropertyRange>
     <DataPropertyRange>
         <DataProperty IRI="#hasActionID"/>
+        <Datatype abbreviatedIRI="xsd:string"/>
+    </DataPropertyRange>
+    <DataPropertyRange>
+        <DataProperty IRI="#hasAuthMechanism"/>
+        <Datatype abbreviatedIRI="xsd:string"/>
+    </DataPropertyRange>
+    <DataPropertyRange>
+        <DataProperty IRI="#hasExecutionInstruction"/>
+        <Datatype abbreviatedIRI="xsd:string"/>
+    </DataPropertyRange>
+    <DataPropertyRange>
+        <DataProperty IRI="#hasExecutionPayload"/>
+        <Datatype abbreviatedIRI="xsd:string"/>
+    </DataPropertyRange>
+    <DataPropertyRange>
+        <DataProperty IRI="#hasExecutionProtocol"/>
+        <Datatype abbreviatedIRI="xsd:string"/>
+    </DataPropertyRange>
+    <DataPropertyRange>
+        <DataProperty IRI="#hasExpectedStatusCode"/>
+        <Datatype abbreviatedIRI="xsd:int"/>
+    </DataPropertyRange>
+    <DataPropertyRange>
+        <DataProperty IRI="#hasHttpMethod"/>
         <Datatype abbreviatedIRI="xsd:string"/>
     </DataPropertyRange>
     <DataPropertyRange>
