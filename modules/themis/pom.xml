@@ -111,6 +111,7 @@
 					<protocArtifact>com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}</protocArtifact>
 					<pluginId>grpc-java</pluginId>
 					<pluginArtifact>io.grpc:protoc-gen-grpc-java:${grpc-java.version}:exe:${os.detected.classifier}</pluginArtifact>
+					<protoSourceRoot>../../schema</protoSourceRoot>
 				</configuration>
 				<executions>
 					<execution>
