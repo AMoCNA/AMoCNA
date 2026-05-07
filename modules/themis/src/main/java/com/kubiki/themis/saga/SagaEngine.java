@@ -1,52 +1,84 @@
 package com.kubiki.themis.saga;
 
-import com.kubiki.themis.execution.ProtocolExecutor;
+import com.kubiki.themis.execution.ActionDispatcher;
+import com.kubiki.themis.knowledge.GraphDBGateway;
 import com.kubiki.themis.model.ActionData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.ArrayList;
-import java.util.List;
+import org.springframework.stereotype.Service;
+
+import java.util.Stack;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
+@Service
 public class SagaEngine {
-    private static final Logger logger = LoggerFactory.getLogger(SagaEngine.class);
-    private final List<Step> steps = new ArrayList<>();
+    private static final Logger log = LoggerFactory.getLogger(SagaEngine.class);
+    private final GraphDBGateway gateway;
+    private final ExecutorService executor;
 
-    public record Step(String name, ProtocolExecutor executor, ActionData.SimpleAction action, UUID executionId) {}
-
-    public void addStep(Step step) {
-        steps.add(step);
+    public SagaEngine(GraphDBGateway gateway) {
+        this.gateway = gateway;
+        this.executor = Executors.newVirtualThreadPerTaskExecutor();
     }
 
-    public boolean run() {
-        List<Step> executedSteps = new ArrayList<>();
-        try {
-            for (Step step : steps) {
-                logger.info("Executing step: {} (Protocol: {})", step.name(), step.executor().getSupportedProtocol());
-                if (step.executor().execute(step.action(), step.executionId())) {
-                    executedSteps.add(step);
+    public boolean execute(ActionData action, UUID executionId, ActionDispatcher dispatcher) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                return executeInternal(action, executionId, dispatcher);
+            } catch (Exception e) {
+                log.error("Saga execution failed exceptionally", e);
+                return false;
+            }
+        }, executor).join();
+    }
+
+    private boolean executeInternal(ActionData action, UUID executionId, ActionDispatcher dispatcher) {
+        gateway.updateActionState(action.id(), "IN_PROGRESS");
+
+        if (action instanceof ActionData.SimpleAction simple) {
+            boolean success = dispatcher.dispatchSimple(simple, executionId);
+            gateway.updateActionState(action.id(), success ? "SUCCESS" : "FAILED");
+            return success;
+        } else if (action instanceof ActionData.ComplexWorkflow workflow) {
+            Stack<ActionData> executedSteps = new Stack<>();
+
+            for (ActionData step : workflow.steps()) {
+                boolean stepSuccess = executeInternal(step, executionId, dispatcher);
+
+                if (stepSuccess) {
+                    executedSteps.push(step);
                 } else {
-                    throw new RuntimeException("Failure at step: " + step.name());
+                    log.warn("Workflow {} failed at step {}", workflow.id(), step.id());
+                    gateway.updateActionState(workflow.id(), "FAILED");
+                    compensate(executedSteps, workflow, executionId, dispatcher);
+                    return false;
                 }
             }
-            logger.info("Saga executed successfully");
+
+            gateway.updateActionState(workflow.id(), "SUCCESS");
             return true;
-        } catch (Exception e) {
-            logger.error("Saga failed: {}. Starting compensation...", e.getMessage());
-            compensate(executedSteps);
-            return false;
         }
+        return false;
     }
 
-    private void compensate(List<Step> executedSteps) {
-        // Compensate in reverse order
-        for (int i = executedSteps.size() - 1; i >= 0; i--) {
-            Step step = executedSteps.get(i);
-            logger.info("Compensating step: {}", step.name());
-            try {
-                step.executor().compensate(step.action(), step.executionId());
-            } catch (Exception e) {
-                logger.error("Compensation failed for step: {}", step.name(), e);
+    private void compensate(Stack<ActionData> executedSteps, ActionData.ComplexWorkflow workflow, UUID executionId, ActionDispatcher dispatcher) {
+        log.info("Starting compensation for workflow {}", workflow.id());
+        while (!executedSteps.isEmpty()) {
+            ActionData step = executedSteps.pop();
+            ActionData compensation = workflow.compensations().get(step.id());
+
+            if (compensation != null) {
+                log.info("Executing compensation {} for step {}", compensation.id(), step.id());
+                boolean compSuccess = executeInternal(compensation, executionId, dispatcher);
+                if (!compSuccess) {
+                    log.error("CRITICAL: Compensation {} failed for step {}!", compensation.id(), step.id());
+                    // In a real system we might alert ops, retry, etc.
+                }
+            } else {
+                log.debug("No compensation defined for step {}", step.id());
             }
         }
     }

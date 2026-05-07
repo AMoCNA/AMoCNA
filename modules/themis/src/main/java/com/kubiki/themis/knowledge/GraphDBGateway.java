@@ -5,6 +5,10 @@ import com.kubiki.themis.model.ActionData;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.http.HTTPRepository;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.slf4j.Logger;
@@ -30,18 +34,46 @@ public class GraphDBGateway {
 
     @PostConstruct
     public void init() {
-        this.repository.init();
+        getRepository().init();
     }
 
-    public List<ActionData> findActionsForResource(String resourceId) {
+    protected Repository getRepository() {
+        return repository;
+    }
+
+    public void updateActionState(String actionId, String state) {
+        ValueFactory vf = getRepository().getValueFactory();
+        IRI actionIri = vf.createIRI(actionId);
+        IRI hasExecutionStatus = vf.createIRI(moaNamespace + "hasExecutionStatus");
+        Literal stateLiteral = vf.createLiteral(state);
+
+        try (RepositoryConnection conn = getRepository().getConnection()) {
+            conn.begin();
+            // Remove existing status if any
+            conn.remove(actionIri, hasExecutionStatus, null);
+            // Add new status
+            conn.add(actionIri, hasExecutionStatus, stateLiteral);
+            
+            // Also update hasCurrentState if it's a ComplexWorkflow
+            // For now, let's just update the status string as requested
+            // In a real Petri Net, hasCurrentState would point to a Place individual
+            
+            conn.commit();
+            log.info("Updated action {} state to {}", actionId, state);
+        } catch (Exception e) {
+            log.error("Failed to update action state: {}", e.getMessage());
+            throw new RuntimeException("Persistence failure", e);
+        }
+    }
+
+    public ActionData fetchActionStructure(String actionId) {
         String sparql = "PREFIX moa: <" + moaNamespace + "> " +
                 "SELECT ?action ?intent ?target ?protocol ?instruction ?method ?payload " +
                 "       ?preId ?preType ?prePolicy " +
-                "       ?postId ?postType ?postPolicy WHERE { " +
-                "  ?action moa:targetsEntity <" + resourceId + "> . " +
-                "  ?action a moa:AutonomicAction . " +
+                "       ?postId ?postType ?postPolicy " +
+                "       ?step ?compensation WHERE { " +
                 "  ?action a ?intent . " +
-                "  ?action moa:targetsEntity ?target . " +
+                "  OPTIONAL { ?action moa:targetsEntity ?target } . " +
                 "  OPTIONAL { ?action moa:executionProtocol ?protocol } . " +
                 "  OPTIONAL { ?action moa:executionInstruction ?instruction } . " +
                 "  OPTIONAL { ?action moa:httpMethod ?method } . " +
@@ -55,6 +87,59 @@ public class GraphDBGateway {
                 "    ?action moa:hasPostCondition ?postId . " +
                 "    ?postId a ?postType . " +
                 "    ?postId moa:policyQueryString ?postPolicy . " +
+                "  } . " +
+                "  OPTIONAL { " +
+                "    ?action moa:isDecomposedInto ?step . " +
+                "    OPTIONAL { ?step moa:hasCompensation ?compensation } . " +
+                "  } . " +
+                "  FILTER(?intent != moa:AutonomicAction && ?intent != moa:SimpleAction) " +
+                "}";
+
+        java.util.Map<String, List<org.eclipse.rdf4j.query.BindingSet>> allBindings = new java.util.LinkedHashMap<>();
+        try (org.eclipse.rdf4j.repository.RepositoryConnection conn = repository.getConnection()) {
+            org.eclipse.rdf4j.query.TupleQuery query = conn.prepareTupleQuery(sparql);
+            try (org.eclipse.rdf4j.query.TupleQueryResult result = query.evaluate()) {
+                while (result.hasNext()) {
+                    org.eclipse.rdf4j.query.BindingSet bs = result.next();
+                    String id = bs.getValue("action").stringValue();
+                    allBindings.computeIfAbsent(id, k -> new ArrayList<>()).add(bs);
+                }
+            }
+        } catch (Exception e) {
+            log.error("Failed to fetch action structure", e);
+            return null;
+        }
+
+        return moaMapper.mapAction(actionId, allBindings);
+    }
+
+    public List<ActionData> findActionsForResource(String resourceId) {
+        String sparql = "PREFIX moa: <" + moaNamespace + "> " +
+                "SELECT ?action ?intent ?target ?protocol ?instruction ?method ?payload " +
+                "       ?preId ?preType ?prePolicy " +
+                "       ?postId ?postType ?postPolicy " +
+                "       ?step ?compensation WHERE { " +
+                "  ?action moa:targetsEntity <" + resourceId + "> . " +
+                "  ?action a moa:AutonomicAction . " +
+                "  ?action a ?intent . " +
+                "  OPTIONAL { ?action moa:targetsEntity ?target } . " +
+                "  OPTIONAL { ?action moa:executionProtocol ?protocol } . " +
+                "  OPTIONAL { ?action moa:executionInstruction ?instruction } . " +
+                "  OPTIONAL { ?action moa:httpMethod ?method } . " +
+                "  OPTIONAL { ?action moa:httpPayload ?payload } . " +
+                "  OPTIONAL { " +
+                "    ?action moa:hasPreCondition ?preId . " +
+                "    ?preId a ?preType . " +
+                "    ?preId moa:policyQueryString ?prePolicy . " +
+                "  } . " +
+                "  OPTIONAL { " +
+                "    ?action moa:hasPostCondition ?postId . " +
+                "    ?postId a ?postType . " +
+                "    ?postId moa:policyQueryString ?postPolicy . " +
+                "  } . " +
+                "  OPTIONAL { " +
+                "    ?action moa:isDecomposedInto ?step . " +
+                "    OPTIONAL { ?step moa:hasCompensation ?compensation } . " +
                 "  } . " +
                 "  FILTER(?intent != moa:AutonomicAction && ?intent != moa:SimpleAction) " +
                 "}";
@@ -75,8 +160,8 @@ public class GraphDBGateway {
         }
 
         List<ActionData> actions = new ArrayList<>();
-        for (List<org.eclipse.rdf4j.query.BindingSet> group : grouped.values()) {
-            actions.add(moaMapper.mapSimpleActionGroup(group));
+        for (String actionId : grouped.keySet()) {
+            actions.add(moaMapper.mapAction(actionId, grouped));
         }
         return actions;
     }

@@ -7,42 +7,46 @@ import org.eclipse.rdf4j.query.impl.MapBindingSet;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 class MoaMapperTest {
+
     @Test
-    void shouldMapGroupedBindingsToSimpleActionWithConditions() {
+    void mapsComplexWorkflowWithStepsAndCompensations() {
         MoaMapper mapper = new MoaMapper();
         SimpleValueFactory vf = SimpleValueFactory.getInstance();
-        
-        MapBindingSet bs1 = new MapBindingSet();
-        bs1.addBinding("action", vf.createIRI("http://test/action1"));
-        bs1.addBinding("intent", vf.createIRI("http://test/Intent"));
-        bs1.addBinding("target", vf.createIRI("http://test/target"));
-        bs1.addBinding("preId", vf.createIRI("http://test/pre1"));
-        bs1.addBinding("preType", vf.createIRI("http://test/PreType"));
-        bs1.addBinding("prePolicy", vf.createLiteral("ASK { ?s ?p ?o }"));
-        
-        MapBindingSet bs2 = new MapBindingSet();
-        bs2.addBinding("action", vf.createIRI("http://test/action1"));
-        bs2.addBinding("intent", vf.createIRI("http://test/Intent"));
-        bs2.addBinding("target", vf.createIRI("http://test/target"));
-        bs2.addBinding("postId", vf.createIRI("http://test/post1"));
-        bs2.addBinding("postType", vf.createIRI("http://test/PostType"));
-        bs2.addBinding("postPolicy", vf.createLiteral("ASK { ?a ?b ?c }"));
 
-        ActionData.SimpleAction result = mapper.mapSimpleActionGroup(List.of(bs1, bs2));
+        MapBindingSet mainAction = new MapBindingSet();
+        mainAction.addBinding("action", vf.createIRI("http://moa#complex1"));
+        mainAction.addBinding("intent", vf.createIRI("http://moa#ComplexWorkflow"));
+        mainAction.addBinding("step", vf.createIRI("http://moa#step1"));
+        mainAction.addBinding("compensation", vf.createIRI("http://moa#comp1"));
 
-        assertEquals("http://test/action1", result.id());
-        assertEquals(1, result.preConditions().size());
-        assertEquals("http://test/pre1", result.preConditions().get(0).id());
-        assertEquals("http://test/PreType", result.preConditions().get(0).type());
-        assertEquals("ASK { ?s ?p ?o }", result.preConditions().get(0).policy());
-        
-        assertEquals(1, result.postConditions().size());
-        assertEquals("http://test/post1", result.postConditions().get(0).id());
-        assertEquals("http://test/PostType", result.postConditions().get(0).type());
-        assertEquals("ASK { ?a ?b ?c }", result.postConditions().get(0).policy());
+        MapBindingSet stepAction = new MapBindingSet();
+        stepAction.addBinding("action", vf.createIRI("http://moa#step1"));
+        stepAction.addBinding("intent", vf.createIRI("http://moa#SimpleAction"));
+        stepAction.addBinding("target", vf.createIRI("http://target1"));
+
+        MapBindingSet compAction = new MapBindingSet();
+        compAction.addBinding("action", vf.createIRI("http://moa#comp1"));
+        compAction.addBinding("intent", vf.createIRI("http://moa#SimpleAction"));
+        compAction.addBinding("target", vf.createIRI("http://target1"));
+
+        Map<String, List<BindingSet>> allBindings = Map.of(
+                "http://moa#complex1", List.of(mainAction),
+                "http://moa#step1", List.of(stepAction),
+                "http://moa#comp1", List.of(compAction)
+        );
+
+        ActionData result = mapper.mapAction("http://moa#complex1", allBindings);
+
+        assertInstanceOf(ActionData.ComplexWorkflow.class, result);
+        ActionData.ComplexWorkflow workflow = (ActionData.ComplexWorkflow) result;
+        assertEquals(1, workflow.steps().size());
+        assertEquals("http://moa#step1", workflow.steps().get(0).id());
+        assertTrue(workflow.compensations().containsKey("http://moa#step1"));
+        assertEquals("http://moa#comp1", workflow.compensations().get("http://moa#step1").id());
     }
 }

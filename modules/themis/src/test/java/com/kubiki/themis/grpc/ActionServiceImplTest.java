@@ -49,7 +49,7 @@ class ActionServiceImplTest {
         // Given
         String resourceId = "worker-1";
         ResourceRequest request = ResourceRequest.newBuilder().setResourceId(resourceId).build();
-        ActionData.SimpleAction mockAction = new ActionData.SimpleAction("action-1", "DeletePod", "REST", "http://mgmt", "pod-1", Map.of());
+        ActionData.SimpleAction mockAction = new ActionData.SimpleAction("action-1", "DeletePod", "REST", "http://mgmt", "pod-1", Map.of(), "GET", null, List.of(), List.of());
         when(graphDBGateway.findActionsForResource(resourceId)).thenReturn(List.of(mockAction));
 
         // When

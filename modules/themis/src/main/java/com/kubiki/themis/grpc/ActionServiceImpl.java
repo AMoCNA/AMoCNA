@@ -57,20 +57,16 @@ public class ActionServiceImpl extends ActionServiceGrpc.ActionServiceImplBase {
         // Generate UUID for this specific execution instance
         UUID executionId = UUID.randomUUID();
         
-        // In a full implementation, we fetch the Ground Truth from GraphDB for the specific ActionID
+        // Fetch the Ground Truth from GraphDB for the specific ActionID
         // This includes retrieving the protocol (REST/SHELL) and the instruction (URL template/script)
-        ActionData groundTruthAction = new ActionData.SimpleAction(
-            request.getActionId(),
-            "DeletePodAction", // Intent
-            "REST",            // Protocol from GraphDB
-            "http://localhost:8080/kubernetes/management/pod/delete?namespace={ns}&podName={pod}", // Ground Truth Instruction
-            request.getTargetId(),
-            Map.of("ns", "default", "pod", "my-pod"), // Parameters from GraphDB/Resource
-            "GET",
-            null,
-            List.of(),
-            List.of()
-        );
+        ActionData groundTruthAction = graphDBGateway.fetchActionStructure(request.getActionId());
+
+        if (groundTruthAction == null) {
+            responseObserver.onError(io.grpc.Status.NOT_FOUND
+                .withDescription("Action structure not found in Knowledge Base: " + request.getActionId())
+                .asRuntimeException());
+            return;
+        }
 
         responseObserver.onNext(ExecutionStatus.newBuilder()
                 .setStep(request.getActionId())

@@ -7,9 +7,6 @@ import java.util.UUID;
  * Generic interface for protocol-specific execution.
  */
 public interface ProtocolExecutor {
-  boolean execute(ActionData.SimpleAction action, UUID executionId);
-
-  boolean compensate(ActionData.SimpleAction action, UUID executionId);
-
-  String getSupportedProtocol();
+    boolean supports(String protocol);
+    boolean execute(ActionData action, UUID executionId);
 }

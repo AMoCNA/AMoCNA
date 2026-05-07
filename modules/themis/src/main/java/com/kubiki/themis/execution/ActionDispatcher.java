@@ -2,46 +2,79 @@ package com.kubiki.themis.execution;
 
 import com.kubiki.themis.model.ActionData;
 import com.kubiki.themis.saga.SagaEngine;
+import com.kubiki.themis.condition.ConditionEvaluator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Service
 public class ActionDispatcher {
-    private final Map<String, ProtocolExecutor> protocolExecutors;
+    private static final Logger log = LoggerFactory.getLogger(ActionDispatcher.class);
+    private final List<ProtocolExecutor> executors;
+    private final List<ConditionEvaluator> evaluators;
+    private final SagaEngine sagaEngine;
 
-    public ActionDispatcher(List<ProtocolExecutor> executors) {
-        this.protocolExecutors = executors.stream()
-            .collect(Collectors.toMap(ProtocolExecutor::getSupportedProtocol, Function.identity()));
+    public ActionDispatcher(List<ProtocolExecutor> executors, List<ConditionEvaluator> evaluators, SagaEngine sagaEngine) {
+        this.executors = executors;
+        this.evaluators = evaluators;
+        this.sagaEngine = sagaEngine;
     }
 
     public boolean dispatch(ActionData action, UUID executionId) {
-        return switch (action) {
-            case ActionData.SimpleAction s -> executeSimple(s, executionId);
-            case ActionData.ComplexWorkflow c -> executeWorkflow(c, executionId);
-        };
+        log.info("Dispatching action {} for execution {}", action.id(), executionId);
+        return sagaEngine.execute(action, executionId, this);
     }
 
-    private boolean executeSimple(ActionData.SimpleAction action, UUID executionId) {
-        ProtocolExecutor executor = protocolExecutors.get(action.protocol());
-        if (executor == null) {
-            System.err.println("Unsupported protocol: " + action.protocol());
-            return false;
+    private boolean evaluateConditions(List<ActionData.ConditionData> conditions) {
+        if (conditions == null || conditions.isEmpty()) {
+            return true;
         }
-        return executor.execute(action, executionId);
-    }
+        for (ActionData.ConditionData condition : conditions) {
+            ConditionEvaluator evaluator = evaluators.stream()
+                    .filter(e -> e.supports(condition.type()))
+                    .findFirst()
+                    .orElse(null);
 
-    private boolean executeWorkflow(ActionData.ComplexWorkflow workflow, UUID executionId) {
-        SagaEngine saga = new SagaEngine();
-        for (ActionData step : workflow.steps()) {
-            if (step instanceof ActionData.SimpleAction s) {
-                ProtocolExecutor executor = protocolExecutors.get(s.protocol());
-                saga.addStep(new SagaEngine.Step(s.id(), executor, s, executionId));
+            if (evaluator == null) {
+                log.warn("No evaluator found for condition type: {}. Failing condition.", condition.type());
+                return false;
+            }
+
+            if (!evaluator.evaluate(condition)) {
+                log.info("Condition {} failed evaluation.", condition.id());
+                return false;
             }
         }
-        return saga.run();
+        return true;
+    }
+
+    public boolean dispatchSimple(ActionData.SimpleAction action, UUID executionId) {
+        if (!evaluateConditions(action.preConditions())) {
+            log.warn("Pre-conditions failed for action {}", action.id());
+            return false;
+        }
+
+        ProtocolExecutor executor = executors.stream()
+            .filter(e -> e.supports(action.protocol()))
+            .findFirst()
+            .orElse(null);
+
+        if (executor == null) {
+            log.error("No executor found for protocol: {}", action.protocol());
+            return false;
+        }
+
+        boolean executionSuccess = executor.execute(action, executionId);
+
+        if (executionSuccess) {
+            if (!evaluateConditions(action.postConditions())) {
+                log.warn("Post-conditions failed for action {}", action.id());
+                return false;
+            }
+        }
+
+        return executionSuccess;
     }
 }

@@ -11,6 +11,44 @@ import java.util.Map;
 
 @Component
 public class MoaMapper {
+
+    public ActionData mapAction(String actionId, Map<String, List<BindingSet>> allBindings) {
+        List<BindingSet> bindings = allBindings.get(actionId);
+        if (bindings == null || bindings.isEmpty()) return null;
+
+        BindingSet first = bindings.get(0);
+        String intent = first.getValue("intent").stringValue();
+
+        if (intent.endsWith("ComplexWorkflow")) {
+            List<ActionData> steps = new ArrayList<>();
+            Map<String, ActionData> compensations = new HashMap<>();
+
+            for (BindingSet bs : bindings) {
+                if (bs.hasBinding("step")) {
+                    String stepId = bs.getValue("step").stringValue();
+                    // Avoid infinite loops
+                    if (!stepId.equals(actionId)) {
+                        ActionData stepData = mapAction(stepId, allBindings);
+                        if (stepData != null && !steps.contains(stepData)) {
+                            steps.add(stepData);
+                        }
+
+                        if (bs.hasBinding("compensation")) {
+                            String compId = bs.getValue("compensation").stringValue();
+                            ActionData compData = mapAction(compId, allBindings);
+                            if (compData != null) {
+                                compensations.put(stepId, compData);
+                            }
+                        }
+                    }
+                }
+            }
+            return new ActionData.ComplexWorkflow(actionId, intent, steps, compensations);
+        } else {
+            return mapSimpleActionGroup(bindings); // keep existing logic for SimpleAction
+        }
+    }
+
     public ActionData.SimpleAction mapSimpleAction(BindingSet bindings) {
         return mapSimpleActionGroup(List.of(bindings));
     }
