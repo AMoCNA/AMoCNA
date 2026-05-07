@@ -14,7 +14,11 @@ public class MoaMapper {
             bindings.hasBinding("protocol") ? bindings.getValue("protocol").stringValue() : "REST",
             bindings.hasBinding("instruction") ? bindings.getValue("instruction").stringValue() : "http://localhost:8080/mgmt?target={target}",
             bindings.getValue("target").stringValue(),
-            new java.util.HashMap<>()
+            new java.util.HashMap<>(),
+            bindings.hasBinding("method") ? bindings.getValue("method").stringValue() : null,
+            bindings.hasBinding("payload") ? bindings.getValue("payload").stringValue() : null,
+            java.util.List.of(),
+            java.util.List.of()
         );
     }
 }

@@ -10,13 +10,19 @@ public sealed interface ActionData
     String id();
     String functionalIntent();
 
+    record ConditionData(String id, String type, String policy) {}
+
     record SimpleAction(
         String id,                // GraphDB Individual IRI
         String functionalIntent,  // MoA Class (e.g. RestartAction)
         String protocol,          // REST, SHELL, gRPC
         String instruction,       // URL Template or script
         String targetIri,         // Resource individual
-        Map<String, String> data  // Ground Truth parameters
+        Map<String, String> data, // Ground Truth parameters
+        String method,            // HTTP Method, e.g. GET, POST
+        String payload,           // Optional payload for POST/PUT
+        List<ConditionData> preConditions,
+        List<ConditionData> postConditions
     ) implements ActionData {}
 
     record ComplexWorkflow(

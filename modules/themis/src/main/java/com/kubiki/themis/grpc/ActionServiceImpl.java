@@ -65,7 +65,11 @@ public class ActionServiceImpl extends ActionServiceGrpc.ActionServiceImplBase {
             "REST",            // Protocol from GraphDB
             "http://localhost:8080/kubernetes/management/pod/delete?namespace={ns}&podName={pod}", // Ground Truth Instruction
             request.getTargetId(),
-            Map.of("ns", "default", "pod", "my-pod") // Parameters from GraphDB/Resource
+            Map.of("ns", "default", "pod", "my-pod"), // Parameters from GraphDB/Resource
+            "GET",
+            null,
+            List.of(),
+            List.of()
         );
 
         responseObserver.onNext(ExecutionStatus.newBuilder()
