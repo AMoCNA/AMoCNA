@@ -1,6 +1,8 @@
 package com.kubiki.themis.condition.impl;
 
 import com.kubiki.themis.condition.ConditionEvaluator;
+import com.kubiki.themis.config.ThemisProperties;
+import com.kubiki.themis.constants.OntologyConstants;
 import com.kubiki.themis.knowledge.GraphDBGateway;
 import com.kubiki.themis.model.ActionData;
 import org.springframework.stereotype.Component;
@@ -8,15 +10,17 @@ import org.springframework.stereotype.Component;
 @Component
 public class SparqlConditionEvaluator implements ConditionEvaluator {
     private final GraphDBGateway graphDBGateway;
-    private static final String STATE_BASED_CONDITION = "http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#StateBasedCondition";
+    private final ThemisProperties properties;
 
-    public SparqlConditionEvaluator(GraphDBGateway graphDBGateway) {
+    public SparqlConditionEvaluator(GraphDBGateway graphDBGateway, ThemisProperties properties) {
         this.graphDBGateway = graphDBGateway;
+        this.properties = properties;
     }
 
     @Override
     public boolean supports(String conditionType) {
-        return STATE_BASED_CONDITION.equals(conditionType);
+        String stateBasedCondition = properties.ontology().moaNamespace() + OntologyConstants.CLASS_STATE_BASED_CONDITION;
+        return stateBasedCondition.equals(conditionType);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.kubiki.themis.saga;
 
+import com.kubiki.themis.constants.SagaConstants;
 import com.kubiki.themis.execution.ActionDispatcher;
 import com.kubiki.themis.knowledge.GraphDBGateway;
 import com.kubiki.themis.model.ActionData;
@@ -36,11 +37,11 @@ public class SagaEngine {
     }
 
     private boolean executeInternal(ActionData action, UUID executionId, ActionDispatcher dispatcher) {
-        gateway.updateActionState(action.id(), "IN_PROGRESS");
+        gateway.updateActionState(action.id(), SagaConstants.STATE_IN_PROGRESS);
 
         if (action instanceof ActionData.SimpleAction simple) {
             boolean success = dispatcher.dispatchSimple(simple, executionId);
-            gateway.updateActionState(action.id(), success ? "SUCCESS" : "FAILED");
+            gateway.updateActionState(action.id(), success ? SagaConstants.STATE_SUCCESS : SagaConstants.STATE_FAILED);
             return success;
         } else if (action instanceof ActionData.ComplexWorkflow workflow) {
             Stack<ActionData> executedSteps = new Stack<>();
@@ -52,13 +53,13 @@ public class SagaEngine {
                     executedSteps.push(step);
                 } else {
                     log.warn("Workflow {} failed at step {}", workflow.id(), step.id());
-                    gateway.updateActionState(workflow.id(), "FAILED");
+                    gateway.updateActionState(workflow.id(), SagaConstants.STATE_FAILED);
                     compensate(executedSteps, workflow, executionId, dispatcher);
                     return false;
                 }
             }
 
-            gateway.updateActionState(workflow.id(), "SUCCESS");
+            gateway.updateActionState(workflow.id(), SagaConstants.STATE_SUCCESS);
             return true;
         }
         return false;

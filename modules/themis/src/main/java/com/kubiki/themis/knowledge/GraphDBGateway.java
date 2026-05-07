@@ -1,6 +1,7 @@
 package com.kubiki.themis.knowledge;
 
 import com.kubiki.themis.config.ThemisProperties;
+import com.kubiki.themis.constants.OntologyConstants;
 import com.kubiki.themis.model.ActionData;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
@@ -44,7 +45,7 @@ public class GraphDBGateway {
     public void updateActionState(String actionId, String state) {
         ValueFactory vf = getRepository().getValueFactory();
         IRI actionIri = vf.createIRI(actionId);
-        IRI hasExecutionStatus = vf.createIRI(moaNamespace + "hasExecutionStatus");
+        IRI hasExecutionStatus = vf.createIRI(moaNamespace + OntologyConstants.PROP_HAS_EXECUTION_STATUS);
         Literal stateLiteral = vf.createLiteral(state);
 
         try (RepositoryConnection conn = getRepository().getConnection()) {
@@ -73,26 +74,26 @@ public class GraphDBGateway {
                 "       ?postId ?postType ?postPolicy " +
                 "       ?step ?compensation WHERE { " +
                 "  ?action a ?intent . " +
-                "  OPTIONAL { ?action moa:targetsEntity ?target } . " +
-                "  OPTIONAL { ?action moa:executionProtocol ?protocol } . " +
-                "  OPTIONAL { ?action moa:executionInstruction ?instruction } . " +
-                "  OPTIONAL { ?action moa:httpMethod ?method } . " +
-                "  OPTIONAL { ?action moa:httpPayload ?payload } . " +
+                "  OPTIONAL { ?action moa:" + OntologyConstants.PROP_TARGETS_ENTITY + " ?target } . " +
+                "  OPTIONAL { ?action moa:" + OntologyConstants.PROP_EXECUTION_PROTOCOL + " ?protocol } . " +
+                "  OPTIONAL { ?action moa:" + OntologyConstants.PROP_EXECUTION_INSTRUCTION + " ?instruction } . " +
+                "  OPTIONAL { ?action moa:" + OntologyConstants.PROP_HTTP_METHOD + " ?method } . " +
+                "  OPTIONAL { ?action moa:" + OntologyConstants.PROP_HTTP_PAYLOAD + " ?payload } . " +
                 "  OPTIONAL { " +
-                "    ?action moa:hasPreCondition ?preId . " +
+                "    ?action moa:" + OntologyConstants.PROP_HAS_PRE_CONDITION + " ?preId . " +
                 "    ?preId a ?preType . " +
-                "    ?preId moa:policyQueryString ?prePolicy . " +
+                "    ?preId moa:" + OntologyConstants.PROP_POLICY_QUERY_STRING + " ?prePolicy . " +
                 "  } . " +
                 "  OPTIONAL { " +
-                "    ?action moa:hasPostCondition ?postId . " +
+                "    ?action moa:" + OntologyConstants.PROP_HAS_POST_CONDITION + " ?postId . " +
                 "    ?postId a ?postType . " +
-                "    ?postId moa:policyQueryString ?postPolicy . " +
+                "    ?postId moa:" + OntologyConstants.PROP_POLICY_QUERY_STRING + " ?postPolicy . " +
                 "  } . " +
                 "  OPTIONAL { " +
-                "    ?action moa:isDecomposedInto ?step . " +
-                "    OPTIONAL { ?step moa:hasCompensation ?compensation } . " +
+                "    ?action moa:" + OntologyConstants.PROP_IS_DECOMPOSED_INTO + " ?step . " +
+                "    OPTIONAL { ?step moa:" + OntologyConstants.PROP_HAS_COMPENSATION + " ?compensation } . " +
                 "  } . " +
-                "  FILTER(?intent != moa:AutonomicAction && ?intent != moa:SimpleAction) " +
+                "  FILTER(?intent != moa:" + OntologyConstants.CLASS_AUTONOMIC_ACTION + " && ?intent != moa:" + OntologyConstants.CLASS_SIMPLE_ACTION + ") " +
                 "}";
 
         java.util.Map<String, List<org.eclipse.rdf4j.query.BindingSet>> allBindings = new java.util.LinkedHashMap<>();
@@ -119,29 +120,29 @@ public class GraphDBGateway {
                 "       ?preId ?preType ?prePolicy " +
                 "       ?postId ?postType ?postPolicy " +
                 "       ?step ?compensation WHERE { " +
-                "  ?action moa:targetsEntity <" + resourceId + "> . " +
-                "  ?action a moa:AutonomicAction . " +
+                "  ?action moa:" + OntologyConstants.PROP_TARGETS_ENTITY + " <" + resourceId + "> . " +
+                "  ?action a moa:" + OntologyConstants.CLASS_AUTONOMIC_ACTION + " . " +
                 "  ?action a ?intent . " +
-                "  OPTIONAL { ?action moa:targetsEntity ?target } . " +
-                "  OPTIONAL { ?action moa:executionProtocol ?protocol } . " +
-                "  OPTIONAL { ?action moa:executionInstruction ?instruction } . " +
-                "  OPTIONAL { ?action moa:httpMethod ?method } . " +
-                "  OPTIONAL { ?action moa:httpPayload ?payload } . " +
+                "  OPTIONAL { ?action moa:" + OntologyConstants.PROP_TARGETS_ENTITY + " ?target } . " +
+                "  OPTIONAL { ?action moa:" + OntologyConstants.PROP_EXECUTION_PROTOCOL + " ?protocol } . " +
+                "  OPTIONAL { ?action moa:" + OntologyConstants.PROP_EXECUTION_INSTRUCTION + " ?instruction } . " +
+                "  OPTIONAL { ?action moa:" + OntologyConstants.PROP_HTTP_METHOD + " ?method } . " +
+                "  OPTIONAL { ?action moa:" + OntologyConstants.PROP_HTTP_PAYLOAD + " ?payload } . " +
                 "  OPTIONAL { " +
-                "    ?action moa:hasPreCondition ?preId . " +
+                "    ?action moa:" + OntologyConstants.PROP_HAS_PRE_CONDITION + " ?preId . " +
                 "    ?preId a ?preType . " +
-                "    ?preId moa:policyQueryString ?prePolicy . " +
+                "    ?preId moa:" + OntologyConstants.PROP_POLICY_QUERY_STRING + " ?prePolicy . " +
                 "  } . " +
                 "  OPTIONAL { " +
-                "    ?action moa:hasPostCondition ?postId . " +
+                "    ?action moa:" + OntologyConstants.PROP_HAS_POST_CONDITION + " ?postId . " +
                 "    ?postId a ?postType . " +
-                "    ?postId moa:policyQueryString ?postPolicy . " +
+                "    ?postId moa:" + OntologyConstants.PROP_POLICY_QUERY_STRING + " ?postPolicy . " +
                 "  } . " +
                 "  OPTIONAL { " +
-                "    ?action moa:isDecomposedInto ?step . " +
-                "    OPTIONAL { ?step moa:hasCompensation ?compensation } . " +
+                "    ?action moa:" + OntologyConstants.PROP_IS_DECOMPOSED_INTO + " ?step . " +
+                "    OPTIONAL { ?step moa:" + OntologyConstants.PROP_HAS_COMPENSATION + " ?compensation } . " +
                 "  } . " +
-                "  FILTER(?intent != moa:AutonomicAction && ?intent != moa:SimpleAction) " +
+                "  FILTER(?intent != moa:" + OntologyConstants.CLASS_AUTONOMIC_ACTION + " && ?intent != moa:" + OntologyConstants.CLASS_SIMPLE_ACTION + ") " +
                 "}";
 
         java.util.Map<String, List<org.eclipse.rdf4j.query.BindingSet>> grouped = new java.util.LinkedHashMap<>();

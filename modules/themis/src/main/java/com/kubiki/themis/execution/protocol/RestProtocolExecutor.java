@@ -1,5 +1,6 @@
 package com.kubiki.themis.execution.protocol;
 
+import com.kubiki.themis.constants.ProtocolConstants;
 import com.kubiki.themis.execution.ProtocolExecutor;
 import com.kubiki.themis.model.ActionData;
 import org.slf4j.Logger;
@@ -24,7 +25,7 @@ public class RestProtocolExecutor implements ProtocolExecutor {
 
     @Override
     public boolean supports(String protocol) {
-        return "REST".equalsIgnoreCase(protocol);
+        return ProtocolConstants.REST.equalsIgnoreCase(protocol);
     }
 
     @Override
