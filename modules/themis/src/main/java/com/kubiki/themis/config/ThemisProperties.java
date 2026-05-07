@@ -10,15 +10,11 @@ import org.springframework.boot.context.properties.NestedConfigurationProperty;
 @ConfigurationProperties(prefix = "themis")
 public record ThemisProperties(
     @NestedConfigurationProperty GraphDB graphdb,
-    @NestedConfigurationProperty Executors executors
+    @NestedConfigurationProperty Ontology ontology
 ) {
-    public record GraphDB(String url, String repositoryId) {}
-    
-    public record Executors(
-        @NestedConfigurationProperty Kubernetes kubernetes,
-        @NestedConfigurationProperty Logging logging
-    ) {
-        public record Kubernetes(String managementUrl, int timeoutMs) {}
-        public record Logging(String level) {}
-    }
+    public record GraphDB(String url, String repositoryId, int timeoutMs) {}
+    public record Ontology(
+        String moaNamespace,
+        String cneeNamespace
+    ) {}
 }
