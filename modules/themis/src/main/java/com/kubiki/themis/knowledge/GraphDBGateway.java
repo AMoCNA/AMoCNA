@@ -7,6 +7,8 @@ import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.http.HTTPRepository;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -15,13 +17,15 @@ import java.util.List;
 
 @Service
 public class GraphDBGateway {
+    private static final Logger log = LoggerFactory.getLogger(GraphDBGateway.class);
     private final Repository repository;
     private final MoaMapper moaMapper;
-    private static final String NAMESPACE = "http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#";
+    private final String moaNamespace;
 
     public GraphDBGateway(ThemisProperties properties, MoaMapper moaMapper) {
         this.repository = new HTTPRepository(properties.graphdb().url(), properties.graphdb().repositoryId());
         this.moaMapper = moaMapper;
+        this.moaNamespace = properties.ontology().moaNamespace();
     }
 
     @PostConstruct
@@ -30,7 +34,7 @@ public class GraphDBGateway {
     }
 
     public List<ActionData> findActionsForResource(String resourceId) {
-        String sparql = "PREFIX moa: <" + NAMESPACE + "> " +
+        String sparql = "PREFIX moa: <" + moaNamespace + "> " +
                         "SELECT ?action ?intent ?target ?protocol ?instruction WHERE { " +
                         "  ?action moa:targetsEntity <" + resourceId + "> . " +
                         "  ?action a moa:AutonomicAction . " +
@@ -50,7 +54,7 @@ public class GraphDBGateway {
                 }
             }
         } catch (Exception e) {
-            System.err.println("CRITICAL: Failed to connect to GraphDB at " + repository.toString() + ". Is it running? Error: " + e.getMessage());
+            log.error("CRITICAL: Failed to connect to GraphDB at {}. Is it running? Error: {}", repository, e.getMessage());
             throw new RuntimeException("Knowledge Base unavailable", e);
         }
         return actions;
