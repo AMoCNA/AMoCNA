@@ -1,7 +1,9 @@
 package com.kubiki.themis.condition.impl;
 
+import com.kubiki.themis.config.ThemisProperties;
 import com.kubiki.themis.knowledge.GraphDBGateway;
 import com.kubiki.themis.model.ActionData;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -16,12 +18,20 @@ class SparqlConditionEvaluatorTest {
     @Mock
     private GraphDBGateway graphDBGateway;
 
+    @Mock
+    private ThemisProperties properties;
+
+    @Mock
+    private ThemisProperties.Ontology ontology;
+
     @InjectMocks
     private SparqlConditionEvaluator evaluator;
 
     @Test
     void shouldSupportStateBasedCondition() {
-        assertTrue(evaluator.supports("http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#StateBasedCondition"));
+        when(properties.ontology()).thenReturn(ontology);
+        when(ontology.moaNamespace()).thenReturn("http://moa#");
+        assertTrue(evaluator.supports("http://moa#StateBasedCondition"));
     }
 
     @Test

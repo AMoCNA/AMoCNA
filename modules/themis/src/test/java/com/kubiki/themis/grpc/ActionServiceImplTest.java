@@ -88,6 +88,8 @@ class ActionServiceImplTest {
     void shouldExecuteRemediation() {
         // Given
         ActionRequest request = ActionRequest.newBuilder().setActionId("action-1").setTargetId("pod-1").build();
+        ActionData mockAction = new ActionData.SimpleAction("action-1", "DeletePod", "REST", "http://mgmt", "pod-1", Map.of(), "GET", null, List.of(), List.of());
+        when(graphDBGateway.fetchActionStructure("action-1")).thenReturn(mockAction);
         when(actionDispatcher.dispatch(any(ActionData.class), any(java.util.UUID.class))).thenReturn(true);
 
         // When
