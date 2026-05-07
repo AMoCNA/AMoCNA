@@ -14,6 +14,7 @@ import java.util.UUID;
 @Component
 public class ShellProtocolExecutor implements ProtocolExecutor {
     private static final Logger log = LoggerFactory.getLogger(ShellProtocolExecutor.class);
+    private static final int SUCCESS_EXIT_CODE = 0;
 
     @Override
     public boolean supports(String protocol) {
@@ -40,7 +41,7 @@ public class ShellProtocolExecutor implements ProtocolExecutor {
             int exitCode = process.waitFor();
             log.info("Shell command {} exited with code {}", action.id(), exitCode);
 
-            return exitCode == 0;
+            return exitCode == SUCCESS_EXIT_CODE;
         } catch (Exception e) {
             log.error("Failed to execute shell action {}: {}", action.id(), e.getMessage());
             return false;

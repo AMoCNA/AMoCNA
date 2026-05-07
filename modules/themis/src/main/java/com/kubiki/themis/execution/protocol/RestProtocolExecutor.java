@@ -36,17 +36,17 @@ public class RestProtocolExecutor implements ProtocolExecutor {
         }
 
         String url = hydrate(simpleAction.instruction(), simpleAction.data());
-        String method = simpleAction.method() != null ? simpleAction.method().toUpperCase() : "GET";
+        String method = simpleAction.method() != null ? simpleAction.method().toUpperCase() : ProtocolConstants.GET;
         String payload = simpleAction.payload() != null ? hydrate(simpleAction.payload(), simpleAction.data()) : null;
 
         log.info("Executing {} request to {} for execution {}", method, url, executionId);
 
         try {
             switch (method) {
-                case "GET" -> restClient.get().uri(url).retrieve().toBodilessEntity();
-                case "POST" -> restClient.post().uri(url).body(payload != null ? payload : "").retrieve().toBodilessEntity();
-                case "PUT" -> restClient.put().uri(url).body(payload != null ? payload : "").retrieve().toBodilessEntity();
-                case "DELETE" -> restClient.delete().uri(url).retrieve().toBodilessEntity();
+                case ProtocolConstants.GET -> restClient.get().uri(url).retrieve().toBodilessEntity();
+                case ProtocolConstants.POST -> restClient.post().uri(url).body(payload != null ? payload : "").retrieve().toBodilessEntity();
+                case ProtocolConstants.PUT -> restClient.put().uri(url).body(payload != null ? payload : "").retrieve().toBodilessEntity();
+                case ProtocolConstants.DELETE -> restClient.delete().uri(url).retrieve().toBodilessEntity();
                 default -> throw new IllegalArgumentException("Unsupported HTTP method: " + method);
             };
             // For now, we assume any non-error response is success

@@ -1,5 +1,6 @@
 package com.kubiki.themis.knowledge;
 
+import com.kubiki.themis.constants.ProtocolConstants;
 import com.kubiki.themis.model.ActionData;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.springframework.stereotype.Component;
@@ -85,7 +86,7 @@ public class MoaMapper {
         return new ActionData.SimpleAction(
                 first.getValue("action").stringValue(),
                 first.getValue("intent").stringValue(),
-                first.hasBinding("protocol") ? first.getValue("protocol").stringValue() : "REST",
+                first.hasBinding("protocol") ? first.getValue("protocol").stringValue() : ProtocolConstants.REST,
                 first.hasBinding("instruction") ? first.getValue("instruction").stringValue() : "http://localhost:8080/mgmt?target={target}",
                 first.getValue("target").stringValue(),
                 new HashMap<>(),
