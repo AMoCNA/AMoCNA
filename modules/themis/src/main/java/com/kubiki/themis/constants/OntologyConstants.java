@@ -2,6 +2,7 @@ package com.kubiki.themis.constants;
 
 public final class OntologyConstants {
     private OntologyConstants() {}
+    public static final String CLASS_PROMETHEUS_CONDITION = "PrometheusCondition";
     public static final String CLASS_STATE_BASED_CONDITION = "StateBasedCondition";
     public static final String CLASS_AUTONOMIC_ACTION = "AutonomicAction";
     public static final String CLASS_SIMPLE_ACTION = "SimpleAction";
