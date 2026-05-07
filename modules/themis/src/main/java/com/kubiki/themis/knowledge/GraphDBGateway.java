@@ -35,29 +35,60 @@ public class GraphDBGateway {
 
     public List<ActionData> findActionsForResource(String resourceId) {
         String sparql = "PREFIX moa: <" + moaNamespace + "> " +
-                        "SELECT ?action ?intent ?target ?protocol ?instruction WHERE { " +
-                        "  ?action moa:targetsEntity <" + resourceId + "> . " +
-                        "  ?action a moa:AutonomicAction . " +
-                        "  ?action a ?intent . " +
-                        "  ?action moa:targetsEntity ?target . " +
-                        "  OPTIONAL { ?action moa:executionProtocol ?protocol } . " +
-                        "  OPTIONAL { ?action moa:executionInstruction ?instruction } . " +
-                        "  FILTER(?intent != moa:AutonomicAction && ?intent != moa:SimpleAction) " +
-                        "}";
-        
-        List<ActionData> actions = new ArrayList<>();
+                "SELECT ?action ?intent ?target ?protocol ?instruction ?method ?payload " +
+                "       ?preId ?preType ?prePolicy " +
+                "       ?postId ?postType ?postPolicy WHERE { " +
+                "  ?action moa:targetsEntity <" + resourceId + "> . " +
+                "  ?action a moa:AutonomicAction . " +
+                "  ?action a ?intent . " +
+                "  ?action moa:targetsEntity ?target . " +
+                "  OPTIONAL { ?action moa:executionProtocol ?protocol } . " +
+                "  OPTIONAL { ?action moa:executionInstruction ?instruction } . " +
+                "  OPTIONAL { ?action moa:httpMethod ?method } . " +
+                "  OPTIONAL { ?action moa:httpPayload ?payload } . " +
+                "  OPTIONAL { " +
+                "    ?action moa:hasPreCondition ?preId . " +
+                "    ?preId a ?preType . " +
+                "    ?preId moa:policyQueryString ?prePolicy . " +
+                "  } . " +
+                "  OPTIONAL { " +
+                "    ?action moa:hasPostCondition ?postId . " +
+                "    ?postId a ?postType . " +
+                "    ?postId moa:policyQueryString ?postPolicy . " +
+                "  } . " +
+                "  FILTER(?intent != moa:AutonomicAction && ?intent != moa:SimpleAction) " +
+                "}";
+
+        java.util.Map<String, List<org.eclipse.rdf4j.query.BindingSet>> grouped = new java.util.LinkedHashMap<>();
         try (RepositoryConnection conn = repository.getConnection()) {
             TupleQuery query = conn.prepareTupleQuery(sparql);
             try (TupleQueryResult result = query.evaluate()) {
                 while (result.hasNext()) {
-                    actions.add(moaMapper.mapSimpleAction(result.next()));
+                    org.eclipse.rdf4j.query.BindingSet bs = result.next();
+                    String actionId = bs.getValue("action").stringValue();
+                    grouped.computeIfAbsent(actionId, k -> new ArrayList<>()).add(bs);
                 }
             }
         } catch (Exception e) {
             log.error("CRITICAL: Failed to connect to GraphDB at {}. Is it running? Error: {}", repository, e.getMessage());
             throw new RuntimeException("Knowledge Base unavailable", e);
         }
+
+        List<ActionData> actions = new ArrayList<>();
+        for (List<org.eclipse.rdf4j.query.BindingSet> group : grouped.values()) {
+            actions.add(moaMapper.mapSimpleActionGroup(group));
+        }
         return actions;
+    }
+
+    public boolean executeConditionQuery(String sparql) {
+        try (RepositoryConnection conn = repository.getConnection()) {
+            org.eclipse.rdf4j.query.BooleanQuery query = conn.prepareBooleanQuery(sparql);
+            return query.evaluate();
+        } catch (Exception e) {
+            log.error("Failed to execute condition query: {}", e.getMessage());
+            return false;
+        }
     }
 
     @PreDestroy
