@@ -6,6 +6,7 @@ import com.kubiki.themis.model.ActionData;
 import com.kubiki.themis.model.ExecutionStatus;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -22,6 +23,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
+@DisplayName("SagaEngine Tests")
 class SagaEngineTest {
 
     private GraphDBGateway gateway;
@@ -36,6 +38,7 @@ class SagaEngineTest {
     }
 
     @Test
+    @DisplayName("Should execute simple action successfully")
     void executesSimpleActionSuccessfully() {
         ActionData.SimpleAction action = new ActionData.SimpleAction(
                 SimpleValueFactory.getInstance().createIRI("http://moa#id"), 
@@ -54,6 +57,7 @@ class SagaEngineTest {
     }
 
     @Test
+    @DisplayName("Should compensate on workflow failure")
     void compensatesOnWorkflowFailure() {
         ActionData.SimpleAction step1 = new ActionData.SimpleAction(
                 SimpleValueFactory.getInstance().createIRI("http://moa#step1"), 

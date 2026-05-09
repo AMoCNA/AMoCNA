@@ -9,6 +9,7 @@ import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.impl.MapBindingSet;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
 
@@ -17,6 +18,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@DisplayName("MoamMapper Tests")
 class MoamMapperTest {
 
     private MoamMapper mapper;
@@ -29,6 +31,7 @@ class MoamMapperTest {
     }
 
     @Test
+    @DisplayName("Should map simple action from SPARQL result")
     void shouldMapSimpleAction() {
         MapBindingSet bs = new MapBindingSet();
         IRI actionIri = vf.createIRI(ns + "action1");
@@ -53,6 +56,7 @@ class MoamMapperTest {
     }
 
     @Test
+    @DisplayName("Should map complex workflow with steps and compensations")
     void shouldMapComplexWorkflow() {
         IRI wfIri = vf.createIRI(ns + "wf1");
         IRI intentIri = vf.createIRI(ns + OntologyConstants.CLASS_COMPLEX_WORKFLOW);

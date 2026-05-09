@@ -12,12 +12,14 @@ import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.sail.memory.MemoryStore;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
+@DisplayName("GraphDBGateway Tests")
 class GraphDBGatewayTest {
     private Repository repository;
     private GraphDBGateway gateway;
@@ -61,6 +63,7 @@ class GraphDBGatewayTest {
     }
 
     @Test
+    @DisplayName("Should update action state in GraphDB")
     void shouldUpdateActionState() {
         ValueFactory vf = repository.getValueFactory();
         IRI actionIri = vf.createIRI(MOA_NS + "action1");
