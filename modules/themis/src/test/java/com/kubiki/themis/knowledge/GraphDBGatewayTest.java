@@ -141,4 +141,19 @@ class GraphDBGatewayTest {
 
         assertFalse(gatewayWithMock.executeConditionQuery("ASK { ?s ?p ?o }"));
     }
+
+    @Test
+    void executeConditionQueryShouldReturnTrue() {
+        ValueFactory vf = repository.getValueFactory();
+        try (RepositoryConnection conn = repository.getConnection()) {
+            conn.add(vf.createIRI(MOA_NS + "s"), vf.createIRI(MOA_NS + "p"), vf.createIRI(MOA_NS + "o"));
+        }
+
+        assertTrue(gateway.executeConditionQuery("ASK { ?s ?p ?o }"));
+    }
+
+    @Test
+    void executeConditionQueryShouldReturnFalseWhenNoMatch() {
+        assertFalse(gateway.executeConditionQuery("ASK { <http://none> <http://none> <http://none> }"));
+    }
 }

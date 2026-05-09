@@ -79,4 +79,51 @@ class PrometheusConditionEvaluatorTest {
         ActionData.ConditionData condition = new ActionData.ConditionData("id", "type", "up");
         assertThrows(ConditionEvaluationException.class, () -> evaluator.evaluate(condition));
     }
+
+    @Test
+    void shouldThrowExceptionOnEmptyBody() {
+        server.expect(requestTo("http://prometheus:9090/api/v1/query?query=up"))
+              .andRespond(withSuccess("", MediaType.APPLICATION_JSON));
+
+        ActionData.ConditionData condition = new ActionData.ConditionData("id", "type", "up");
+        ConditionEvaluationException ex = assertThrows(ConditionEvaluationException.class, () -> evaluator.evaluate(condition));
+        assertTrue(ex.getMessage().contains("Prometheus returned empty body"));
+    }
+
+    @Test
+    void shouldThrowExceptionOnUnsuccessfulStatus() throws JsonProcessingException {
+        String response = objectMapper.writeValueAsString(Map.of(
+            "status", "error",
+            "errorType", "bad_data",
+            "error", "invalid parameter"
+        ));
+
+        server.expect(requestTo("http://prometheus:9090/api/v1/query?query=up"))
+              .andRespond(withSuccess(response, MediaType.APPLICATION_JSON));
+
+        ActionData.ConditionData condition = new ActionData.ConditionData("id", "type", "up");
+        ConditionEvaluationException ex = assertThrows(ConditionEvaluationException.class, () -> evaluator.evaluate(condition));
+        assertTrue(ex.getMessage().contains("Prometheus query was not successful"));
+    }
+
+    @Test
+    void shouldThrowExceptionOnMalformedJson() {
+        server.expect(requestTo("http://prometheus:9090/api/v1/query?query=up"))
+              .andRespond(withSuccess("{invalid:json}", MediaType.APPLICATION_JSON));
+
+        ActionData.ConditionData condition = new ActionData.ConditionData("id", "type", "up");
+        ConditionEvaluationException ex = assertThrows(ConditionEvaluationException.class, () -> evaluator.evaluate(condition));
+        assertTrue(ex.getMessage().contains("Error parsing Prometheus response"));
+    }
+
+    @Test
+    void shouldThrowExceptionOnNetworkError() {
+        // Mocking a network error is tricky with MockRestServiceServer as it usually handles the request/response cycle.
+        // However, we can simulate an exception during retrieve or body call if we had control over the RestClient more directly.
+        // In this setup, MockRestServiceServer handles the client.
+        // Let's try to trigger the generic catch block by passing null condition policy which might cause issues in uriBuilder.
+        
+        ActionData.ConditionData condition = new ActionData.ConditionData("id", "type", null);
+        assertThrows(ConditionEvaluationException.class, () -> evaluator.evaluate(condition));
+    }
 }

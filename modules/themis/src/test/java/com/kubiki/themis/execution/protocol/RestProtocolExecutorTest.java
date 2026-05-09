@@ -172,4 +172,101 @@ class RestProtocolExecutorTest {
         assertTrue(result);
         verify(requestBodyUriSpec).uri("http://localhost:8080/resource/123");
     }
+
+    @Test
+    void shouldFailWhenActionIsNotSimpleAction() {
+        ActionData action = mock(ActionData.class);
+        when(action.id()).thenReturn("moa:GenericAction");
+        assertFalse(restProtocolExecutor.execute(action, UUID.randomUUID()));
+    }
+
+    @Test
+    void shouldFailOnRestClientException() {
+        ActionData.SimpleAction action = new ActionData.SimpleAction(
+                "moa:Fail_1",
+                "FailAction",
+                Protocol.REST,
+                "http://localhost:8080/fail",
+                "res-1",
+                Map.of(),
+                HttpMethod.GET,
+                null,
+                java.util.List.of(),
+                java.util.List.of()
+        );
+
+        when(restClient.method(HttpMethod.GET)).thenReturn(requestBodyUriSpec);
+        when(requestBodyUriSpec.uri(anyString())).thenReturn(requestBodyUriSpec);
+        when(requestBodyUriSpec.retrieve()).thenThrow(new RuntimeException("Connection Refused"));
+
+        assertFalse(restProtocolExecutor.execute(action, UUID.randomUUID()));
+    }
+
+    @Test
+    void shouldDefaultToGetWhenMethodIsNull() {
+        ActionData.SimpleAction action = new ActionData.SimpleAction(
+                "moa:DefaultGet_1",
+                "DefaultGetAction",
+                Protocol.REST,
+                "http://localhost:8080/get",
+                "res-1",
+                Map.of(),
+                null,
+                null,
+                java.util.List.of(),
+                java.util.List.of()
+        );
+
+        when(restClient.method(HttpMethod.GET)).thenReturn(requestBodyUriSpec);
+        when(requestBodyUriSpec.uri(anyString())).thenReturn(requestBodyUriSpec);
+        when(requestBodyUriSpec.retrieve()).thenReturn(responseSpec);
+
+        assertTrue(restProtocolExecutor.execute(action, UUID.randomUUID()));
+        verify(restClient).method(HttpMethod.GET);
+    }
+
+    @Test
+    void shouldHandleEmptyPayload() {
+        ActionData.SimpleAction action = new ActionData.SimpleAction(
+                "moa:EmptyPayload_1",
+                "EmptyPayloadAction",
+                Protocol.REST,
+                "http://localhost:8080/post",
+                "res-1",
+                Map.of(),
+                HttpMethod.POST,
+                "",
+                java.util.List.of(),
+                java.util.List.of()
+        );
+
+        when(restClient.method(HttpMethod.POST)).thenReturn(requestBodyUriSpec);
+        when(requestBodyUriSpec.uri(anyString())).thenReturn(requestBodyUriSpec);
+        when(requestBodyUriSpec.retrieve()).thenReturn(responseSpec);
+
+        assertTrue(restProtocolExecutor.execute(action, UUID.randomUUID()));
+        verify(requestBodyUriSpec, never()).body(anyString());
+    }
+
+    @Test
+    void shouldHandleNullInstruction() {
+        ActionData.SimpleAction action = new ActionData.SimpleAction(
+                "moa:NullInstruction_1",
+                "NullInstructionAction",
+                Protocol.REST,
+                null,
+                "res-1",
+                Map.of(),
+                HttpMethod.GET,
+                null,
+                java.util.List.of(),
+                java.util.List.of()
+        );
+
+        // When instruction is null, url will be null. RestClient might throw exception.
+        when(restClient.method(HttpMethod.GET)).thenReturn(requestBodyUriSpec);
+        when(requestBodyUriSpec.uri((String) null)).thenThrow(new IllegalArgumentException("URL is null"));
+
+        assertFalse(restProtocolExecutor.execute(action, UUID.randomUUID()));
+    }
 }
