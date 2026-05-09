@@ -27,13 +27,13 @@ import java.util.Map;
 public class GraphDBGateway {
     private static final Logger log = LoggerFactory.getLogger(GraphDBGateway.class);
     private final Repository repository;
-    private final MoamMapper moamMapper;
+    private final MoaMapper moaMapper;
     private final SparqlLoader sparqlLoader;
     private final String moamNamespace;
 
-    public GraphDBGateway(ThemisProperties properties, MoamMapper moamMapper, SparqlLoader sparqlLoader) {
+    public GraphDBGateway(ThemisProperties properties, MoaMapper moaMapper, SparqlLoader sparqlLoader) {
         this.repository = new HTTPRepository(properties.graphdb().url(), properties.graphdb().repositoryId());
-        this.moamMapper = moamMapper;
+        this.moaMapper = moaMapper;
         this.sparqlLoader = sparqlLoader;
         this.moamNamespace = properties.ontology().moamNamespace();
     }
@@ -85,7 +85,7 @@ public class GraphDBGateway {
             return null;
         }
 
-        return moamMapper.mapAction(actionId, allBindings);
+        return moaMapper.mapAction(actionId, allBindings);
     }
 
     public List<ActionData.SimpleAction> findActionsForResource(IRI resourceIri) {
@@ -111,7 +111,7 @@ public class GraphDBGateway {
         List<ActionData.SimpleAction> actions = new ArrayList<>();
         for (List<BindingSet> group : groups.values()) {
             try {
-                ActionData.SimpleAction action = moamMapper.mapSimpleActionGroup(group);
+                ActionData.SimpleAction action = moaMapper.mapSimpleActionGroup(group);
                 if (action != null) {
                     actions.add(action);
                 }

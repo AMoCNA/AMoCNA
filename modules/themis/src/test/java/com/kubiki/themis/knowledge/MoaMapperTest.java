@@ -17,15 +17,15 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class MoamMapperTest {
+class MoaMapperTest {
 
-    private MoamMapper mapper;
+    private MoaMapper mapper;
     private ValueFactory vf = SimpleValueFactory.getInstance();
     private String ns = "http://moa#";
 
     @BeforeEach
     void setUp() {
-        mapper = new MoamMapper();
+        mapper = new MoaMapper();
     }
 
     @Test
