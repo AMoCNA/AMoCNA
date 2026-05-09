@@ -7,6 +7,7 @@ import com.kubiki.themis.exception.ConditionEvaluationException;
 import com.kubiki.themis.model.ActionData;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
@@ -19,6 +20,7 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withServerError;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
+@DisplayName("PrometheusConditionEvaluator Tests")
 class PrometheusConditionEvaluatorTest {
 
     private PrometheusConditionEvaluator evaluator;
@@ -40,11 +42,13 @@ class PrometheusConditionEvaluatorTest {
     }
 
     @Test
+    @DisplayName("should support PrometheusCondition IRI")
     void shouldSupportPrometheusCondition() {
         assertTrue(evaluator.supports(SimpleValueFactory.getInstance().createIRI("http://example.org/moa#PrometheusCondition")));
     }
 
     @Test
+    @DisplayName("should return true when Prometheus query result is not empty")
     void shouldReturnTrueWhenResultIsNotEmpty() throws JsonProcessingException {
         String response = objectMapper.writeValueAsString(Map.of(
                 "status", "success",
@@ -62,6 +66,7 @@ class PrometheusConditionEvaluatorTest {
     }
 
     @Test
+    @DisplayName("should return false when Prometheus query result is empty")
     void shouldReturnFalseWhenResultIsEmpty() throws JsonProcessingException {
         String response = objectMapper.writeValueAsString(Map.of(
                 "status", "success",
@@ -79,6 +84,7 @@ class PrometheusConditionEvaluatorTest {
     }
 
     @Test
+    @DisplayName("should throw ConditionEvaluationException when Prometheus request fails")
     void shouldThrowExceptionOnError() {
         server.expect(requestTo("http://prometheus:9090/api/v1/query?query=up"))
                 .andRespond(withServerError());

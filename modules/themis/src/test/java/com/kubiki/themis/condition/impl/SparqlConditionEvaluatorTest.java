@@ -5,6 +5,7 @@ import com.kubiki.themis.knowledge.GraphDBGateway;
 import com.kubiki.themis.model.ActionData;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -13,6 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@DisplayName("SparqlConditionEvaluator Tests")
 class SparqlConditionEvaluatorTest {
 
     private GraphDBGateway graphDBGateway;
@@ -28,11 +30,13 @@ class SparqlConditionEvaluatorTest {
     }
 
     @Test
+    @DisplayName("should support StateBasedCondition IRI")
     void shouldSupportStateBasedCondition() {
         assertTrue(evaluator.supports(SimpleValueFactory.getInstance().createIRI("http://moa#StateBasedCondition")));
     }
 
     @Test
+    @DisplayName("should return true when SPARQL condition is met")
     void shouldExecuteSparqlCondition() {
         String policy = "ASK { ?s ?p ?o }";
         ActionData.ConditionData condition = new ActionData.ConditionData(
