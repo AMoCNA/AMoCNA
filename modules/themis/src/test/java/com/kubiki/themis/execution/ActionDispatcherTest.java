@@ -86,4 +86,67 @@ class ActionDispatcherTest {
         assertFalse(result);
         verify(executor, never()).execute(any(), any());
     }
+
+    @Test
+    void shouldSucceedIfConditionsAreNullOrEmpty() {
+        ProtocolExecutor executor = mock(ProtocolExecutor.class);
+        when(executor.supports(Protocol.REST)).thenReturn(true);
+        when(executor.execute(any(), any())).thenReturn(true);
+
+        SagaEngine sagaEngine = mock(SagaEngine.class);
+        when(sagaEngine.execute(any(), any(), any())).thenAnswer(invocation -> {
+            ActionData.SimpleAction simple = (ActionData.SimpleAction) invocation.getArgument(0);
+            return ((ActionDispatcher) invocation.getArgument(2)).dispatchSimple(simple, invocation.getArgument(1));
+        });
+
+        ActionDispatcher dispatcher = new ActionDispatcher(List.of(executor), List.of(), sagaEngine);
+
+        // Test null
+        ActionData.SimpleAction actionNull = new ActionData.SimpleAction(
+                "a1", "I", Protocol.REST, "u", "t", Map.of(), HttpMethod.GET, null, null, null
+        );
+        assertTrue(dispatcher.dispatch(actionNull, UUID.randomUUID()));
+
+        // Test empty
+        ActionData.SimpleAction actionEmpty = new ActionData.SimpleAction(
+                "a2", "I", Protocol.REST, "u", "t", Map.of(), HttpMethod.GET, null, List.of(), List.of()
+        );
+        assertTrue(dispatcher.dispatch(actionEmpty, UUID.randomUUID()));
+    }
+
+    @Test
+    void shouldFailIfNoEvaluatorFound() {
+        ProtocolExecutor executor = mock(ProtocolExecutor.class);
+        SagaEngine sagaEngine = mock(SagaEngine.class);
+        when(sagaEngine.execute(any(), any(), any())).thenAnswer(invocation -> {
+            ActionData.SimpleAction simple = (ActionData.SimpleAction) invocation.getArgument(0);
+            return ((ActionDispatcher) invocation.getArgument(2)).dispatchSimple(simple, invocation.getArgument(1));
+        });
+
+        ActionDispatcher dispatcher = new ActionDispatcher(List.of(executor), List.of(), sagaEngine);
+
+        ActionData.ConditionData pre = new ActionData.ConditionData("pre1", "UnknownType", "ASK");
+        ActionData.SimpleAction action = new ActionData.SimpleAction(
+                "a1", "I", Protocol.REST, "u", "t", Map.of(), HttpMethod.GET, null, List.of(pre), List.of()
+        );
+
+        assertFalse(dispatcher.dispatch(action, UUID.randomUUID()));
+    }
+
+    @Test
+    void shouldFailIfNoExecutorFound() {
+        SagaEngine sagaEngine = mock(SagaEngine.class);
+        when(sagaEngine.execute(any(), any(), any())).thenAnswer(invocation -> {
+            ActionData.SimpleAction simple = (ActionData.SimpleAction) invocation.getArgument(0);
+            return ((ActionDispatcher) invocation.getArgument(2)).dispatchSimple(simple, invocation.getArgument(1));
+        });
+
+        ActionDispatcher dispatcher = new ActionDispatcher(List.of(), List.of(), sagaEngine);
+
+        ActionData.SimpleAction action = new ActionData.SimpleAction(
+                "a1", "I", Protocol.REST, "u", "t", Map.of(), HttpMethod.GET, null, List.of(), List.of()
+        );
+
+        assertFalse(dispatcher.dispatch(action, UUID.randomUUID()));
+    }
 }

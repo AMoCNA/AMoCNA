@@ -96,7 +96,7 @@ public class GraphDBGateway {
                 "}";
 
         Map<String, List<BindingSet>> allBindings = new LinkedHashMap<>();
-        try (RepositoryConnection conn = repository.getConnection()) {
+        try (RepositoryConnection conn = getRepository().getConnection()) {
              TupleQuery query = conn.prepareTupleQuery(sparql);
              try (TupleQueryResult result = query.evaluate()) {
                  while (result.hasNext()) {
@@ -139,7 +139,7 @@ public class GraphDBGateway {
                 "}";
 
         Map<String, List<BindingSet>> groups = new LinkedHashMap<>();
-        try (RepositoryConnection conn = repository.getConnection()) {
+        try (RepositoryConnection conn = getRepository().getConnection()) {
             TupleQuery query = conn.prepareTupleQuery(sparql);
             try (TupleQueryResult result = query.evaluate()) {
                 while (result.hasNext()) {
@@ -163,7 +163,7 @@ public class GraphDBGateway {
     }
 
     public boolean executeConditionQuery(String query) {
-        try (RepositoryConnection conn = repository.getConnection()) {
+        try (RepositoryConnection conn = getRepository().getConnection()) {
             return conn.prepareBooleanQuery(query).evaluate();
         } catch (Exception e) {
             log.error("Failed to execute condition query: {}", e.getMessage());

@@ -103,4 +103,82 @@ class MoaMapperTest {
 
         assertThrows(IllegalArgumentException.class, () -> mapper.mapSimpleAction(bs));
     }
+
+    @Test
+    void mapActionWithUnknownIntentFallbackToSimple() {
+        MoaMapper mapper = new MoaMapper();
+        SimpleValueFactory vf = SimpleValueFactory.getInstance();
+
+        MapBindingSet bs = new MapBindingSet();
+        bs.addBinding("action", vf.createIRI("http://moa#unknown"));
+        bs.addBinding("intent", vf.createIRI("http://moa#UnknownIntent"));
+        bs.addBinding("target", vf.createIRI("http://target"));
+
+        ActionData result = mapper.mapAction("http://moa#unknown", Map.of("http://moa#unknown", List.of(bs)));
+
+        assertInstanceOf(ActionData.SimpleAction.class, result);
+        assertEquals("http://moa#unknown", result.id());
+    }
+
+    @Test
+    void mapActionHandlesRecursiveMappingDepth() {
+        MoaMapper mapper = new MoaMapper();
+        SimpleValueFactory vf = SimpleValueFactory.getInstance();
+
+        // A (Complex) -> B (Complex) -> C (Simple)
+        MapBindingSet actionA = new MapBindingSet();
+        actionA.addBinding("action", vf.createIRI("http://moa#A"));
+        actionA.addBinding("intent", vf.createIRI("http://moa#ComplexWorkflow"));
+        actionA.addBinding("step", vf.createIRI("http://moa#B"));
+
+        MapBindingSet actionB = new MapBindingSet();
+        actionB.addBinding("action", vf.createIRI("http://moa#B"));
+        actionB.addBinding("intent", vf.createIRI("http://moa#ComplexWorkflow"));
+        actionB.addBinding("step", vf.createIRI("http://moa#C"));
+
+        MapBindingSet actionC = new MapBindingSet();
+        actionC.addBinding("action", vf.createIRI("http://moa#C"));
+        actionC.addBinding("intent", vf.createIRI("http://moa#SimpleAction"));
+        actionC.addBinding("target", vf.createIRI("http://targetC"));
+
+        ActionData result = mapper.mapAction("http://moa#A", Map.of(
+                "http://moa#A", List.of(actionA),
+                "http://moa#B", List.of(actionB),
+                "http://moa#C", List.of(actionC)
+        ));
+
+        assertInstanceOf(ActionData.ComplexWorkflow.class, result);
+        ActionData.ComplexWorkflow wfA = (ActionData.ComplexWorkflow) result;
+        assertEquals(1, wfA.steps().size());
+        
+        ActionData stepB = wfA.steps().get(0);
+        assertInstanceOf(ActionData.ComplexWorkflow.class, stepB);
+        ActionData.ComplexWorkflow wfB = (ActionData.ComplexWorkflow) stepB;
+        assertEquals(1, wfB.steps().size());
+        
+        ActionData stepC = wfB.steps().get(0);
+        assertInstanceOf(ActionData.SimpleAction.class, stepC);
+    }
+
+    @Test
+    void mapActionAvoidsImmediateSelfLoop() {
+        MoaMapper mapper = new MoaMapper();
+        SimpleValueFactory vf = SimpleValueFactory.getInstance();
+
+        MapBindingSet actionA = new MapBindingSet();
+        actionA.addBinding("action", vf.createIRI("http://moa#A"));
+        actionA.addBinding("intent", vf.createIRI("http://moa#ComplexWorkflow"));
+        actionA.addBinding("step", vf.createIRI("http://moa#A")); // Self-referencing step
+
+        ActionData result = mapper.mapAction("http://moa#A", Map.of("http://moa#A", List.of(actionA)));
+
+        assertInstanceOf(ActionData.ComplexWorkflow.class, result);
+        assertTrue(((ActionData.ComplexWorkflow) result).steps().isEmpty());
+    }
+
+    @Test
+    void mapSimpleActionGroupReturnsNullForNull() {
+        MoaMapper mapper = new MoaMapper();
+        assertNull(mapper.mapSimpleActionGroup(null));
+    }
 }

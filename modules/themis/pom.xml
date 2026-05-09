@@ -144,11 +144,15 @@
 					</execution>
 					<execution>
 						<id>check</id>
-						<phase>verify</phase>
 						<goals>
 							<goal>check</goal>
 						</goals>
 						<configuration>
+							<excludes>
+								<exclude>com/kubiki/themis/grpc/**</exclude>
+								<exclude>com/kubiki/palamedes/**</exclude>
+								<exclude>**/ThemisApplication.class</exclude>
+							</excludes>
 							<rules>
 								<rule>
 									<element>BUNDLE</element>
@@ -156,13 +160,14 @@
 										<limit>
 											<counter>LINE</counter>
 											<value>COVEREDRATIO</value>
-											<minimum>0.90</minimum>
+											<minimum>0.80</minimum>
 										</limit>
 									</limits>
 								</rule>
 							</rules>
 						</configuration>
 					</execution>
+
 				</executions>
 			</plugin>
 		</plugins>

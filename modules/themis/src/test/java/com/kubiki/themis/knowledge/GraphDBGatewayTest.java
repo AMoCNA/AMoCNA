@@ -17,9 +17,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class GraphDBGatewayTest {
     private Repository repository;
@@ -77,5 +77,68 @@ class GraphDBGatewayTest {
             Literal status = (Literal) conn.getStatements(actionIri, hasExecutionStatus, null).next().getObject();
             assertEquals("SUCCESS", status.getLabel());
         }
+    }
+
+    @Test
+    void updateActionStateShouldThrowOnPersistenceFailure() {
+        Repository mockedRepo = mock(Repository.class);
+        when(mockedRepo.getValueFactory()).thenReturn(SimpleValueFactory.getInstance());
+        when(mockedRepo.getConnection()).thenThrow(new RuntimeException("DB Down"));
+
+        GraphDBGateway gatewayWithMock = new GraphDBGateway(properties, moaMapper) {
+            @Override
+            protected Repository getRepository() {
+                return mockedRepo;
+            }
+        };
+
+        RuntimeException ex = assertThrows(RuntimeException.class, 
+                () -> gatewayWithMock.updateActionState(MOA_NS + "action1", ExecutionStatus.SUCCESS));
+        assertEquals("Persistence failure", ex.getMessage());
+    }
+
+    @Test
+    void fetchActionStructureShouldReturnNullOnException() {
+        Repository mockedRepo = mock(Repository.class);
+        when(mockedRepo.getConnection()).thenThrow(new RuntimeException("Query Failed"));
+
+        GraphDBGateway gatewayWithMock = new GraphDBGateway(properties, moaMapper) {
+            @Override
+            protected Repository getRepository() {
+                return mockedRepo;
+            }
+        };
+
+        assertNull(gatewayWithMock.fetchActionStructure(MOA_NS + "action1"));
+    }
+
+    @Test
+    void findActionsForResourceShouldReturnEmptyListOnException() {
+        Repository mockedRepo = mock(Repository.class);
+        when(mockedRepo.getConnection()).thenThrow(new RuntimeException("Query Failed"));
+
+        GraphDBGateway gatewayWithMock = new GraphDBGateway(properties, moaMapper) {
+            @Override
+            protected Repository getRepository() {
+                return mockedRepo;
+            }
+        };
+
+        assertTrue(gatewayWithMock.findActionsForResource("res1").isEmpty());
+    }
+
+    @Test
+    void executeConditionQueryShouldReturnFalseOnException() {
+        Repository mockedRepo = mock(Repository.class);
+        when(mockedRepo.getConnection()).thenThrow(new RuntimeException("Query Failed"));
+
+        GraphDBGateway gatewayWithMock = new GraphDBGateway(properties, moaMapper) {
+            @Override
+            protected Repository getRepository() {
+                return mockedRepo;
+            }
+        };
+
+        assertFalse(gatewayWithMock.executeConditionQuery("ASK { ?s ?p ?o }"));
     }
 }
