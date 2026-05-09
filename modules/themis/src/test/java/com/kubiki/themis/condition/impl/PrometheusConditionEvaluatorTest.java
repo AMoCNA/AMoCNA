@@ -118,12 +118,11 @@ class PrometheusConditionEvaluatorTest {
 
     @Test
     void shouldThrowExceptionOnNetworkError() {
-        // Mocking a network error is tricky with MockRestServiceServer as it usually handles the request/response cycle.
-        // However, we can simulate an exception during retrieve or body call if we had control over the RestClient more directly.
-        // In this setup, MockRestServiceServer handles the client.
-        // Let's try to trigger the generic catch block by passing null condition policy which might cause issues in uriBuilder.
-        
-        ActionData.ConditionData condition = new ActionData.ConditionData("id", "type", null);
-        assertThrows(ConditionEvaluationException.class, () -> evaluator.evaluate(condition));
+        server.expect(requestTo("http://prometheus:9090/api/v1/query?query=up"))
+              .andRespond(withServerError());
+
+        ActionData.ConditionData condition = new ActionData.ConditionData("id", "type", "up");
+        ConditionEvaluationException ex = assertThrows(ConditionEvaluationException.class, () -> evaluator.evaluate(condition));
+        assertTrue(ex.getMessage().contains("Error evaluating Prometheus condition") || ex.getMessage().contains("Prometheus query failed"));
     }
 }

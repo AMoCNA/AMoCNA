@@ -77,8 +77,12 @@ class ShellProtocolExecutorTest {
 
     @Test
     void shouldFailWhenActionIsNotSimpleAction() {
-        ActionData action = org.mockito.Mockito.mock(ActionData.class);
-        org.mockito.Mockito.when(action.id()).thenReturn("test:generic");
+        ActionData action = new ActionData.ComplexWorkflow(
+                "test:generic",
+                "GenericAction",
+                java.util.Collections.emptyList(),
+                java.util.Collections.emptyMap()
+        );
         assertFalse(shellProtocolExecutor.execute(action, UUID.randomUUID()));
     }
 

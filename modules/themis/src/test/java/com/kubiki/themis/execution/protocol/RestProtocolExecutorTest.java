@@ -175,8 +175,12 @@ class RestProtocolExecutorTest {
 
     @Test
     void shouldFailWhenActionIsNotSimpleAction() {
-        ActionData action = mock(ActionData.class);
-        when(action.id()).thenReturn("moa:GenericAction");
+        ActionData action = new ActionData.ComplexWorkflow(
+                "moa:GenericAction",
+                "GenericAction",
+                java.util.Collections.emptyList(),
+                java.util.Collections.emptyMap()
+        );
         assertFalse(restProtocolExecutor.execute(action, UUID.randomUUID()));
     }
 
