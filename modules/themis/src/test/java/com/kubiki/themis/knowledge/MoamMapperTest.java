@@ -17,7 +17,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class MoaMapperTest {
+class MoamMapperTest {
 
     private MoamMapper mapper;
     private ValueFactory vf = SimpleValueFactory.getInstance();
