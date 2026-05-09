@@ -7,6 +7,7 @@ import com.kubiki.themis.model.Protocol;
 import io.grpc.stub.StreamObserver;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -24,6 +25,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@DisplayName("ActionServiceImpl Tests")
 class ActionServiceImplTest {
 
     private ActionServiceImpl actionService;
@@ -49,7 +51,8 @@ class ActionServiceImplTest {
     }
 
     @Test
-    void shouldGetExecutableActions() {
+    @DisplayName("Should return action list when getExecutableActions is called")
+    void shouldReturnActionListWhenGetExecutableActionsIsCalled() {
         // Given
         String resourceId = "http://cnee#worker-1";
         ResourceRequest request = ResourceRequest.newBuilder().setResourceId(resourceId).build();
@@ -83,7 +86,8 @@ class ActionServiceImplTest {
     }
 
     @Test
-    void shouldValidatePreconditions() {
+    @DisplayName("Should return valid response when validatePreconditions is called")
+    void shouldReturnValidResponseWhenValidatePreconditionsIsCalled() {
         // Given
         ActionRequest request = ActionRequest.newBuilder().setActionId("http://moa#action-1").setTargetId("http://cnee#pod-1").build();
 
@@ -100,7 +104,8 @@ class ActionServiceImplTest {
     }
 
     @Test
-    void shouldExecuteRemediation() {
+    @DisplayName("Should return success status when executeRemediation is called")
+    void shouldReturnSuccessStatusWhenExecuteRemediationIsCalled() {
         // Given
         ActionRequest request = ActionRequest.newBuilder().setActionId("http://moa#action-1").setTargetId("http://cnee#pod-1").build();
         ActionData mockAction = new ActionData.SimpleAction(

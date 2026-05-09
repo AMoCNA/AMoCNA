@@ -18,13 +18,13 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@DisplayName("ActionDispatcher Unit Tests")
+@DisplayName("ActionDispatcher Tests")
 class ActionDispatcherTest {
     private static final SimpleValueFactory VF = SimpleValueFactory.getInstance();
 
     @Test
-    @DisplayName("Should evaluate pre and post conditions successfully")
-    void shouldEvaluatePreAndPostConditions() {
+    @DisplayName("Should succeed when pre and post conditions are met")
+    void shouldSucceedWhenPreAndPostConditionsAreMet() {
         ProtocolExecutor executor = mock(ProtocolExecutor.class);
         when(executor.supports(Protocol.REST)).thenReturn(true);
         when(executor.execute(any(), any())).thenReturn(true);
@@ -64,8 +64,8 @@ class ActionDispatcherTest {
     }
 
     @Test
-    @DisplayName("Should fail execution if pre-condition fails")
-    void shouldFailIfPreConditionFails() {
+    @DisplayName("Should fail when pre-condition fails")
+    void shouldFailWhenPreConditionFails() {
         ProtocolExecutor executor = mock(ProtocolExecutor.class);
         IRI typeA = VF.createIRI("http://moa#TypeA");
         ConditionEvaluator evaluator = mock(ConditionEvaluator.class);
@@ -100,8 +100,8 @@ class ActionDispatcherTest {
     }
 
     @Test
-    @DisplayName("Should succeed if conditions are null or empty")
-    void shouldSucceedIfConditionsAreNullOrEmpty() {
+    @DisplayName("Should succeed when conditions are null or empty")
+    void shouldSucceedWhenConditionsAreNullOrEmpty() {
         ProtocolExecutor executor = mock(ProtocolExecutor.class);
         when(executor.supports(Protocol.REST)).thenReturn(true);
         when(executor.execute(any(), any())).thenReturn(true);
@@ -131,8 +131,8 @@ class ActionDispatcherTest {
     }
 
     @Test
-    @DisplayName("Should fail if no evaluator is found for a condition")
-    void shouldFailIfNoEvaluatorFound() {
+    @DisplayName("Should fail when no evaluator is found")
+    void shouldFailWhenNoEvaluatorIsFound() {
         ProtocolExecutor executor = mock(ProtocolExecutor.class);
         SagaEngine sagaEngine = mock(SagaEngine.class);
         when(sagaEngine.execute(any(), any(), any())).thenAnswer(invocation -> {
@@ -151,8 +151,8 @@ class ActionDispatcherTest {
     }
 
     @Test
-    @DisplayName("Should fail if no executor is found for a protocol")
-    void shouldFailIfNoExecutorFound() {
+    @DisplayName("Should fail when no executor is found")
+    void shouldFailWhenNoExecutorIsFound() {
         SagaEngine sagaEngine = mock(SagaEngine.class);
         when(sagaEngine.execute(any(), any(), any())).thenAnswer(invocation -> {
             ActionData.SimpleAction simple = invocation.getArgument(0);
