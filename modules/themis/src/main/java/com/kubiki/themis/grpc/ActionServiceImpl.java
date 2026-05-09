@@ -54,11 +54,9 @@ public class ActionServiceImpl extends ActionServiceGrpc.ActionServiceImplBase {
 
     @Override
     public void executeRemediation(ActionRequest request, StreamObserver<ExecutionStatus> responseObserver) {
-        // Generate UUID for this specific execution instance
         UUID executionId = UUID.randomUUID();
 
         // Fetch the Ground Truth from GraphDB for the specific ActionID
-        // This includes retrieving the protocol (REST/SHELL) and the instruction (URL template/script)
         ActionData groundTruthAction = graphDBGateway.fetchActionStructure(request.getActionId());
 
         if (groundTruthAction == null) {

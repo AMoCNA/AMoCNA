@@ -6,6 +6,7 @@ import com.kubiki.themis.model.ActionData;
 import com.kubiki.themis.model.Protocol;
 import io.grpc.stub.StreamObserver;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -17,12 +18,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@DisplayName("ActionServiceImpl Unit Tests")
 class ActionServiceImplTest {
 
     private ActionServiceImpl actionService;
@@ -48,6 +49,7 @@ class ActionServiceImplTest {
     }
 
     @Test
+    @DisplayName("Should return executable actions for a resource")
     void shouldGetExecutableActions() {
         // Given
         String resourceId = "worker-1";
@@ -64,13 +66,16 @@ class ActionServiceImplTest {
         verify(actionListObserver).onCompleted();
 
         ActionList response = captor.getValue();
-        assertEquals(1, response.getActionsCount());
-        assertEquals("action-1", response.getActions(0).getId());
-        assertEquals("SimpleAction", response.getActions(0).getType());
-        assertEquals("DeletePod", response.getActions(0).getFunctionalIntent());
+        assertAll("ActionList Response Validation",
+                () -> assertEquals(1, response.getActionsCount()),
+                () -> assertEquals("action-1", response.getActions(0).getId()),
+                () -> assertEquals("SimpleAction", response.getActions(0).getType()),
+                () -> assertEquals("DeletePod", response.getActions(0).getFunctionalIntent())
+        );
     }
 
     @Test
+    @DisplayName("Should validate preconditions (placeholder)")
     void shouldValidatePreconditions() {
         // Given
         ActionRequest request = ActionRequest.newBuilder().setActionId("action-1").setTargetId("pod-1").build();
@@ -84,10 +89,14 @@ class ActionServiceImplTest {
         verify(validationResponseObserver).onCompleted();
 
         ValidationResponse response = captor.getValue();
-        assertTrue(response.getValid());
+        assertAll("ValidationResponse Validation",
+                () -> assertTrue(response.getValid()),
+                () -> assertEquals("Preconditions validated via GraphDB (placeholder)", response.getMessage())
+        );
     }
 
     @Test
+    @DisplayName("Should execute remediation and stream status updates")
     void shouldExecuteRemediation() {
         // Given
         ActionRequest request = ActionRequest.newBuilder().setActionId("action-1").setTargetId("pod-1").build();
@@ -104,9 +113,11 @@ class ActionServiceImplTest {
 
         ArgumentCaptor<ExecutionStatus> captor = ArgumentCaptor.forClass(ExecutionStatus.class);
         verify(executionStatusObserver, times(2)).onNext(captor.capture());
-        
+
         List<ExecutionStatus> statuses = captor.getAllValues();
-        assertEquals("IN_PROGRESS", statuses.get(0).getState());
-        assertEquals("SUCCESS", statuses.get(statuses.size() - 1).getState());
+        assertAll("ExecutionStatus Stream Validation",
+                () -> assertEquals("IN_PROGRESS", statuses.get(0).getState()),
+                () -> assertEquals("SUCCESS", statuses.get(1).getState())
+        );
     }
 }

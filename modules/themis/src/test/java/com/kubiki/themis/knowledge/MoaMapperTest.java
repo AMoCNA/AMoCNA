@@ -150,12 +150,12 @@ class MoaMapperTest {
         assertInstanceOf(ActionData.ComplexWorkflow.class, result);
         ActionData.ComplexWorkflow wfA = (ActionData.ComplexWorkflow) result;
         assertEquals(1, wfA.steps().size());
-        
+
         ActionData stepB = wfA.steps().get(0);
         assertInstanceOf(ActionData.ComplexWorkflow.class, stepB);
         ActionData.ComplexWorkflow wfB = (ActionData.ComplexWorkflow) stepB;
         assertEquals(1, wfB.steps().size());
-        
+
         ActionData stepC = wfB.steps().get(0);
         assertInstanceOf(ActionData.SimpleAction.class, stepC);
     }

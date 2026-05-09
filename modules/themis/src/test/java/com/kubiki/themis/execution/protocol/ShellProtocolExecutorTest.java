@@ -3,15 +3,16 @@ package com.kubiki.themis.execution.protocol;
 import com.kubiki.themis.model.ActionData;
 import com.kubiki.themis.model.Protocol;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
+@DisplayName("ShellProtocolExecutor Unit Tests")
 class ShellProtocolExecutorTest {
 
     private ShellProtocolExecutor shellProtocolExecutor;
@@ -22,12 +23,16 @@ class ShellProtocolExecutorTest {
     }
 
     @Test
+    @DisplayName("Should support SHELL protocol and reject others")
     void shouldSupportShellProtocol() {
-        assertTrue(shellProtocolExecutor.supports(Protocol.SHELL));
-        assertFalse(shellProtocolExecutor.supports(Protocol.REST));
+        assertAll(
+                () -> assertTrue(shellProtocolExecutor.supports(Protocol.SHELL), "Should support SHELL"),
+                () -> assertFalse(shellProtocolExecutor.supports(Protocol.REST), "Should NOT support REST")
+        );
     }
 
     @Test
+    @DisplayName("Should execute valid shell command with hydration")
     void shouldExecuteEchoCommand() {
         // Given
         ActionData.SimpleAction action = new ActionData.SimpleAction(
@@ -48,10 +53,11 @@ class ShellProtocolExecutorTest {
         boolean result = shellProtocolExecutor.execute(action, executionId);
 
         // Then
-        assertTrue(result);
+        assertTrue(result, "Shell command should exit with 0");
     }
 
     @Test
+    @DisplayName("Should fail on invalid shell command")
     void shouldFailOnInvalidCommand() {
         // Given
         ActionData.SimpleAction action = new ActionData.SimpleAction(
@@ -72,10 +78,11 @@ class ShellProtocolExecutorTest {
         boolean result = shellProtocolExecutor.execute(action, executionId);
 
         // Then
-        assertFalse(result);
+        assertFalse(result, "Invalid shell command should return false");
     }
 
     @Test
+    @DisplayName("Should fail when action is not a SimpleAction")
     void shouldFailWhenActionIsNotSimpleAction() {
         ActionData action = new ActionData.ComplexWorkflow(
                 "test:generic",
@@ -83,10 +90,11 @@ class ShellProtocolExecutorTest {
                 java.util.Collections.emptyList(),
                 java.util.Collections.emptyMap()
         );
-        assertFalse(shellProtocolExecutor.execute(action, UUID.randomUUID()));
+        assertFalse(shellProtocolExecutor.execute(action, UUID.randomUUID()), "Non-SimpleAction should fail");
     }
 
     @Test
+    @DisplayName("Should handle null instruction by returning false")
     void shouldHandleNullInstruction() {
         ActionData.SimpleAction action = new ActionData.SimpleAction(
                 "test:null",
@@ -101,11 +109,11 @@ class ShellProtocolExecutorTest {
                 Collections.emptyList()
         );
 
-        // This will result in command being null, which causes ProcessBuilder to throw NPE
-        assertFalse(shellProtocolExecutor.execute(action, UUID.randomUUID()));
+        assertFalse(shellProtocolExecutor.execute(action, UUID.randomUUID()), "Null instruction should result in execution failure");
     }
 
     @Test
+    @DisplayName("Should handle empty instruction (success via /bin/sh -c '')")
     void shouldHandleEmptyInstruction() {
         ActionData.SimpleAction action = new ActionData.SimpleAction(
                 "test:empty",
@@ -120,7 +128,6 @@ class ShellProtocolExecutorTest {
                 Collections.emptyList()
         );
 
-        // Executing empty command via /bin/sh -c "" should return 0 (success)
-        assertTrue(shellProtocolExecutor.execute(action, UUID.randomUUID()));
+        assertTrue(shellProtocolExecutor.execute(action, UUID.randomUUID()), "Empty instruction should return success");
     }
 }
