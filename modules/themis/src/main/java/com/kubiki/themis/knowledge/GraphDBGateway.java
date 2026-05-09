@@ -19,13 +19,18 @@ import java.util.stream.Collectors;
 @Service
 public class GraphDBGateway {
     private static final Logger log = LoggerFactory.getLogger(GraphDBGateway.class);
-    
+
+    private static final String TEMPLATE_FETCH_ACTION_STRUCTURE = "fetch-action-structure";
+    private static final String TEMPLATE_FIND_ACTIONS_FOR_RESOURCE = "find-actions-for-resource";
+    private static final String VAR_ACTION = "action";
+    private static final String VAR_RESOURCE_IRI = "resourceIri";
+
     private final SparqlClient sparqlClient;
     private final SparqlQueryBuilder sparqlQueryBuilder;
     private final ModelMapper modelMapper;
     private final OntologyRegistry ontologyRegistry;
 
-    public GraphDBGateway(SparqlClient sparqlClient, 
+    public GraphDBGateway(SparqlClient sparqlClient,
                           SparqlQueryBuilder sparqlQueryBuilder,
                           ModelMapper modelMapper,
                           OntologyRegistry ontologyRegistry) {
@@ -37,11 +42,11 @@ public class GraphDBGateway {
 
     public void updateActionState(IRI actionId, ExecutionStatus state) {
         IRI hasExecutionStatus = ontologyRegistry.moam(OntologyConstants.PROP_HAS_EXECUTION_STATUS);
-        
+
         sparqlClient.executeWithConnection(conn -> {
             ValueFactory vf = conn.getValueFactory();
             Literal stateLiteral = vf.createLiteral(state.name());
-            
+
             conn.begin();
             conn.remove(actionId, hasExecutionStatus, null);
             conn.add(actionId, hasExecutionStatus, stateLiteral);
@@ -52,12 +57,12 @@ public class GraphDBGateway {
 
     public ActionData fetchActionStructure(IRI actionId) {
         String sparql = sparqlQueryBuilder.builder()
-                .template("fetch-action-structure")
+                .template(TEMPLATE_FETCH_ACTION_STRUCTURE)
                 .build();
 
         return sparqlClient.executeQuery(sparql, stream -> {
             Map<IRI, List<BindingSet>> allBindings = stream.collect(
-                    Collectors.groupingBy(bs -> (IRI) bs.getValue("action"), LinkedHashMap::new, Collectors.toList())
+                    Collectors.groupingBy(bs -> (IRI) bs.getValue(VAR_ACTION), LinkedHashMap::new, Collectors.toList())
             );
             Result<ActionData> result = modelMapper.mapAction(actionId, allBindings);
             if (result.isSuccess()) {
@@ -71,12 +76,12 @@ public class GraphDBGateway {
 
     public List<ActionData.SimpleAction> findActionsForResource(IRI resourceIri) {
         String sparql = sparqlQueryBuilder.builder()
-                .template("find-actions-for-resource")
-                .variable("resourceIri", resourceIri)
+                .template(TEMPLATE_FIND_ACTIONS_FOR_RESOURCE)
+                .variable(VAR_RESOURCE_IRI, resourceIri)
                 .build();
 
         return sparqlClient.executeQuery(sparql, stream -> stream
-                .collect(Collectors.groupingBy(bs -> (IRI) bs.getValue("action")))
+                .collect(Collectors.groupingBy(bs -> (IRI) bs.getValue(VAR_ACTION)))
                 .entrySet().stream()
                 .map(entry -> modelMapper.mapAction(entry.getKey(), Map.of(entry.getKey(), entry.getValue())))
                 .filter(Result::isSuccess)

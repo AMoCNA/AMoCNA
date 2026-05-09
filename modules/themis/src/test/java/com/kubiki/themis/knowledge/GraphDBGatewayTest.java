@@ -24,14 +24,9 @@ import static org.mockito.Mockito.when;
 class GraphDBGatewayTest {
     private Repository repository;
     private GraphDBGateway gateway;
-    private SparqlClient sparqlClient;
-    private SparqlQueryBuilder sparqlQueryBuilder;
-    private ModelMapper modelMapper;
-    private OntologyRegistry ontologyRegistry;
-    private SparqlLoader sparqlLoader;
     private ThemisProperties properties;
 
-    private static final String MOA_NS = "http://moa#";
+    private static final String moam_NS = "http://moam#";
 
     @BeforeEach
     void setUp() {
@@ -39,14 +34,14 @@ class GraphDBGatewayTest {
         repository.init();
 
         properties = Mockito.mock(ThemisProperties.class);
-        ThemisProperties.Ontology ontology = new ThemisProperties.Ontology(MOA_NS);
+        ThemisProperties.Ontology ontology = new ThemisProperties.Ontology(moam_NS);
         when(properties.ontology()).thenReturn(ontology);
 
-        ontologyRegistry = new OntologyRegistry(properties);
-        sparqlClient = new SparqlClient(repository);
-        sparqlLoader = new SparqlLoader(new DefaultResourceLoader());
-        sparqlQueryBuilder = new SparqlQueryBuilder(sparqlLoader, ontologyRegistry);
-        modelMapper = new ModelMapper();
+        OntologyRegistry ontologyRegistry = new OntologyRegistry(properties);
+        SparqlClient sparqlClient = new SparqlClient(repository);
+        SparqlLoader sparqlLoader = new SparqlLoader(new DefaultResourceLoader());
+        SparqlQueryBuilder sparqlQueryBuilder = new SparqlQueryBuilder(sparqlLoader, ontologyRegistry);
+        ModelMapper modelMapper = new ModelMapper();
 
         gateway = new GraphDBGateway(sparqlClient, sparqlQueryBuilder, modelMapper, ontologyRegistry);
     }
@@ -60,11 +55,11 @@ class GraphDBGatewayTest {
     @DisplayName("Should update action state in GraphDB")
     void shouldUpdateActionState() {
         ValueFactory vf = repository.getValueFactory();
-        IRI actionIri = vf.createIRI(MOA_NS + "action1");
-        IRI hasExecutionStatus = vf.createIRI(MOA_NS + "hasExecutionStatus");
+        IRI actionIri = vf.createIRI(moam_NS + "action1");
+        IRI hasExecutionStatus = vf.createIRI(moam_NS + "hasExecutionStatus");
 
         try (RepositoryConnection conn = repository.getConnection()) {
-            conn.add(actionIri, RDF.TYPE, vf.createIRI(MOA_NS + "AutonomicAction"));
+            conn.add(actionIri, RDF.TYPE, vf.createIRI(moam_NS + "AutonomicAction"));
         }
 
         gateway.updateActionState(actionIri, ExecutionStatus.SUCCESS);
@@ -79,36 +74,36 @@ class GraphDBGatewayTest {
     @DisplayName("Should find actions for resource")
     void shouldFindActionsForResource() {
         ValueFactory vf = repository.getValueFactory();
-        IRI actionIri = vf.createIRI(MOA_NS + "action1");
-        IRI resourceIri = vf.createIRI(MOA_NS + "resource1");
-        IRI intent = vf.createIRI(MOA_NS + "RestartAction");
+        IRI actionIri = vf.createIRI(moam_NS + "action1");
+        IRI resourceIri = vf.createIRI(moam_NS + "resource1");
+        IRI intent = vf.createIRI(moam_NS + "RestartAction");
 
         try (RepositoryConnection conn = repository.getConnection()) {
             conn.add(actionIri, RDF.TYPE, intent);
-            conn.add(actionIri, vf.createIRI(MOA_NS + "targetsEntity"), resourceIri);
-            conn.add(actionIri, vf.createIRI(MOA_NS + "hasExecutionProtocol"), vf.createIRI(MOA_NS + "REST"));
+            conn.add(actionIri, vf.createIRI(moam_NS + "targetsEntity"), resourceIri);
+            conn.add(actionIri, vf.createIRI(moam_NS + "hasExecutionProtocol"), vf.createIRI(moam_NS + "REST"));
         }
 
         java.util.List<com.kubiki.themis.model.ActionData.SimpleAction> actions = gateway.findActionsForResource(resourceIri);
         
         assertEquals(1, actions.size());
-        assertEquals(actionIri, actions.get(0).id());
-        assertEquals(intent.stringValue(), actions.get(0).functionalIntent());
+        assertEquals(actionIri, actions.getFirst().id());
+        assertEquals(intent.stringValue(), actions.getFirst().functionalIntent());
     }
 
     @Test
     @DisplayName("Should fetch action structure")
     void shouldFetchActionStructure() {
         ValueFactory vf = repository.getValueFactory();
-        IRI actionIri = vf.createIRI(MOA_NS + "action1");
-        IRI intent = vf.createIRI(MOA_NS + "RestartAction");
-        IRI resourceIri = vf.createIRI(MOA_NS + "resource1");
+        IRI actionIri = vf.createIRI(moam_NS + "action1");
+        IRI intent = vf.createIRI(moam_NS + "RestartAction");
+        IRI resourceIri = vf.createIRI(moam_NS + "resource1");
 
         try (RepositoryConnection conn = repository.getConnection()) {
             conn.add(actionIri, RDF.TYPE, intent);
-            conn.add(actionIri, vf.createIRI(MOA_NS + "targetsEntity"), resourceIri);
-            conn.add(actionIri, vf.createIRI(MOA_NS + "hasExecutionProtocol"), vf.createIRI(MOA_NS + "REST"));
-            conn.add(actionIri, vf.createIRI(MOA_NS + "hasExecutionInstruction"), vf.createLiteral("restart"));
+            conn.add(actionIri, vf.createIRI(moam_NS + "targetsEntity"), resourceIri);
+            conn.add(actionIri, vf.createIRI(moam_NS + "hasExecutionProtocol"), vf.createIRI(moam_NS + "REST"));
+            conn.add(actionIri, vf.createIRI(moam_NS + "hasExecutionInstruction"), vf.createLiteral("restart"));
         }
 
         com.kubiki.themis.model.ActionData action = gateway.fetchActionStructure(actionIri);
