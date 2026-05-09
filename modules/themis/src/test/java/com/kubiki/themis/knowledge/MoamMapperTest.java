@@ -12,21 +12,20 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class MoaMapperTest {
+class MoamMapperTest {
 
-    private MoaMapper mapper;
+    private MoamMapper mapper;
     private ValueFactory vf = SimpleValueFactory.getInstance();
     private String ns = "http://moa#";
 
     @BeforeEach
     void setUp() {
-        mapper = new MoaMapper();
+        mapper = new MoamMapper();
     }
 
     @Test
