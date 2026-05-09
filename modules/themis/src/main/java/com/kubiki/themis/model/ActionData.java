@@ -1,5 +1,6 @@
 package com.kubiki.themis.model;
 
+import lombok.Builder;
 import org.eclipse.rdf4j.model.IRI;
 import org.springframework.http.HttpMethod;
 import java.util.List;
@@ -12,7 +13,7 @@ public sealed interface ActionData
     String functionalIntent();
 
     record ConditionData(IRI id, IRI type, String policy) {}
-
+    @Builder
     record SimpleAction(
         IRI id,
         String functionalIntent,
@@ -26,6 +27,7 @@ public sealed interface ActionData
         List<ConditionData> postConditions
     ) implements ActionData {}
 
+    @Builder
     record ComplexWorkflow(
         IRI id,
         String functionalIntent,

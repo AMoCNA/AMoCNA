@@ -11,10 +11,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
-import static com.kubiki.themis.testutil.TestActionBuilder.simpleAction;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -30,7 +28,7 @@ class ActionDispatcherTest {
         when(executor.supports(Protocol.REST)).thenReturn(true);
         when(executor.execute(any(), any())).thenReturn(true);
 
-        IRI typeA = VF.createIRI("http://moa#TypeA");
+        IRI typeA = VF.createIRI("http://moam#TypeA");
         ConditionEvaluator evaluator = mock(ConditionEvaluator.class);
         when(evaluator.supports(typeA)).thenReturn(true);
         when(evaluator.evaluate(any())).thenReturn(true);
@@ -48,11 +46,12 @@ class ActionDispatcherTest {
 
         ActionDispatcher dispatcher = new ActionDispatcher(List.of(executor), List.of(evaluator), sagaEngine);
 
-        ActionData.ConditionData pre = new ActionData.ConditionData(VF.createIRI("http://moa#pre1"), typeA, "ASK");
-        ActionData.ConditionData post = new ActionData.ConditionData(VF.createIRI("http://moa#post1"), typeA, "ASK");
+        ActionData.ConditionData pre = new ActionData.ConditionData(VF.createIRI("http://moam#pre1"), typeA, "ASK");
+        ActionData.ConditionData post = new ActionData.ConditionData(VF.createIRI("http://moam#post1"), typeA, "ASK");
 
-        ActionData.SimpleAction action = simpleAction()
-                .id(VF.createIRI("http://moa#action1"))
+        ActionData.SimpleAction action = ActionData.SimpleAction
+                .builder()
+                .id(VF.createIRI("http://moam#action1"))
                 .functionalIntent("Intent")
                 .protocol(Protocol.REST)
                 .instruction("url")
@@ -75,7 +74,7 @@ class ActionDispatcherTest {
     @DisplayName("Should fail when pre-condition fails")
     void shouldFailWhenPreConditionFails() {
         ProtocolExecutor executor = mock(ProtocolExecutor.class);
-        IRI typeA = VF.createIRI("http://moa#TypeA");
+        IRI typeA = VF.createIRI("http://moam#TypeA");
         ConditionEvaluator evaluator = mock(ConditionEvaluator.class);
         when(evaluator.supports(typeA)).thenReturn(true);
         when(evaluator.evaluate(any())).thenReturn(false);
@@ -93,10 +92,11 @@ class ActionDispatcherTest {
 
         ActionDispatcher dispatcher = new ActionDispatcher(List.of(executor), List.of(evaluator), sagaEngine);
 
-        ActionData.ConditionData pre = new ActionData.ConditionData(VF.createIRI("http://moa#pre1"), typeA, "ASK");
+        ActionData.ConditionData pre = new ActionData.ConditionData(VF.createIRI("http://moam#pre1"), typeA, "ASK");
 
-        ActionData.SimpleAction action = simpleAction()
-                .id(VF.createIRI("http://moa#action1"))
+        ActionData.SimpleAction action = ActionData.SimpleAction
+                .builder()
+                .id(VF.createIRI("http://moam#action1"))
                 .functionalIntent("Intent")
                 .protocol(Protocol.REST)
                 .instruction("url")
@@ -129,8 +129,9 @@ class ActionDispatcherTest {
         ActionDispatcher dispatcher = new ActionDispatcher(List.of(executor), List.of(), sagaEngine);
 
         // Test null
-        ActionData.SimpleAction actionNull = simpleAction()
-                .id(VF.createIRI("http://moa#a1"))
+        ActionData.SimpleAction actionNull = ActionData.SimpleAction
+                .builder()
+                .id(VF.createIRI("http://moam#a1"))
                 .functionalIntent("I")
                 .protocol(Protocol.REST)
                 .instruction("u")
@@ -141,8 +142,9 @@ class ActionDispatcherTest {
                 .build();
 
         // Test empty
-        ActionData.SimpleAction actionEmpty = simpleAction()
-                .id(VF.createIRI("http://moa#a2"))
+        ActionData.SimpleAction actionEmpty = ActionData.SimpleAction
+                .builder()
+                .id(VF.createIRI("http://moam#a2"))
                 .functionalIntent("I")
                 .protocol(Protocol.REST)
                 .instruction("u")
@@ -168,9 +170,10 @@ class ActionDispatcherTest {
 
         ActionDispatcher dispatcher = new ActionDispatcher(List.of(executor), List.of(), sagaEngine);
 
-        ActionData.ConditionData pre = new ActionData.ConditionData(VF.createIRI("http://moa#pre1"), VF.createIRI("http://moa#UnknownType"), "ASK");
-        ActionData.SimpleAction action = simpleAction()
-                .id(VF.createIRI("http://moa#a1"))
+        ActionData.ConditionData pre = new ActionData.ConditionData(VF.createIRI("http://moam#pre1"), VF.createIRI("http://moam#UnknownType"), "ASK");
+        ActionData.SimpleAction action = ActionData.SimpleAction
+                .builder()
+                .id(VF.createIRI("http://moam#a1"))
                 .functionalIntent("I")
                 .protocol(Protocol.REST)
                 .instruction("u")
@@ -193,8 +196,9 @@ class ActionDispatcherTest {
 
         ActionDispatcher dispatcher = new ActionDispatcher(List.of(), List.of(), sagaEngine);
 
-        ActionData.SimpleAction action = simpleAction()
-                .id(VF.createIRI("http://moa#a1"))
+        ActionData.SimpleAction action = ActionData.SimpleAction
+                .builder()
+                .id(VF.createIRI("http://moam#a1"))
                 .functionalIntent("I")
                 .protocol(Protocol.REST)
                 .instruction("u")
