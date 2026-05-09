@@ -1,6 +1,7 @@
 package com.kubiki.themis.execution.protocol;
 
 import com.kubiki.themis.model.ActionData;
+import com.kubiki.themis.model.Protocol;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -22,8 +23,8 @@ class ShellProtocolExecutorTest {
 
     @Test
     void shouldSupportShellProtocol() {
-        assertTrue(shellProtocolExecutor.supports("SHELL"));
-        assertFalse(shellProtocolExecutor.supports("REST"));
+        assertTrue(shellProtocolExecutor.supports(Protocol.SHELL));
+        assertFalse(shellProtocolExecutor.supports(Protocol.REST));
     }
 
     @Test
@@ -32,7 +33,7 @@ class ShellProtocolExecutorTest {
         ActionData.SimpleAction action = new ActionData.SimpleAction(
                 "test:echo",
                 "EchoAction",
-                "SHELL",
+                Protocol.SHELL,
                 "echo 'Hello {name}'",
                 "test:resource",
                 Map.of("name", "Themis"),
@@ -56,7 +57,7 @@ class ShellProtocolExecutorTest {
         ActionData.SimpleAction action = new ActionData.SimpleAction(
                 "test:fail",
                 "FailAction",
-                "SHELL",
+                Protocol.SHELL,
                 "non-existent-command",
                 "test:resource",
                 Map.of(),

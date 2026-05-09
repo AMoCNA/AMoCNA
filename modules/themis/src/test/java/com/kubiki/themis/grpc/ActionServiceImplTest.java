@@ -3,6 +3,7 @@ package com.kubiki.themis.grpc;
 import com.kubiki.themis.execution.ActionDispatcher;
 import com.kubiki.themis.knowledge.GraphDBGateway;
 import com.kubiki.themis.model.ActionData;
+import com.kubiki.themis.model.Protocol;
 import io.grpc.stub.StreamObserver;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,9 +11,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpMethod;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -49,7 +52,7 @@ class ActionServiceImplTest {
         // Given
         String resourceId = "worker-1";
         ResourceRequest request = ResourceRequest.newBuilder().setResourceId(resourceId).build();
-        ActionData.SimpleAction mockAction = new ActionData.SimpleAction("action-1", "DeletePod", "REST", "http://mgmt", "pod-1", Map.of(), "GET", null, List.of(), List.of());
+        ActionData.SimpleAction mockAction = new ActionData.SimpleAction("action-1", "DeletePod", Protocol.REST, "http://mgmt", "pod-1", Map.of(), HttpMethod.GET, null, List.of(), List.of());
         when(graphDBGateway.findActionsForResource(resourceId)).thenReturn(List.of(mockAction));
 
         // When
@@ -88,9 +91,9 @@ class ActionServiceImplTest {
     void shouldExecuteRemediation() {
         // Given
         ActionRequest request = ActionRequest.newBuilder().setActionId("action-1").setTargetId("pod-1").build();
-        ActionData mockAction = new ActionData.SimpleAction("action-1", "DeletePod", "REST", "http://mgmt", "pod-1", Map.of(), "GET", null, List.of(), List.of());
+        ActionData mockAction = new ActionData.SimpleAction("action-1", "DeletePod", Protocol.REST, "http://mgmt", "pod-1", Map.of(), HttpMethod.GET, null, List.of(), List.of());
         when(graphDBGateway.fetchActionStructure("action-1")).thenReturn(mockAction);
-        when(actionDispatcher.dispatch(any(ActionData.class), any(java.util.UUID.class))).thenReturn(true);
+        when(actionDispatcher.dispatch(any(ActionData.class), any(UUID.class))).thenReturn(true);
 
         // When
         actionService.executeRemediation(request, executionStatusObserver);

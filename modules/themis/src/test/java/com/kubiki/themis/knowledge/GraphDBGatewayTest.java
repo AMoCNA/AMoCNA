@@ -2,6 +2,7 @@ package com.kubiki.themis.knowledge;
 
 import com.kubiki.themis.config.ThemisProperties;
 import com.kubiki.themis.model.ActionData;
+import com.kubiki.themis.model.ExecutionStatus;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.ValueFactory;
@@ -35,20 +36,14 @@ class GraphDBGatewayTest {
 
         properties = Mockito.mock(ThemisProperties.class);
         ThemisProperties.GraphDB graphDB = new ThemisProperties.GraphDB("http://localhost:7200", "amocna", 5000);
-        ThemisProperties.Ontology ontology = new ThemisProperties.Ontology(MOA_NS, "http://cnee#");
+        ThemisProperties.Ontology ontology = new ThemisProperties.Ontology(MOA_NS);
         
         when(properties.graphdb()).thenReturn(graphDB);
         when(properties.ontology()).thenReturn(ontology);
 
         moaMapper = new MoaMapper();
-        
-        // We need to override the repository in GraphDBGateway for testing
-        // or make it injectable. In the real class it's created in constructor.
-        // For testing, I'll use a subclass or reflection if needed, but better to use a mock for HTTPRepository 
-        // if I can't easily swap it. 
-        // Actually, let's just use a constructor that takes the Repository.
+
         gateway = new GraphDBGateway(properties, moaMapper) {
-            // Override repository for testing
             private final Repository testRepo = repository;
             
             @Override
@@ -76,7 +71,7 @@ class GraphDBGatewayTest {
             conn.add(actionIri, RDF.TYPE, vf.createIRI(MOA_NS + "AutonomicAction"));
         }
 
-        gateway.updateActionState(MOA_NS + "action1", "SUCCESS");
+        gateway.updateActionState(MOA_NS + "action1", ExecutionStatus.SUCCESS);
 
         try (RepositoryConnection conn = repository.getConnection()) {
             Literal status = (Literal) conn.getStatements(actionIri, hasExecutionStatus, null).next().getObject();

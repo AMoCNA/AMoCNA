@@ -1,14 +1,13 @@
 package com.kubiki.themis.execution.protocol;
 
-import com.kubiki.themis.constants.ProtocolConstants;
 import com.kubiki.themis.execution.ProtocolExecutor;
 import com.kubiki.themis.model.ActionData;
+import com.kubiki.themis.model.Protocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.util.UUID;
 
 @Component
@@ -17,8 +16,8 @@ public class ShellProtocolExecutor implements ProtocolExecutor {
     private static final int SUCCESS_EXIT_CODE = 0;
 
     @Override
-    public boolean supports(String protocol) {
-        return ProtocolConstants.SHELL.equalsIgnoreCase(protocol);
+    public boolean supports(Protocol protocol) {
+        return Protocol.SHELL.equals(protocol);
     }
 
     @Override
@@ -33,10 +32,9 @@ public class ShellProtocolExecutor implements ProtocolExecutor {
 
         try {
             Process process = new ProcessBuilder("/bin/sh", "-c", command).start();
-
             // Capture output in separate threads to avoid hanging
-            Thread.ofVirtual().start(() -> readStream(process.getInputStream(), "STDOUT", action.id()));
-            Thread.ofVirtual().start(() -> readStream(process.getErrorStream(), "STDERR", action.id()));
+            Thread.ofVirtual().start(() -> readStream(process.inputReader(), "STDOUT", action.id()));
+            Thread.ofVirtual().start(() -> readStream(process.inputReader(), "STDERR", action.id()));
 
             int exitCode = process.waitFor();
             log.info("Shell command {} exited with code {}", action.id(), exitCode);
@@ -48,10 +46,10 @@ public class ShellProtocolExecutor implements ProtocolExecutor {
         }
     }
 
-    private void readStream(java.io.InputStream is, String type, String actionId) {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
+    private void readStream(BufferedReader br, String type, String actionId) {
+        try {
             String line;
-            while ((line = reader.readLine()) != null) {
+            while ((line = br.readLine()) != null) {
                 log.info("[{}] {}: {}", actionId, type, line);
             }
         } catch (Exception e) {

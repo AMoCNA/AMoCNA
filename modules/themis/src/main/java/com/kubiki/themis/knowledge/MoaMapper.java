@@ -1,8 +1,9 @@
 package com.kubiki.themis.knowledge;
 
-import com.kubiki.themis.constants.ProtocolConstants;
 import com.kubiki.themis.model.ActionData;
+import com.kubiki.themis.model.Protocol;
 import org.eclipse.rdf4j.query.BindingSet;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -83,14 +84,20 @@ public class MoaMapper {
             }
         }
 
+        String protocolStr = first.hasBinding("protocol") ? first.getValue("protocol").stringValue() : "REST";
+        Protocol protocol = Protocol.valueOf(protocolStr.toUpperCase());
+
+        String methodStr = first.hasBinding("method") ? first.getValue("method").stringValue() : null;
+        HttpMethod method = methodStr != null ? HttpMethod.valueOf(methodStr.toUpperCase()) : null;
+
         return new ActionData.SimpleAction(
                 first.getValue("action").stringValue(),
                 first.getValue("intent").stringValue(),
-                first.hasBinding("protocol") ? first.getValue("protocol").stringValue() : ProtocolConstants.REST,
+                protocol,
                 first.hasBinding("instruction") ? first.getValue("instruction").stringValue() : "http://localhost:8080/mgmt?target={target}",
                 first.getValue("target").stringValue(),
                 new HashMap<>(),
-                first.hasBinding("method") ? first.getValue("method").stringValue() : null,
+                method,
                 first.hasBinding("payload") ? first.getValue("payload").stringValue() : null,
                 List.copyOf(preConditions.values()),
                 List.copyOf(postConditions.values())

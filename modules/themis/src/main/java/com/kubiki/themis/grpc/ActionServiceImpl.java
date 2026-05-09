@@ -23,7 +23,7 @@ public class ActionServiceImpl extends ActionServiceGrpc.ActionServiceImplBase {
     @Override
     public void getExecutableActions(ResourceRequest request, StreamObserver<ActionList> responseObserver) {
         try {
-            List<ActionData> actions = graphDBGateway.findActionsForResource(request.getResourceId());
+            List<? extends ActionData> actions = graphDBGateway.findActionsForResource(request.getResourceId());
             
             ActionList.Builder listBuilder = ActionList.newBuilder();
             for (ActionData action : actions) {

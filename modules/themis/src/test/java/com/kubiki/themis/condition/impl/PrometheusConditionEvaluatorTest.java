@@ -26,7 +26,7 @@ class PrometheusConditionEvaluatorTest {
 
     private final ThemisProperties properties = new ThemisProperties(
         null,
-        new ThemisProperties.Ontology("http://example.org/moa#", "http://example.org/cnee#"),
+        new ThemisProperties.Ontology("http://example.org/moa#"),
         new ThemisProperties.Prometheus("http://prometheus:9090")
     );
 

@@ -1,6 +1,7 @@
 package com.kubiki.themis.execution.protocol;
 
 import com.kubiki.themis.model.ActionData;
+import com.kubiki.themis.model.Protocol;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
@@ -8,7 +9,6 @@ import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -39,11 +39,11 @@ class RestProtocolExecutorSliceTest {
         ActionData.SimpleAction action = new ActionData.SimpleAction(
                 "test-id",
                 "RemediateAction",
-                "REST",
+                Protocol.REST,
                 testUrl,
                 "target-resource",
                 Map.of(),
-                "POST",
+                HttpMethod.POST,
                 "{}",
                 Collections.emptyList(),
                 Collections.emptyList()

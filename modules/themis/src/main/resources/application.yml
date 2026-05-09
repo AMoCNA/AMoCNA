@@ -16,4 +16,3 @@ themis:
     timeoutMs: 5000
   ontology:
     moaNamespace: "http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#"
-    cneeNamespace: "http://www.semanticweb.org/patryk/ontologies/2026/4/CNEE#"

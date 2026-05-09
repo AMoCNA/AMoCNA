@@ -8,7 +8,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 @SpringBootApplication
 @EnableConfigurationProperties(ThemisProperties.class)
 public class ThemisApplication {
-    public static void main(String[] args) {
+    static void main(String[] args) {
         SpringApplication.run(ThemisApplication.class, args);
     }
 }

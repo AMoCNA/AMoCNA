@@ -1,10 +1,13 @@
 package com.kubiki.themis.execution.protocol;
 
 import com.kubiki.themis.model.ActionData;
+import com.kubiki.themis.model.Protocol;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpMethod;
 import org.springframework.web.client.RestClient;
 
 import java.util.Map;
@@ -15,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class RestProtocolExecutorTest {
 
     private RestProtocolExecutor restProtocolExecutor;
@@ -39,16 +43,14 @@ class RestProtocolExecutorTest {
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
         when(restClientBuilder.build()).thenReturn(restClient);
         restProtocolExecutor = new RestProtocolExecutor(restClientBuilder);
-        when(responseSpec.toBodilessEntity()).thenReturn(responseEntity);
     }
 
     @Test
     void shouldSupportRestProtocol() {
-        assertTrue(restProtocolExecutor.supports("REST"));
-        assertFalse(restProtocolExecutor.supports("SHELL"));
+        assertTrue(restProtocolExecutor.supports(Protocol.REST));
+        assertFalse(restProtocolExecutor.supports(Protocol.SHELL));
     }
 
     @Test
@@ -57,27 +59,27 @@ class RestProtocolExecutorTest {
         ActionData.SimpleAction action = new ActionData.SimpleAction(
                 "moa:DeletePod_1",
                 "DeletePodAction",
-                "REST",
+                Protocol.REST,
                 "http://localhost:8080/delete?ns={ns}&pod={pod}",
                 "cnee:pod-1",
                 Map.of("ns", "prod", "pod", "nginx-v1"),
-                "GET",
+                HttpMethod.GET,
                 null,
                 java.util.List.of(),
                 java.util.List.of()
         );
         UUID executionId = UUID.randomUUID();
 
-        when(restClient.get()).thenReturn(requestHeadersUriSpec);
-        when(requestHeadersUriSpec.uri(anyString())).thenReturn(requestHeadersUriSpec);
-        when(requestHeadersUriSpec.retrieve()).thenReturn(responseSpec);
+        when(restClient.method(HttpMethod.GET)).thenReturn(requestBodyUriSpec);
+        when(requestBodyUriSpec.uri(anyString())).thenReturn(requestBodyUriSpec);
+        when(requestBodyUriSpec.retrieve()).thenReturn(responseSpec);
 
         // When
         boolean result = restProtocolExecutor.execute(action, executionId);
 
         // Then
         assertTrue(result);
-        verify(requestHeadersUriSpec).uri("http://localhost:8080/delete?ns=prod&pod=nginx-v1");
+        verify(requestBodyUriSpec).uri("http://localhost:8080/delete?ns=prod&pod=nginx-v1");
     }
 
     @Test
@@ -86,18 +88,18 @@ class RestProtocolExecutorTest {
         ActionData.SimpleAction action = new ActionData.SimpleAction(
                 "moa:ScaleDeployment_1",
                 "ScaleDeploymentAction",
-                "REST",
+                Protocol.REST,
                 "http://localhost:8080/scale",
                 "cnee:deploy-1",
                 Map.of("replicas", "3"),
-                "POST",
+                HttpMethod.POST,
                 "{\"replicas\": {replicas}}",
                 java.util.List.of(),
                 java.util.List.of()
         );
         UUID executionId = UUID.randomUUID();
 
-        when(restClient.post()).thenReturn(requestBodyUriSpec);
+        when(restClient.method(HttpMethod.POST)).thenReturn(requestBodyUriSpec);
         when(requestBodyUriSpec.uri(anyString())).thenReturn(requestBodyUriSpec);
         when(requestBodyUriSpec.body(anyString())).thenReturn(requestBodyUriSpec);
         when(requestBodyUriSpec.retrieve()).thenReturn(responseSpec);
@@ -117,18 +119,18 @@ class RestProtocolExecutorTest {
         ActionData.SimpleAction action = new ActionData.SimpleAction(
                 "moa:UpdateConfig_1",
                 "UpdateConfigAction",
-                "REST",
+                Protocol.REST,
                 "http://localhost:8080/config",
                 "cnee:config-1",
                 Map.of(),
-                "PUT",
+                HttpMethod.PUT,
                 "{\"key\": \"value\"}",
                 java.util.List.of(),
                 java.util.List.of()
         );
         UUID executionId = UUID.randomUUID();
 
-        when(restClient.put()).thenReturn(requestBodyUriSpec);
+        when(restClient.method(HttpMethod.PUT)).thenReturn(requestBodyUriSpec);
         when(requestBodyUriSpec.uri(anyString())).thenReturn(requestBodyUriSpec);
         when(requestBodyUriSpec.body(anyString())).thenReturn(requestBodyUriSpec);
         when(requestBodyUriSpec.retrieve()).thenReturn(responseSpec);
@@ -148,26 +150,26 @@ class RestProtocolExecutorTest {
         ActionData.SimpleAction action = new ActionData.SimpleAction(
                 "moa:RemoveResource_1",
                 "RemoveResourceAction",
-                "REST",
+                Protocol.REST,
                 "http://localhost:8080/resource/{id}",
                 "cnee:res-1",
                 Map.of("id", "123"),
-                "DELETE",
+                HttpMethod.DELETE,
                 null,
                 java.util.List.of(),
                 java.util.List.of()
         );
         UUID executionId = UUID.randomUUID();
 
-        when(restClient.delete()).thenReturn(requestHeadersUriSpec);
-        when(requestHeadersUriSpec.uri(anyString())).thenReturn(requestHeadersUriSpec);
-        when(requestHeadersUriSpec.retrieve()).thenReturn(responseSpec);
+        when(restClient.method(HttpMethod.DELETE)).thenReturn(requestBodyUriSpec);
+        when(requestBodyUriSpec.uri(anyString())).thenReturn(requestBodyUriSpec);
+        when(requestBodyUriSpec.retrieve()).thenReturn(responseSpec);
 
         // When
         boolean result = restProtocolExecutor.execute(action, executionId);
 
         // Then
         assertTrue(result);
-        verify(requestHeadersUriSpec).uri("http://localhost:8080/resource/123");
+        verify(requestBodyUriSpec).uri("http://localhost:8080/resource/123");
     }
 }

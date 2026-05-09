@@ -2,8 +2,10 @@ package com.kubiki.themis.execution;
 
 import com.kubiki.themis.condition.ConditionEvaluator;
 import com.kubiki.themis.model.ActionData;
+import com.kubiki.themis.model.Protocol;
 import com.kubiki.themis.saga.SagaEngine;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpMethod;
 
 import java.util.List;
 import java.util.Map;
@@ -19,7 +21,7 @@ class ActionDispatcherTest {
     @Test
     void shouldEvaluatePreAndPostConditions() {
         ProtocolExecutor executor = mock(ProtocolExecutor.class);
-        when(executor.supports("REST")).thenReturn(true);
+        when(executor.supports(Protocol.REST)).thenReturn(true);
         when(executor.execute(any(), any())).thenReturn(true);
 
         ConditionEvaluator evaluator = mock(ConditionEvaluator.class);
@@ -43,7 +45,7 @@ class ActionDispatcherTest {
         ActionData.ConditionData post = new ActionData.ConditionData("post1", "TypeA", "ASK");
 
         ActionData.SimpleAction action = new ActionData.SimpleAction(
-                "action1", "Intent", "REST", "url", "target", Map.of(), "GET", null, List.of(pre), List.of(post)
+                "action1", "Intent", Protocol.REST, "url", "target", Map.of(), HttpMethod.GET, null, List.of(pre), List.of(post)
         );
 
         boolean result = dispatcher.dispatch(action, UUID.randomUUID());
@@ -76,7 +78,7 @@ class ActionDispatcherTest {
         ActionData.ConditionData pre = new ActionData.ConditionData("pre1", "TypeA", "ASK");
 
         ActionData.SimpleAction action = new ActionData.SimpleAction(
-                "action1", "Intent", "REST", "url", "target", Map.of(), "GET", null, List.of(pre), List.of()
+                "action1", "Intent", Protocol.REST, "url", "target", Map.of(), HttpMethod.GET, null, List.of(pre), List.of()
         );
 
         boolean result = dispatcher.dispatch(action, UUID.randomUUID());

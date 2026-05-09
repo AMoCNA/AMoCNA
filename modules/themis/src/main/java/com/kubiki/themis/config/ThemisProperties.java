@@ -14,9 +14,6 @@ public record ThemisProperties(
     @NestedConfigurationProperty Prometheus prometheus
 ) {
     public record GraphDB(String url, String repositoryId, int timeoutMs) {}
-    public record Ontology(
-        String moaNamespace,
-        String cneeNamespace
-    ) {}
+    public record Ontology(String moaNamespace) {}
     public record Prometheus(String url) {}
 }

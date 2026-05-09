@@ -1,10 +1,11 @@
 package com.kubiki.themis.execution.protocol;
 
-import com.kubiki.themis.constants.ProtocolConstants;
 import com.kubiki.themis.execution.ProtocolExecutor;
 import com.kubiki.themis.model.ActionData;
+import com.kubiki.themis.model.Protocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
@@ -24,8 +25,8 @@ public class RestProtocolExecutor implements ProtocolExecutor {
     }
 
     @Override
-    public boolean supports(String protocol) {
-        return ProtocolConstants.REST.equalsIgnoreCase(protocol);
+    public boolean supports(Protocol protocol) {
+        return Protocol.REST.equals(protocol);
     }
 
     @Override
@@ -36,20 +37,19 @@ public class RestProtocolExecutor implements ProtocolExecutor {
         }
 
         String url = hydrate(simpleAction.instruction(), simpleAction.data());
-        String method = simpleAction.method() != null ? simpleAction.method().toUpperCase() : ProtocolConstants.GET;
+        HttpMethod method = simpleAction.method() != null ? simpleAction.method() : HttpMethod.GET;
         String payload = simpleAction.payload() != null ? hydrate(simpleAction.payload(), simpleAction.data()) : null;
 
         log.info("Executing {} request to {} for execution {}", method, url, executionId);
 
         try {
-            switch (method) {
-                case ProtocolConstants.GET -> restClient.get().uri(url).retrieve().toBodilessEntity();
-                case ProtocolConstants.POST -> restClient.post().uri(url).body(payload != null ? payload : "").retrieve().toBodilessEntity();
-                case ProtocolConstants.PUT -> restClient.put().uri(url).body(payload != null ? payload : "").retrieve().toBodilessEntity();
-                case ProtocolConstants.DELETE -> restClient.delete().uri(url).retrieve().toBodilessEntity();
-                default -> throw new IllegalArgumentException("Unsupported HTTP method: " + method);
-            };
-            // For now, we assume any non-error response is success
+            RestClient.RequestBodySpec request = restClient.method(method).uri(url);
+            
+            if (payload != null && !payload.isEmpty()) {
+                request.body(payload);
+            }
+            
+            request.retrieve().toBodilessEntity();
             return true;
         } catch (Exception e) {
             log.error("Failed to execute REST action {}: {}", action.id(), e.getMessage());
