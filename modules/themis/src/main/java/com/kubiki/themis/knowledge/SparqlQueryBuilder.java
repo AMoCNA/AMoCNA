@@ -22,6 +22,7 @@ public class SparqlQueryBuilder {
     }
 
     public class QueryBuilder {
+        public static final String PREFIX_MOAM = "PREFIX moam: <";
         private String templateName;
         private final Map<String, Object> variables = new HashMap<>();
 
@@ -40,7 +41,7 @@ public class SparqlQueryBuilder {
             StringBuilder sb = new StringBuilder();
             
             // Inject standard prefixes
-            sb.append("PREFIX moam: <").append(ontologyRegistry.getMoamNamespace()).append(">\n");
+            sb.append(PREFIX_MOAM).append(ontologyRegistry.getMoamNamespace()).append(">\n");
             
             String processed = rawTemplate;
             for (Map.Entry<String, Object> entry : variables.entrySet()) {

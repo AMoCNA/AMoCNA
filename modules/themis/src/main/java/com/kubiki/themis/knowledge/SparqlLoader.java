@@ -9,6 +9,8 @@ import java.util.Map;
 
 @Component
 public class SparqlLoader {
+    public static final String EXTENSION = ".sparql";
+    public static final String CLASSPATH_SPARQL = "classpath:sparql/";
     private final ResourceLoader resourceLoader;
 
     public SparqlLoader(ResourceLoader resourceLoader) {
@@ -16,7 +18,7 @@ public class SparqlLoader {
     }
 
     public String loadRaw(String name) {
-        Resource resource = resourceLoader.getResource("classpath:sparql/" + name + ".sparql");
+        Resource resource = resourceLoader.getResource(CLASSPATH_SPARQL + name + EXTENSION);
         try {
             return resource.getContentAsString(StandardCharsets.UTF_8);
         } catch (IOException e) {
