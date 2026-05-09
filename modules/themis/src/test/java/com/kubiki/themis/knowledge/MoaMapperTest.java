@@ -49,4 +49,58 @@ class MoaMapperTest {
         assertTrue(workflow.compensations().containsKey("http://moa#step1"));
         assertEquals("http://moa#comp1", workflow.compensations().get("http://moa#step1").id());
     }
+
+    @Test
+    void mapActionReturnsNullForEmptyBindings() {
+        MoaMapper mapper = new MoaMapper();
+        assertNull(mapper.mapAction("id", Map.of()));
+    }
+
+    @Test
+    void mapSimpleActionGroupReturnsNullForEmptyBindings() {
+        MoaMapper mapper = new MoaMapper();
+        assertNull(mapper.mapSimpleActionGroup(List.of()));
+    }
+
+    @Test
+    void mapSimpleActionWithEdgeData() {
+        MoaMapper mapper = new MoaMapper();
+        SimpleValueFactory vf = SimpleValueFactory.getInstance();
+
+        MapBindingSet bs = new MapBindingSet();
+        bs.addBinding("action", vf.createIRI("http://moa#simple"));
+        bs.addBinding("intent", vf.createIRI("http://moa#SimpleAction"));
+        bs.addBinding("target", vf.createIRI("http://target"));
+        bs.addBinding("protocol", vf.createLiteral("shell"));
+        bs.addBinding("method", vf.createLiteral("post"));
+        bs.addBinding("preId", vf.createLiteral("pre1"));
+        // missing preType and prePolicy
+        bs.addBinding("postId", vf.createLiteral("post1"));
+        bs.addBinding("postType", vf.createLiteral("type1"));
+        bs.addBinding("postPolicy", vf.createLiteral("policy1"));
+
+        ActionData.SimpleAction result = mapper.mapSimpleAction(bs);
+
+        assertEquals("http://moa#simple", result.id());
+        assertEquals(com.kubiki.themis.model.Protocol.SHELL, result.protocol());
+        assertEquals(org.springframework.http.HttpMethod.POST, result.method());
+        assertEquals(1, result.preConditions().size());
+        assertNull(result.preConditions().get(0).type());
+        assertEquals(1, result.postConditions().size());
+        assertEquals("type1", result.postConditions().get(0).type());
+    }
+
+    @Test
+    void mapActionHandlesUnknownProtocolGracefully() {
+        MoaMapper mapper = new MoaMapper();
+        SimpleValueFactory vf = SimpleValueFactory.getInstance();
+
+        MapBindingSet bs = new MapBindingSet();
+        bs.addBinding("action", vf.createIRI("http://moa#simple"));
+        bs.addBinding("intent", vf.createIRI("http://moa#SimpleAction"));
+        bs.addBinding("target", vf.createIRI("http://target"));
+        bs.addBinding("protocol", vf.createLiteral("UNKNOWN"));
+
+        assertThrows(IllegalArgumentException.class, () -> mapper.mapSimpleAction(bs));
+    }
 }
