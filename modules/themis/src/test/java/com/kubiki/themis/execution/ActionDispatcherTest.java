@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static com.kubiki.themis.testutil.TestActionBuilder.simpleAction;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -50,9 +51,16 @@ class ActionDispatcherTest {
         ActionData.ConditionData pre = new ActionData.ConditionData(VF.createIRI("http://moa#pre1"), typeA, "ASK");
         ActionData.ConditionData post = new ActionData.ConditionData(VF.createIRI("http://moa#post1"), typeA, "ASK");
 
-        ActionData.SimpleAction action = new ActionData.SimpleAction(
-                VF.createIRI("http://moa#action1"), "Intent", Protocol.REST, "url", VF.createIRI("http://target"), Map.of(), HttpMethod.GET, null, List.of(pre), List.of(post)
-        );
+        ActionData.SimpleAction action = simpleAction()
+                .id(VF.createIRI("http://moa#action1"))
+                .functionalIntent("Intent")
+                .protocol(Protocol.REST)
+                .instruction("url")
+                .targetIri(VF.createIRI("http://target"))
+                .method(HttpMethod.GET)
+                .preConditions(List.of(pre))
+                .postConditions(List.of(post))
+                .build();
 
         boolean result = dispatcher.dispatch(action, UUID.randomUUID());
 
@@ -87,9 +95,15 @@ class ActionDispatcherTest {
 
         ActionData.ConditionData pre = new ActionData.ConditionData(VF.createIRI("http://moa#pre1"), typeA, "ASK");
 
-        ActionData.SimpleAction action = new ActionData.SimpleAction(
-                VF.createIRI("http://moa#action1"), "Intent", Protocol.REST, "url", VF.createIRI("http://target"), Map.of(), HttpMethod.GET, null, List.of(pre), List.of()
-        );
+        ActionData.SimpleAction action = simpleAction()
+                .id(VF.createIRI("http://moa#action1"))
+                .functionalIntent("Intent")
+                .protocol(Protocol.REST)
+                .instruction("url")
+                .targetIri(VF.createIRI("http://target"))
+                .method(HttpMethod.GET)
+                .preConditions(List.of(pre))
+                .build();
 
         boolean result = dispatcher.dispatch(action, UUID.randomUUID());
 
@@ -115,14 +129,26 @@ class ActionDispatcherTest {
         ActionDispatcher dispatcher = new ActionDispatcher(List.of(executor), List.of(), sagaEngine);
 
         // Test null
-        ActionData.SimpleAction actionNull = new ActionData.SimpleAction(
-                VF.createIRI("http://moa#a1"), "I", Protocol.REST, "u", VF.createIRI("http://target"), Map.of(), HttpMethod.GET, null, null, null
-        );
+        ActionData.SimpleAction actionNull = simpleAction()
+                .id(VF.createIRI("http://moa#a1"))
+                .functionalIntent("I")
+                .protocol(Protocol.REST)
+                .instruction("u")
+                .targetIri(VF.createIRI("http://target"))
+                .method(HttpMethod.GET)
+                .preConditions(null)
+                .postConditions(null)
+                .build();
 
         // Test empty
-        ActionData.SimpleAction actionEmpty = new ActionData.SimpleAction(
-                VF.createIRI("http://moa#a2"), "I", Protocol.REST, "u", VF.createIRI("http://target"), Map.of(), HttpMethod.GET, null, List.of(), List.of()
-        );
+        ActionData.SimpleAction actionEmpty = simpleAction()
+                .id(VF.createIRI("http://moa#a2"))
+                .functionalIntent("I")
+                .protocol(Protocol.REST)
+                .instruction("u")
+                .targetIri(VF.createIRI("http://target"))
+                .method(HttpMethod.GET)
+                .build();
 
         assertAll("Empty/Null Conditions Validation",
                 () -> assertTrue(dispatcher.dispatch(actionNull, UUID.randomUUID()), "Should succeed with null conditions"),
@@ -143,9 +169,15 @@ class ActionDispatcherTest {
         ActionDispatcher dispatcher = new ActionDispatcher(List.of(executor), List.of(), sagaEngine);
 
         ActionData.ConditionData pre = new ActionData.ConditionData(VF.createIRI("http://moa#pre1"), VF.createIRI("http://moa#UnknownType"), "ASK");
-        ActionData.SimpleAction action = new ActionData.SimpleAction(
-                VF.createIRI("http://moa#a1"), "I", Protocol.REST, "u", VF.createIRI("http://target"), Map.of(), HttpMethod.GET, null, List.of(pre), List.of()
-        );
+        ActionData.SimpleAction action = simpleAction()
+                .id(VF.createIRI("http://moa#a1"))
+                .functionalIntent("I")
+                .protocol(Protocol.REST)
+                .instruction("u")
+                .targetIri(VF.createIRI("http://target"))
+                .method(HttpMethod.GET)
+                .preConditions(List.of(pre))
+                .build();
 
         assertFalse(dispatcher.dispatch(action, UUID.randomUUID()), "Should fail when evaluator is missing");
     }
@@ -161,9 +193,14 @@ class ActionDispatcherTest {
 
         ActionDispatcher dispatcher = new ActionDispatcher(List.of(), List.of(), sagaEngine);
 
-        ActionData.SimpleAction action = new ActionData.SimpleAction(
-                VF.createIRI("http://moa#a1"), "I", Protocol.REST, "u", VF.createIRI("http://target"), Map.of(), HttpMethod.GET, null, List.of(), List.of()
-        );
+        ActionData.SimpleAction action = simpleAction()
+                .id(VF.createIRI("http://moa#a1"))
+                .functionalIntent("I")
+                .protocol(Protocol.REST)
+                .instruction("u")
+                .targetIri(VF.createIRI("http://target"))
+                .method(HttpMethod.GET)
+                .build();
 
         assertFalse(dispatcher.dispatch(action, UUID.randomUUID()), "Should fail when executor is missing");
     }
