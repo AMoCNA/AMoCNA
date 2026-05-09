@@ -1,39 +1,35 @@
 package com.kubiki.themis.model;
 
+import org.eclipse.rdf4j.model.IRI;
 import org.springframework.http.HttpMethod;
-
 import java.util.List;
 import java.util.Map;
 
-public sealed interface ActionData
-        permits ActionData.SimpleAction, ActionData.ComplexWorkflow {
-
-    String id();
-
+public sealed interface ActionData 
+    permits ActionData.SimpleAction, ActionData.ComplexWorkflow {
+    
+    IRI id();
     String functionalIntent();
 
-    record ConditionData(String id, String type, String policy) {
-    }
+    record ConditionData(IRI id, IRI type, String policy) {}
 
     record SimpleAction(
-            String id,                // GraphDB Individual IRI
-            String functionalIntent,  // MoA Class (e.g. RestartAction)
-            Protocol protocol,
-            String instruction,       // URL Template or script
-            String targetIri,         // Resource individual
-            Map<String, String> data, // Ground Truth parameters
-            HttpMethod method,        // HTTP Method, e.g. GET, POST
-            String payload,           // Optional payload for POST/PUT
-            List<ConditionData> preConditions,
-            List<ConditionData> postConditions
-    ) implements ActionData {
-    }
+        IRI id,
+        String functionalIntent,
+        Protocol protocol,
+        String instruction,
+        IRI targetIri,
+        Map<String, String> data,
+        HttpMethod method,
+        String payload,
+        List<ConditionData> preConditions,
+        List<ConditionData> postConditions
+    ) implements ActionData {}
 
     record ComplexWorkflow(
-            String id,
-            String functionalIntent,
-            List<ActionData> steps,
-            Map<String, ActionData> compensations
-    ) implements ActionData {
-    }
+        IRI id,
+        String functionalIntent,
+        List<ActionData> steps,
+        Map<IRI, ActionData> compensations
+    ) implements ActionData {}
 }
