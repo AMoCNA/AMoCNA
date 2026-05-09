@@ -1,4 +1,3 @@
-PREFIX moam: <${moamNamespace}>
 SELECT ?action ?intent ?target ?protocol ?instruction ?method ?payload 
        ?preId ?preType ?prePolicy 
        ?postId ?postType ?postPolicy 

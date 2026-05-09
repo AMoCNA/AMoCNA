@@ -15,6 +15,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.core.io.DefaultResourceLoader;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
@@ -23,9 +24,12 @@ import static org.mockito.Mockito.when;
 class GraphDBGatewayTest {
     private Repository repository;
     private GraphDBGateway gateway;
-    private ThemisProperties properties;
-    private MoamMapper moamMapper;
+    private SparqlClient sparqlClient;
+    private SparqlQueryBuilder sparqlQueryBuilder;
+    private ModelMapper modelMapper;
+    private OntologyRegistry ontologyRegistry;
     private SparqlLoader sparqlLoader;
+    private ThemisProperties properties;
 
     private static final String MOA_NS = "http://moa#";
 
@@ -35,26 +39,16 @@ class GraphDBGatewayTest {
         repository.init();
 
         properties = Mockito.mock(ThemisProperties.class);
-        ThemisProperties.GraphDB graphDB = new ThemisProperties.GraphDB("http://localhost:7200", "amocna", 5000);
         ThemisProperties.Ontology ontology = new ThemisProperties.Ontology(MOA_NS);
-        
-        when(properties.graphdb()).thenReturn(graphDB);
         when(properties.ontology()).thenReturn(ontology);
 
-        moamMapper = new MoamMapper();
-        sparqlLoader = Mockito.mock(SparqlLoader.class);
+        ontologyRegistry = new OntologyRegistry(properties);
+        sparqlClient = new SparqlClient(repository);
+        sparqlLoader = new SparqlLoader(new DefaultResourceLoader());
+        sparqlQueryBuilder = new SparqlQueryBuilder(sparqlLoader, ontologyRegistry);
+        modelMapper = new ModelMapper();
 
-        gateway = new GraphDBGateway(properties, moamMapper, sparqlLoader) {
-            private final Repository testRepo = repository;
-            
-            @Override
-            public void init() {} // Already init in setUp
-
-            @Override
-            protected Repository getRepository() {
-                return testRepo;
-            }
-        };
+        gateway = new GraphDBGateway(sparqlClient, sparqlQueryBuilder, modelMapper, ontologyRegistry);
     }
 
     @AfterEach
@@ -79,5 +73,47 @@ class GraphDBGatewayTest {
             Literal status = (Literal) conn.getStatements(actionIri, hasExecutionStatus, null).next().getObject();
             assertEquals("SUCCESS", status.getLabel());
         }
+    }
+
+    @Test
+    @DisplayName("Should find actions for resource")
+    void shouldFindActionsForResource() {
+        ValueFactory vf = repository.getValueFactory();
+        IRI actionIri = vf.createIRI(MOA_NS + "action1");
+        IRI resourceIri = vf.createIRI(MOA_NS + "resource1");
+        IRI intent = vf.createIRI(MOA_NS + "RestartAction");
+
+        try (RepositoryConnection conn = repository.getConnection()) {
+            conn.add(actionIri, RDF.TYPE, intent);
+            conn.add(actionIri, vf.createIRI(MOA_NS + "targetsEntity"), resourceIri);
+            conn.add(actionIri, vf.createIRI(MOA_NS + "hasExecutionProtocol"), vf.createIRI(MOA_NS + "REST"));
+        }
+
+        java.util.List<com.kubiki.themis.model.ActionData.SimpleAction> actions = gateway.findActionsForResource(resourceIri);
+        
+        assertEquals(1, actions.size());
+        assertEquals(actionIri, actions.get(0).id());
+        assertEquals(intent.stringValue(), actions.get(0).functionalIntent());
+    }
+
+    @Test
+    @DisplayName("Should fetch action structure")
+    void shouldFetchActionStructure() {
+        ValueFactory vf = repository.getValueFactory();
+        IRI actionIri = vf.createIRI(MOA_NS + "action1");
+        IRI intent = vf.createIRI(MOA_NS + "RestartAction");
+        IRI resourceIri = vf.createIRI(MOA_NS + "resource1");
+
+        try (RepositoryConnection conn = repository.getConnection()) {
+            conn.add(actionIri, RDF.TYPE, intent);
+            conn.add(actionIri, vf.createIRI(MOA_NS + "targetsEntity"), resourceIri);
+            conn.add(actionIri, vf.createIRI(MOA_NS + "hasExecutionProtocol"), vf.createIRI(MOA_NS + "REST"));
+            conn.add(actionIri, vf.createIRI(MOA_NS + "hasExecutionInstruction"), vf.createLiteral("restart"));
+        }
+
+        com.kubiki.themis.model.ActionData action = gateway.fetchActionStructure(actionIri);
+        
+        assertEquals(actionIri, action.id());
+        assertEquals(intent.stringValue(), action.functionalIntent());
     }
 }

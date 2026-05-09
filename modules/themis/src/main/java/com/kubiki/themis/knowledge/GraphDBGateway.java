@@ -1,133 +1,93 @@
 package com.kubiki.themis.knowledge;
 
-import com.kubiki.themis.config.ThemisProperties;
 import com.kubiki.themis.constants.OntologyConstants;
 import com.kubiki.themis.model.ActionData;
 import com.kubiki.themis.model.ExecutionStatus;
-import jakarta.annotation.PostConstruct;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.query.BindingSet;
-import org.eclipse.rdf4j.query.TupleQuery;
-import org.eclipse.rdf4j.query.TupleQueryResult;
-import org.eclipse.rdf4j.repository.Repository;
-import org.eclipse.rdf4j.repository.RepositoryConnection;
-import org.eclipse.rdf4j.repository.http.HTTPRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class GraphDBGateway {
     private static final Logger log = LoggerFactory.getLogger(GraphDBGateway.class);
-    private final Repository repository;
-    private final MoamMapper moamMapper;
-    private final SparqlLoader sparqlLoader;
-    private final String moamNamespace;
+    
+    private final SparqlClient sparqlClient;
+    private final SparqlQueryBuilder sparqlQueryBuilder;
+    private final ModelMapper modelMapper;
+    private final OntologyRegistry ontologyRegistry;
 
-    public GraphDBGateway(ThemisProperties properties, MoamMapper moamMapper, SparqlLoader sparqlLoader) {
-        this.repository = new HTTPRepository(properties.graphdb().url(), properties.graphdb().repositoryId());
-        this.moamMapper = moamMapper;
-        this.sparqlLoader = sparqlLoader;
-        this.moamNamespace = properties.ontology().moamNamespace();
-    }
-
-    @PostConstruct
-    public void init() {
-        getRepository().init();
-    }
-
-    protected Repository getRepository() {
-        return repository;
+    public GraphDBGateway(SparqlClient sparqlClient, 
+                          SparqlQueryBuilder sparqlQueryBuilder,
+                          ModelMapper modelMapper,
+                          OntologyRegistry ontologyRegistry) {
+        this.sparqlClient = sparqlClient;
+        this.sparqlQueryBuilder = sparqlQueryBuilder;
+        this.modelMapper = modelMapper;
+        this.ontologyRegistry = ontologyRegistry;
     }
 
     public void updateActionState(IRI actionId, ExecutionStatus state) {
-        ValueFactory vf = getRepository().getValueFactory();
-        IRI hasExecutionStatus = vf.createIRI(moamNamespace + OntologyConstants.PROP_HAS_EXECUTION_STATUS);
-        Literal stateLiteral = vf.createLiteral(state.name());
-
-        try (RepositoryConnection conn = getRepository().getConnection()) {
+        IRI hasExecutionStatus = ontologyRegistry.moam(OntologyConstants.PROP_HAS_EXECUTION_STATUS);
+        
+        sparqlClient.executeWithConnection(conn -> {
+            ValueFactory vf = conn.getValueFactory();
+            Literal stateLiteral = vf.createLiteral(state.name());
+            
             conn.begin();
-            // Remove existing status if any
             conn.remove(actionId, hasExecutionStatus, null);
-            // Add new status
             conn.add(actionId, hasExecutionStatus, stateLiteral);
-
             conn.commit();
             log.info("Updated action {} state to {}", actionId, state);
-        } catch (Exception e) {
-            log.error("Failed to update action state: {}", e.getMessage());
-            throw new RuntimeException("Persistence failure", e);
-        }
+        });
     }
 
     public ActionData fetchActionStructure(IRI actionId) {
-        String sparql = sparqlLoader.loadQuery("fetch-action-structure", Map.of("moamNamespace", moamNamespace));
+        String sparql = sparqlQueryBuilder.builder()
+                .template("fetch-action-structure")
+                .build();
 
-        Map<IRI, List<BindingSet>> allBindings = new LinkedHashMap<>();
-        try (RepositoryConnection conn = getRepository().getConnection()) {
-            TupleQuery query = conn.prepareTupleQuery(sparql);
-            try (TupleQueryResult result = query.evaluate()) {
-                while (result.hasNext()) {
-                    BindingSet bs = result.next();
-                    IRI id = (IRI) bs.getValue("action");
-                    allBindings.computeIfAbsent(id, k -> new ArrayList<>()).add(bs);
-                }
+        return sparqlClient.executeQuery(sparql, stream -> {
+            Map<IRI, List<BindingSet>> allBindings = stream.collect(
+                    Collectors.groupingBy(bs -> (IRI) bs.getValue("action"), LinkedHashMap::new, Collectors.toList())
+            );
+            Result<ActionData> result = modelMapper.mapAction(actionId, allBindings);
+            if (result.isSuccess()) {
+                return result.value();
+            } else {
+                log.error("Failed to map action structure for {}: {}", actionId, result.error());
+                return null;
             }
-        } catch (Exception e) {
-            log.error("Failed to fetch action structure", e);
-            return null;
-        }
-
-        return moamMapper.mapAction(actionId, allBindings);
+        });
     }
 
     public List<ActionData.SimpleAction> findActionsForResource(IRI resourceIri) {
-        String sparql = sparqlLoader.loadQuery("find-actions-for-resource", Map.of(
-                "moamNamespace", moamNamespace,
-                "resourceIri", resourceIri.stringValue()
-        ));
+        String sparql = sparqlQueryBuilder.builder()
+                .template("find-actions-for-resource")
+                .variable("resourceIri", resourceIri)
+                .build();
 
-        Map<IRI, List<BindingSet>> groups = new LinkedHashMap<>();
-        try (RepositoryConnection conn = getRepository().getConnection()) {
-            TupleQuery query = conn.prepareTupleQuery(sparql);
-            try (TupleQueryResult result = query.evaluate()) {
-                while (result.hasNext()) {
-                    BindingSet bs = result.next();
-                    IRI actionId = (IRI) bs.getValue("action");
-                    groups.computeIfAbsent(actionId, k -> new ArrayList<>()).add(bs);
-                }
-            }
-        } catch (Exception e) {
-            log.error("Failed to query actions for resource {}: {}", resourceIri, e.getMessage());
-        }
-
-        List<ActionData.SimpleAction> actions = new ArrayList<>();
-        for (List<BindingSet> group : groups.values()) {
-            try {
-                ActionData.SimpleAction action = moamMapper.mapSimpleActionGroup(group);
-                if (action != null) {
-                    actions.add(action);
-                }
-            } catch (Exception e) {
-                log.warn("Skipping action mapping due to error: {}", e.getMessage());
-            }
-        }
-        return actions;
+        return sparqlClient.executeQuery(sparql, stream -> stream
+                .collect(Collectors.groupingBy(bs -> (IRI) bs.getValue("action")))
+                .entrySet().stream()
+                .map(entry -> modelMapper.mapAction(entry.getKey(), Map.of(entry.getKey(), entry.getValue())))
+                .filter(Result::isSuccess)
+                .map(Result::value)
+                .filter(ad -> ad instanceof ActionData.SimpleAction)
+                .map(ad -> (ActionData.SimpleAction) ad)
+                .toList()
+        );
     }
 
     public boolean executeConditionQuery(String query) {
-        try (RepositoryConnection conn = getRepository().getConnection()) {
-            return conn.prepareBooleanQuery(query).evaluate();
-        } catch (Exception e) {
-            log.error("Failed to execute condition query: {}", e.getMessage());
-            return false;
-        }
+        return sparqlClient.executeBooleanQuery(query);
     }
 }

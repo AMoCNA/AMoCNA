@@ -1,9 +1,9 @@
-PREFIX moam: <${moamNamespace}>
 SELECT ?action ?intent ?target ?protocol ?instruction ?method ?payload 
        ?preId ?preType ?prePolicy 
        ?postId ?postType ?postPolicy 
 WHERE { 
-  ?action moam:targetsEntity <${resourceIri}> . 
+  ?action moam:targetsEntity ${resourceIri} . 
+  BIND(${resourceIri} AS ?target)
   ?action a ?intent . 
   OPTIONAL { ?action moam:hasExecutionProtocol ?protocol } . 
   OPTIONAL { ?action moam:hasExecutionInstruction ?instruction } . 

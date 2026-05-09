@@ -25,4 +25,25 @@ public class SparqlClient {
             }
         }
     }
+
+    public void executeUpdate(String sparql) {
+        try (RepositoryConnection connection = repository.getConnection()) {
+            connection.begin();
+            connection.prepareUpdate(sparql).execute();
+            connection.commit();
+        }
+    }
+
+    public boolean executeBooleanQuery(String sparql) {
+        try (RepositoryConnection connection = repository.getConnection()) {
+            return connection.prepareBooleanQuery(sparql).evaluate();
+        }
+    }
+
+    public void executeWithConnection(java.util.function.Consumer<RepositoryConnection> action) {
+        try (RepositoryConnection connection = repository.getConnection()) {
+            action.accept(connection);
+        }
+    }
 }
+
