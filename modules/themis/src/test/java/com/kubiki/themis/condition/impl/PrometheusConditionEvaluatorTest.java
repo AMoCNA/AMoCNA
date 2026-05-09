@@ -117,6 +117,31 @@ class PrometheusConditionEvaluatorTest {
     }
 
     @Test
+    void shouldThrowExceptionOnEmptyBody() {
+        server.expect(requestTo("http://prometheus:9090/api/v1/query?query=up"))
+              .andRespond(withSuccess("", MediaType.APPLICATION_JSON));
+
+        ActionData.ConditionData condition = new ActionData.ConditionData("id", "type", "up");
+        ConditionEvaluationException ex = assertThrows(ConditionEvaluationException.class, () -> evaluator.evaluate(condition));
+        assertTrue(ex.getMessage().contains("Prometheus returned empty body"));
+    }
+
+    @Test
+    void shouldThrowExceptionOnPrometheusErrorStatus() throws JsonProcessingException {
+        String response = objectMapper.writeValueAsString(Map.of(
+            "status", "error",
+            "error", "Some prometheus error"
+        ));
+
+        server.expect(requestTo("http://prometheus:9090/api/v1/query?query=up"))
+              .andRespond(withSuccess(response, MediaType.APPLICATION_JSON));
+
+        ActionData.ConditionData condition = new ActionData.ConditionData("id", "type", "up");
+        ConditionEvaluationException ex = assertThrows(ConditionEvaluationException.class, () -> evaluator.evaluate(condition));
+        assertTrue(ex.getMessage().contains("Prometheus query was not successful"));
+    }
+
+    @Test
     void shouldThrowExceptionOnNetworkError() {
         server.expect(requestTo("http://prometheus:9090/api/v1/query?query=up"))
               .andRespond(withServerError());
