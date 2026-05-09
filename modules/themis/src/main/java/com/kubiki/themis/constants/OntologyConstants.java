@@ -1,7 +1,6 @@
 package com.kubiki.themis.constants;
 
 public final class OntologyConstants {
-    private OntologyConstants() {}
     public static final String CLASS_PROMETHEUS_CONDITION = "PrometheusCondition";
     public static final String CLASS_STATE_BASED_CONDITION = "StateBasedCondition";
     public static final String CLASS_AUTONOMIC_ACTION = "AutonomicAction";
@@ -17,4 +16,6 @@ public final class OntologyConstants {
     public static final String PROP_HTTP_METHOD = "httpMethod";
     public static final String PROP_HTTP_PAYLOAD = "httpPayload";
     public static final String PROP_POLICY_QUERY_STRING = "policyQueryString";
+    private OntologyConstants() {
+    }
 }

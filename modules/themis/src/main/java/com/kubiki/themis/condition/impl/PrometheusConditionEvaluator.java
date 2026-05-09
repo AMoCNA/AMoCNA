@@ -19,9 +19,9 @@ public class PrometheusConditionEvaluator implements ConditionEvaluator {
     private final ThemisProperties properties;
     private final ObjectMapper objectMapper;
 
-    public PrometheusConditionEvaluator(@Qualifier("prometheusRestClient") RestClient restClient, 
-                                      ThemisProperties properties,
-                                      ObjectMapper objectMapper) {
+    public PrometheusConditionEvaluator(@Qualifier("prometheusRestClient") RestClient restClient,
+                                        ThemisProperties properties,
+                                        ObjectMapper objectMapper) {
         this.restClient = restClient;
         this.properties = properties;
         this.objectMapper = objectMapper;

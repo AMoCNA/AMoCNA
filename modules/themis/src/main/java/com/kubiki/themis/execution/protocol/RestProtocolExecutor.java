@@ -44,11 +44,11 @@ public class RestProtocolExecutor implements ProtocolExecutor {
 
         try {
             RestClient.RequestBodySpec request = restClient.method(method).uri(url);
-            
+
             if (payload != null && !payload.isEmpty()) {
                 request.body(payload);
             }
-            
+
             request.retrieve().toBodilessEntity();
             return true;
         } catch (Exception e) {

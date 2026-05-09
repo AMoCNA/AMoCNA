@@ -4,24 +4,24 @@ import com.kubiki.themis.config.ThemisProperties;
 import com.kubiki.themis.constants.OntologyConstants;
 import com.kubiki.themis.model.ActionData;
 import com.kubiki.themis.model.ExecutionStatus;
-import org.eclipse.rdf4j.query.BindingSet;
-import org.eclipse.rdf4j.repository.Repository;
-import org.eclipse.rdf4j.repository.RepositoryConnection;
-import org.eclipse.rdf4j.repository.http.HTTPRepository;
+import jakarta.annotation.PostConstruct;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.ValueFactory;
-import org.eclipse.rdf4j.model.vocabulary.RDF;
+import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.http.HTTPRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import jakarta.annotation.PostConstruct;
+
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.LinkedHashMap;
 
 @Service
 public class GraphDBGateway {
@@ -57,7 +57,7 @@ public class GraphDBGateway {
             conn.remove(actionIri, hasExecutionStatus, null);
             // Add new status
             conn.add(actionIri, hasExecutionStatus, stateLiteral);
-            
+
             conn.commit();
             log.info("Updated action {} state to {}", actionId, state);
         } catch (Exception e) {
@@ -97,19 +97,19 @@ public class GraphDBGateway {
 
         Map<String, List<BindingSet>> allBindings = new LinkedHashMap<>();
         try (RepositoryConnection conn = getRepository().getConnection()) {
-             TupleQuery query = conn.prepareTupleQuery(sparql);
-             try (TupleQueryResult result = query.evaluate()) {
-                 while (result.hasNext()) {
-                     BindingSet bs = result.next();
-                     String id = bs.getValue("action").stringValue();
-                     allBindings.computeIfAbsent(id, k -> new ArrayList<>()).add(bs);
-                 }
-             }
+            TupleQuery query = conn.prepareTupleQuery(sparql);
+            try (TupleQueryResult result = query.evaluate()) {
+                while (result.hasNext()) {
+                    BindingSet bs = result.next();
+                    String id = bs.getValue("action").stringValue();
+                    allBindings.computeIfAbsent(id, k -> new ArrayList<>()).add(bs);
+                }
+            }
         } catch (Exception e) {
-             log.error("Failed to fetch action structure", e);
-             return null;
+            log.error("Failed to fetch action structure", e);
+            return null;
         }
-        
+
         return moaMapper.mapAction(actionId, allBindings);
     }
 

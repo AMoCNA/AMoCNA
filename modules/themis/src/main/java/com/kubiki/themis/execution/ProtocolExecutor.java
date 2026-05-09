@@ -10,5 +10,6 @@ import java.util.UUID;
  */
 public interface ProtocolExecutor {
     boolean supports(Protocol protocol);
+
     boolean execute(ActionData action, UUID executionId);
 }

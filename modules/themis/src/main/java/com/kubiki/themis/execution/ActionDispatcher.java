@@ -1,11 +1,12 @@
 package com.kubiki.themis.execution;
 
+import com.kubiki.themis.condition.ConditionEvaluator;
 import com.kubiki.themis.model.ActionData;
 import com.kubiki.themis.saga.SagaEngine;
-import com.kubiki.themis.condition.ConditionEvaluator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -57,9 +58,9 @@ public class ActionDispatcher {
         }
 
         ProtocolExecutor executor = executors.stream()
-            .filter(e -> e.supports(action.protocol()))
-            .findFirst()
-            .orElse(null);
+                .filter(e -> e.supports(action.protocol()))
+                .findFirst()
+                .orElse(null);
 
         if (executor == null) {
             log.error("No executor found for protocol: {}", action.protocol());
