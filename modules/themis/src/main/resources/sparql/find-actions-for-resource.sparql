@@ -1,0 +1,23 @@
+PREFIX moa: <${moaNamespace}>
+SELECT ?action ?intent ?target ?protocol ?instruction ?method ?payload 
+       ?preId ?preType ?prePolicy 
+       ?postId ?postType ?postPolicy 
+WHERE { 
+  ?action moa:targetsEntity <${resourceIri}> . 
+  ?action a ?intent . 
+  OPTIONAL { ?action moa:hasExecutionProtocol ?protocol } . 
+  OPTIONAL { ?action moa:hasExecutionInstruction ?instruction } . 
+  OPTIONAL { ?action moa:hasHttpMethod ?method } . 
+  OPTIONAL { ?action moa:hasExecutionPayload ?payload } . 
+  OPTIONAL { 
+    ?action moa:hasPreCondition ?preId . 
+    ?preId a ?preType . 
+    ?preId moa:policyQueryString ?prePolicy . 
+  } . 
+  OPTIONAL { 
+    ?action moa:hasPostCondition ?postId . 
+    ?postId a ?postType . 
+    ?postId moa:policyQueryString ?postPolicy . 
+  } . 
+  FILTER(?intent != moa:AutonomicAction && ?intent != moa:SimpleAction) 
+}

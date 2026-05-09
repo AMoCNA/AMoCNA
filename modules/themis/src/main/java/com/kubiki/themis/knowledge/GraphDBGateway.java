@@ -74,10 +74,11 @@ public class GraphDBGateway {
                 "       ?step ?compensation WHERE { " +
                 "  ?action a ?intent . " +
                 "  OPTIONAL { ?action moa:" + OntologyConstants.PROP_TARGETS_ENTITY + " ?target } . " +
-                "  OPTIONAL { ?action moa:" + OntologyConstants.PROP_EXECUTION_PROTOCOL + " ?protocol } . " +
-                "  OPTIONAL { ?action moa:" + OntologyConstants.PROP_EXECUTION_INSTRUCTION + " ?instruction } . " +
-                "  OPTIONAL { ?action moa:" + OntologyConstants.PROP_HTTP_METHOD + " ?method } . " +
-                "  OPTIONAL { ?action moa:" + OntologyConstants.PROP_HTTP_PAYLOAD + " ?payload } . " +
+                "  OPTIONAL { ?action moa:" + OntologyConstants.PROP_HAS_EXECUTION_PROTOCOL + " ?protocol } . " +
+                "  OPTIONAL { ?action moa:" + OntologyConstants.PROP_HAS_EXECUTION_INSTRUCTION + " ?instruction } . " +
+                "  OPTIONAL { ?action moa:" + OntologyConstants.PROP_HAS_HTTP_METHOD + " ?method } . " +
+                "  OPTIONAL { ?action moa:" + OntologyConstants.PROP_HAS_EXECUTION_PAYLOAD + " ?payload } . " +
+
                 "  OPTIONAL { " +
                 "    ?action moa:" + OntologyConstants.PROP_HAS_PRE_CONDITION + " ?preId . " +
                 "    ?preId a ?preType . " +
@@ -121,10 +122,11 @@ public class GraphDBGateway {
                 "WHERE { " +
                 "  ?action moa:" + OntologyConstants.PROP_TARGETS_ENTITY + " <" + resourceIri + "> . " +
                 "  ?action a ?intent . " +
-                "  OPTIONAL { ?action moa:" + OntologyConstants.PROP_EXECUTION_PROTOCOL + " ?protocol } . " +
-                "  OPTIONAL { ?action moa:" + OntologyConstants.PROP_EXECUTION_INSTRUCTION + " ?instruction } . " +
-                "  OPTIONAL { ?action moa:" + OntologyConstants.PROP_HTTP_METHOD + " ?method } . " +
-                "  OPTIONAL { ?action moa:" + OntologyConstants.PROP_HTTP_PAYLOAD + " ?payload } . " +
+                "  OPTIONAL { ?action moa:" + OntologyConstants.PROP_HAS_EXECUTION_PROTOCOL + " ?protocol } . " +
+                "  OPTIONAL { ?action moa:" + OntologyConstants.PROP_HAS_EXECUTION_INSTRUCTION + " ?instruction } . " +
+                "  OPTIONAL { ?action moa:" + OntologyConstants.PROP_HAS_HTTP_METHOD + " ?method } . " +
+                "  OPTIONAL { ?action moa:" + OntologyConstants.PROP_HAS_EXECUTION_PAYLOAD + " ?payload } . " +
+
                 "  OPTIONAL { " +
                 "    ?action moa:" + OntologyConstants.PROP_HAS_PRE_CONDITION + " ?preId . " +
                 "    ?preId a ?preType . " +
