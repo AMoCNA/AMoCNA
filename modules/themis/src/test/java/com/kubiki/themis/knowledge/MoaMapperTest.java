@@ -19,13 +19,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class MoaMapperTest {
 
-    private MoaMapper mapper;
+    private MoamMapper mapper;
     private ValueFactory vf = SimpleValueFactory.getInstance();
     private String ns = "http://moa#";
 
     @BeforeEach
     void setUp() {
-        mapper = new MoaMapper();
+        mapper = new MoamMapper();
     }
 
     @Test
@@ -86,7 +86,7 @@ class MoaMapperTest {
 
         ActionData action = mapper.mapAction(wfIri, allBindings);
 
-        assertTrue(action instanceof ActionData.ComplexWorkflow);
+        assertInstanceOf(ActionData.ComplexWorkflow.class, action);
         ActionData.ComplexWorkflow wf = (ActionData.ComplexWorkflow) action;
         assertEquals(1, wf.steps().size());
         assertEquals(1, wf.compensations().size());

@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 @Component
-public class MoaMapper {
+public class MoamMapper {
 
     public ActionData mapAction(IRI actionId, Map<IRI, List<BindingSet>> allBindings) {
         List<BindingSet> bindings = allBindings.get(actionId);

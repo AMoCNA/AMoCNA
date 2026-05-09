@@ -22,7 +22,7 @@ class GraphDBGatewayTest {
     private Repository repository;
     private GraphDBGateway gateway;
     private ThemisProperties properties;
-    private MoaMapper moaMapper;
+    private MoamMapper moamMapper;
     private SparqlLoader sparqlLoader;
 
     private static final String MOA_NS = "http://moa#";
@@ -39,10 +39,10 @@ class GraphDBGatewayTest {
         when(properties.graphdb()).thenReturn(graphDB);
         when(properties.ontology()).thenReturn(ontology);
 
-        moaMapper = new MoaMapper();
+        moamMapper = new MoamMapper();
         sparqlLoader = Mockito.mock(SparqlLoader.class);
 
-        gateway = new GraphDBGateway(properties, moaMapper, sparqlLoader) {
+        gateway = new GraphDBGateway(properties, moamMapper, sparqlLoader) {
             private final Repository testRepo = repository;
             
             @Override
