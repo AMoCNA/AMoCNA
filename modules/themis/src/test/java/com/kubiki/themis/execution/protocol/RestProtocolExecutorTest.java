@@ -4,6 +4,7 @@ import com.kubiki.themis.model.ActionData;
 import com.kubiki.themis.model.Protocol;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -20,6 +21,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@DisplayName("RestProtocolExecutor Tests")
 class RestProtocolExecutorTest {
 
     private RestProtocolExecutor restProtocolExecutor;
@@ -49,12 +51,14 @@ class RestProtocolExecutorTest {
     }
 
     @Test
+    @DisplayName("Should return true only for REST protocol when checking support")
     void shouldSupportRestProtocol() {
         assertTrue(restProtocolExecutor.supports(Protocol.REST));
         assertFalse(restProtocolExecutor.supports(Protocol.SHELL));
     }
 
     @Test
+    @DisplayName("Should execute GET request when GET method is specified")
     void shouldExecuteGetRequest() {
         // Given
         ActionData.SimpleAction action = new ActionData.SimpleAction(
@@ -84,6 +88,7 @@ class RestProtocolExecutorTest {
     }
 
     @Test
+    @DisplayName("Should execute POST request with payload when POST method and body template are provided")
     void shouldExecutePostRequestWithPayload() {
         // Given
         ActionData.SimpleAction action = new ActionData.SimpleAction(
@@ -115,6 +120,7 @@ class RestProtocolExecutorTest {
     }
 
     @Test
+    @DisplayName("Should execute PUT request with payload when PUT method and body template are provided")
     void shouldExecutePutRequestWithPayload() {
         // Given
         ActionData.SimpleAction action = new ActionData.SimpleAction(
@@ -146,6 +152,7 @@ class RestProtocolExecutorTest {
     }
 
     @Test
+    @DisplayName("Should execute DELETE request when DELETE method is specified")
     void shouldExecuteDeleteRequest() {
         // Given
         ActionData.SimpleAction action = new ActionData.SimpleAction(

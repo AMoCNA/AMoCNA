@@ -4,6 +4,7 @@ import com.kubiki.themis.model.ActionData;
 import com.kubiki.themis.model.Protocol;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.web.client.MockRestServiceServer;
@@ -18,6 +19,7 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
+@DisplayName("RestProtocolExecutor Slice Tests")
 class RestProtocolExecutorSliceTest {
 
     private RestProtocolExecutor executor;
@@ -32,6 +34,7 @@ class RestProtocolExecutorSliceTest {
     }
 
     @Test
+    @DisplayName("Should successfully execute REST action when using mock server")
     void testRestExecution() {
         String testUrl = "http://api.test/remediate";
         server.expect(requestTo(testUrl))
