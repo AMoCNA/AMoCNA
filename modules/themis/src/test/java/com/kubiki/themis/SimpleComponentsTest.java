@@ -7,7 +7,6 @@ import com.kubiki.themis.model.Protocol;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -47,16 +46,28 @@ class SimpleComponentsTest {
         assertEquals("url", graphdb.url());
         assertEquals("repo", graphdb.repositoryId());
         assertEquals(1000, graphdb.timeoutMs());
+        assertNotNull(graphdb.toString());
+        assertEquals(new ThemisProperties.GraphDB("url", "repo", 1000), graphdb);
+        assertEquals(graphdb.hashCode(), new ThemisProperties.GraphDB("url", "repo", 1000).hashCode());
 
         ThemisProperties.Ontology ontology = new ThemisProperties.Ontology("ns");
         assertEquals("ns", ontology.moaNamespace());
+        assertNotNull(ontology.toString());
+        assertEquals(new ThemisProperties.Ontology("ns"), ontology);
+        assertEquals(ontology.hashCode(), new ThemisProperties.Ontology("ns").hashCode());
 
         ThemisProperties.Prometheus prometheus = new ThemisProperties.Prometheus("purl");
         assertEquals("purl", prometheus.url());
+        assertNotNull(prometheus.toString());
+        assertEquals(new ThemisProperties.Prometheus("purl"), prometheus);
+        assertEquals(prometheus.hashCode(), new ThemisProperties.Prometheus("purl").hashCode());
 
         ThemisProperties props = new ThemisProperties(graphdb, ontology, prometheus);
         assertEquals(graphdb, props.graphdb());
         assertEquals(ontology, props.ontology());
         assertEquals(prometheus, props.prometheus());
+        assertNotNull(props.toString());
+        assertEquals(props, new ThemisProperties(graphdb, ontology, prometheus));
+        assertEquals(props.hashCode(), new ThemisProperties(graphdb, ontology, prometheus).hashCode());
     }
 }
