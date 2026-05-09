@@ -7,6 +7,7 @@ import com.kubiki.themis.config.ThemisProperties;
 import com.kubiki.themis.constants.OntologyConstants;
 import com.kubiki.themis.exception.ConditionEvaluationException;
 import com.kubiki.themis.model.ActionData;
+import org.eclipse.rdf4j.model.IRI;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
@@ -28,9 +29,9 @@ public class PrometheusConditionEvaluator implements ConditionEvaluator {
     }
 
     @Override
-    public boolean supports(String conditionType) {
-        String prometheusCondition = properties.ontology().moaNamespace() + OntologyConstants.CLASS_PROMETHEUS_CONDITION;
-        return prometheusCondition.equals(conditionType);
+    public boolean supports(IRI conditionType) {
+        String prometheusCondition = properties.ontology().moamNamespace() + OntologyConstants.CLASS_PROMETHEUS_CONDITION;
+        return prometheusCondition.equals(conditionType.stringValue());
     }
 
     @Override

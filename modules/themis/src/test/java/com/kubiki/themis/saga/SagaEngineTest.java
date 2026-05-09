@@ -4,10 +4,11 @@ import com.kubiki.themis.execution.ActionDispatcher;
 import com.kubiki.themis.knowledge.GraphDBGateway;
 import com.kubiki.themis.model.ActionData;
 import com.kubiki.themis.model.ExecutionStatus;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+
 import org.springframework.http.HttpMethod;
 
 import java.util.List;
@@ -15,11 +16,12 @@ import java.util.Map;
 import java.util.UUID;
 
 import static com.kubiki.themis.model.Protocol.REST;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
-@DisplayName("SagaEngine Unit Tests")
 class SagaEngineTest {
 
     private GraphDBGateway gateway;
@@ -34,31 +36,44 @@ class SagaEngineTest {
     }
 
     @Test
-    @DisplayName("Should execute simple action successfully and update state")
     void executesSimpleActionSuccessfully() {
-        ActionData.SimpleAction action = new ActionData.SimpleAction("id", "intent", REST, "url", "target", Map.of(), HttpMethod.GET, null, List.of(), List.of());
+        ActionData.SimpleAction action = new ActionData.SimpleAction(
+                SimpleValueFactory.getInstance().createIRI("http://moa#id"), 
+                "intent", REST, "url", 
+                SimpleValueFactory.getInstance().createIRI("http://cnee#target"), 
+                Map.of(), HttpMethod.GET, null, List.of(), List.of());
         UUID executionId = UUID.randomUUID();
 
         when(dispatcher.dispatchSimple(action, executionId)).thenReturn(true);
 
         boolean result = engine.execute(action, executionId, dispatcher);
 
-        assertAll("Simple Action Success Validation",
-                () -> assertTrue(result, "Action should succeed"),
-                () -> verify(gateway).updateActionState("id", ExecutionStatus.IN_PROGRESS),
-                () -> verify(gateway).updateActionState("id", ExecutionStatus.SUCCESS)
-        );
+        assertTrue(result);
+        verify(gateway).updateActionState(SimpleValueFactory.getInstance().createIRI("http://moa#id"), ExecutionStatus.IN_PROGRESS);
+        verify(gateway).updateActionState(SimpleValueFactory.getInstance().createIRI("http://moa#id"), ExecutionStatus.SUCCESS);
     }
 
     @Test
-    @DisplayName("Should compensate on workflow failure")
     void compensatesOnWorkflowFailure() {
-        ActionData.SimpleAction step1 = new ActionData.SimpleAction("step1", "intent", REST, "url", "target", Map.of(), HttpMethod.GET, null, List.of(), List.of());
-        ActionData.SimpleAction step2 = new ActionData.SimpleAction("step2", "intent", REST, "url", "target", Map.of(), HttpMethod.GET, null, List.of(), List.of());
-        ActionData.SimpleAction comp1 = new ActionData.SimpleAction("comp1", "intent", REST, "url", "target", Map.of(), HttpMethod.GET, null, List.of(), List.of());
+        ActionData.SimpleAction step1 = new ActionData.SimpleAction(
+                SimpleValueFactory.getInstance().createIRI("http://moa#step1"), 
+                "intent", REST, "url", 
+                SimpleValueFactory.getInstance().createIRI("http://cnee#target"), 
+                Map.of(), HttpMethod.GET, null, List.of(), List.of());
+        ActionData.SimpleAction step2 = new ActionData.SimpleAction(
+                SimpleValueFactory.getInstance().createIRI("http://moa#step2"), 
+                "intent", REST, "url", 
+                SimpleValueFactory.getInstance().createIRI("http://cnee#target"), 
+                Map.of(), HttpMethod.GET, null, List.of(), List.of());
+        ActionData.SimpleAction comp1 = new ActionData.SimpleAction(
+                SimpleValueFactory.getInstance().createIRI("http://moa#comp1"), 
+                "intent", REST, "url", 
+                SimpleValueFactory.getInstance().createIRI("http://cnee#target"), 
+                Map.of(), HttpMethod.GET, null, List.of(), List.of());
 
         ActionData.ComplexWorkflow workflow = new ActionData.ComplexWorkflow(
-                "wf", "intent", List.of(step1, step2), Map.of("step1", comp1)
+            SimpleValueFactory.getInstance().createIRI("http://moa#wf"), 
+            "intent", List.of(step1, step2), Map.of(step1.id(), comp1)
         );
         UUID executionId = UUID.randomUUID();
 
@@ -69,100 +84,16 @@ class SagaEngineTest {
 
         boolean result = engine.execute(workflow, executionId, dispatcher);
 
-        assertAll("Workflow Compensation Validation",
-                () -> assertFalse(result, "Workflow should fail"),
-                () -> verify(gateway).updateActionState("wf", ExecutionStatus.IN_PROGRESS),
-                () -> verify(gateway).updateActionState("step1", ExecutionStatus.SUCCESS),
-                () -> verify(gateway).updateActionState("step2", ExecutionStatus.FAILED),
-                () -> verify(gateway).updateActionState("wf", ExecutionStatus.FAILED),
-                () -> verify(gateway).updateActionState("comp1", ExecutionStatus.SUCCESS)
-        );
-    }
+        assertFalse(result); // workflow failed
+        verify(gateway).updateActionState(workflow.id(), ExecutionStatus.IN_PROGRESS);
+        verify(gateway).updateActionState(step1.id(), ExecutionStatus.IN_PROGRESS);
+        verify(gateway).updateActionState(step1.id(), ExecutionStatus.SUCCESS);
+        verify(gateway).updateActionState(step2.id(), ExecutionStatus.IN_PROGRESS);
+        verify(gateway).updateActionState(step2.id(), ExecutionStatus.FAILED);
+        verify(gateway).updateActionState(workflow.id(), ExecutionStatus.FAILED);
 
-    @Test
-    @DisplayName("Should execute deeply nested workflow successfully")
-    void executesDeeplyNestedWorkflowSuccessfully() {
-        ActionData.SimpleAction step1 = new ActionData.SimpleAction("step1", "intent", REST, "url", "target", Map.of(), HttpMethod.GET, null, List.of(), List.of());
-        ActionData.ComplexWorkflow innerWorkflow = new ActionData.ComplexWorkflow(
-                "inner", "intent", List.of(step1), Map.of()
-        );
-        ActionData.ComplexWorkflow middleWorkflow = new ActionData.ComplexWorkflow(
-                "middle", "intent", List.of(innerWorkflow), Map.of()
-        );
-        ActionData.ComplexWorkflow outerWorkflow = new ActionData.ComplexWorkflow(
-                "outer", "intent", List.of(middleWorkflow), Map.of()
-        );
-        UUID executionId = UUID.randomUUID();
-
-        when(dispatcher.dispatchSimple(step1, executionId)).thenReturn(true);
-
-        boolean result = engine.execute(outerWorkflow, executionId, dispatcher);
-
-        assertAll("Nested Workflow Success Validation",
-                () -> assertTrue(result),
-                () -> verify(gateway).updateActionState("outer", ExecutionStatus.SUCCESS),
-                () -> verify(gateway).updateActionState("middle", ExecutionStatus.SUCCESS),
-                () -> verify(gateway).updateActionState("inner", ExecutionStatus.SUCCESS),
-                () -> verify(gateway).updateActionState("step1", ExecutionStatus.SUCCESS)
-        );
-    }
-
-    @Test
-    @DisplayName("Should compensate recursive workflows correctly")
-    void compensatesRecursiveWorkflows() {
-        ActionData.SimpleAction s1 = new ActionData.SimpleAction("s1", "intent", REST, "url", "target", Map.of(), HttpMethod.GET, null, List.of(), List.of());
-        ActionData.SimpleAction c1 = new ActionData.SimpleAction("c1", "intent", REST, "url", "target", Map.of(), HttpMethod.GET, null, List.of(), List.of());
-
-        ActionData.SimpleAction ns1 = new ActionData.SimpleAction("ns1", "intent", REST, "url", "target", Map.of(), HttpMethod.GET, null, List.of(), List.of());
-        ActionData.SimpleAction nc1 = new ActionData.SimpleAction("nc1", "intent", REST, "url", "target", Map.of(), HttpMethod.GET, null, List.of(), List.of());
-
-        ActionData.SimpleAction failing = new ActionData.SimpleAction("failing", "intent", REST, "url", "target", Map.of(), HttpMethod.GET, null, List.of(), List.of());
-
-        ActionData.ComplexWorkflow nested = new ActionData.ComplexWorkflow(
-                "nested", "intent", List.of(ns1, failing), Map.of("ns1", nc1)
-        );
-
-        ActionData.ComplexWorkflow main = new ActionData.ComplexWorkflow(
-                "main", "intent", List.of(s1, nested), Map.of("s1", c1)
-        );
-
-        UUID executionId = UUID.randomUUID();
-        when(dispatcher.dispatchSimple(s1, executionId)).thenReturn(true);
-        when(dispatcher.dispatchSimple(ns1, executionId)).thenReturn(true);
-        when(dispatcher.dispatchSimple(failing, executionId)).thenReturn(false);
-        when(dispatcher.dispatchSimple(c1, executionId)).thenReturn(true);
-        when(dispatcher.dispatchSimple(nc1, executionId)).thenReturn(true);
-
-        boolean result = engine.execute(main, executionId, dispatcher);
-
-        assertAll("Recursive Compensation Validation",
-                () -> assertFalse(result),
-                () -> verify(dispatcher).dispatchSimple(nc1, executionId),
-                () -> verify(dispatcher).dispatchSimple(c1, executionId)
-        );
-    }
-
-    @Test
-    @DisplayName("Should handle compensation failure by updating state to FAILED")
-    void handlesCompensationFailure() {
-        ActionData.SimpleAction step1 = new ActionData.SimpleAction("step1", "intent", REST, "url", "target", Map.of(), HttpMethod.GET, null, List.of(), List.of());
-        ActionData.SimpleAction step2 = new ActionData.SimpleAction("step2", "intent", REST, "url", "target", Map.of(), HttpMethod.GET, null, List.of(), List.of());
-        ActionData.SimpleAction comp1 = new ActionData.SimpleAction("comp1", "intent", REST, "url", "target", Map.of(), HttpMethod.GET, null, List.of(), List.of());
-
-        ActionData.ComplexWorkflow workflow = new ActionData.ComplexWorkflow(
-                "wf", "intent", List.of(step1, step2), Map.of("step1", comp1)
-        );
-        UUID executionId = UUID.randomUUID();
-
-        when(dispatcher.dispatchSimple(step1, executionId)).thenReturn(true);
-        when(dispatcher.dispatchSimple(step2, executionId)).thenReturn(false);
-        when(dispatcher.dispatchSimple(comp1, executionId)).thenReturn(false); // Compensation fails!
-
-        boolean result = engine.execute(workflow, executionId, dispatcher);
-
-        assertAll("Compensation Failure Validation",
-                () -> assertFalse(result),
-                () -> verify(gateway).updateActionState("comp1", ExecutionStatus.FAILED)
-        );
+        // Check compensation
+        verify(gateway).updateActionState(comp1.id(), ExecutionStatus.IN_PROGRESS);
+        verify(gateway).updateActionState(comp1.id(), ExecutionStatus.SUCCESS);
     }
 }

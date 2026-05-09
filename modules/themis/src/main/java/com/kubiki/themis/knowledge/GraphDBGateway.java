@@ -28,12 +28,14 @@ public class GraphDBGateway {
     private static final Logger log = LoggerFactory.getLogger(GraphDBGateway.class);
     private final Repository repository;
     private final MoaMapper moaMapper;
-    private final String moaNamespace;
+    private final SparqlLoader sparqlLoader;
+    private final String moamNamespace;
 
-    public GraphDBGateway(ThemisProperties properties, MoaMapper moaMapper) {
+    public GraphDBGateway(ThemisProperties properties, MoaMapper moaMapper, SparqlLoader sparqlLoader) {
         this.repository = new HTTPRepository(properties.graphdb().url(), properties.graphdb().repositoryId());
         this.moaMapper = moaMapper;
-        this.moaNamespace = properties.ontology().moaNamespace();
+        this.sparqlLoader = sparqlLoader;
+        this.moamNamespace = properties.ontology().moamNamespace();
     }
 
     @PostConstruct
@@ -45,18 +47,17 @@ public class GraphDBGateway {
         return repository;
     }
 
-    public void updateActionState(String actionId, ExecutionStatus state) {
+    public void updateActionState(IRI actionId, ExecutionStatus state) {
         ValueFactory vf = getRepository().getValueFactory();
-        IRI actionIri = vf.createIRI(actionId);
-        IRI hasExecutionStatus = vf.createIRI(moaNamespace + OntologyConstants.PROP_HAS_EXECUTION_STATUS);
+        IRI hasExecutionStatus = vf.createIRI(moamNamespace + OntologyConstants.PROP_HAS_EXECUTION_STATUS);
         Literal stateLiteral = vf.createLiteral(state.name());
 
         try (RepositoryConnection conn = getRepository().getConnection()) {
             conn.begin();
             // Remove existing status if any
-            conn.remove(actionIri, hasExecutionStatus, null);
+            conn.remove(actionId, hasExecutionStatus, null);
             // Add new status
-            conn.add(actionIri, hasExecutionStatus, stateLiteral);
+            conn.add(actionId, hasExecutionStatus, stateLiteral);
 
             conn.commit();
             log.info("Updated action {} state to {}", actionId, state);
@@ -66,43 +67,16 @@ public class GraphDBGateway {
         }
     }
 
-    public ActionData fetchActionStructure(String actionId) {
-        String sparql = "PREFIX moa: <" + moaNamespace + "> " +
-                "SELECT ?action ?intent ?target ?protocol ?instruction ?method ?payload " +
-                "       ?preId ?preType ?prePolicy " +
-                "       ?postId ?postType ?postPolicy " +
-                "       ?step ?compensation WHERE { " +
-                "  ?action a ?intent . " +
-                "  OPTIONAL { ?action moa:" + OntologyConstants.PROP_TARGETS_ENTITY + " ?target } . " +
-                "  OPTIONAL { ?action moa:" + OntologyConstants.PROP_HAS_EXECUTION_PROTOCOL + " ?protocol } . " +
-                "  OPTIONAL { ?action moa:" + OntologyConstants.PROP_HAS_EXECUTION_INSTRUCTION + " ?instruction } . " +
-                "  OPTIONAL { ?action moa:" + OntologyConstants.PROP_HAS_HTTP_METHOD + " ?method } . " +
-                "  OPTIONAL { ?action moa:" + OntologyConstants.PROP_HAS_EXECUTION_PAYLOAD + " ?payload } . " +
+    public ActionData fetchActionStructure(IRI actionId) {
+        String sparql = sparqlLoader.loadQuery("fetch-action-structure", Map.of("moamNamespace", moamNamespace));
 
-                "  OPTIONAL { " +
-                "    ?action moa:" + OntologyConstants.PROP_HAS_PRE_CONDITION + " ?preId . " +
-                "    ?preId a ?preType . " +
-                "    ?preId moa:" + OntologyConstants.PROP_POLICY_QUERY_STRING + " ?prePolicy . " +
-                "  } . " +
-                "  OPTIONAL { " +
-                "    ?action moa:" + OntologyConstants.PROP_HAS_POST_CONDITION + " ?postId . " +
-                "    ?postId a ?postType . " +
-                "    ?postId moa:" + OntologyConstants.PROP_POLICY_QUERY_STRING + " ?postPolicy . " +
-                "  } . " +
-                "  OPTIONAL { " +
-                "    ?action moa:" + OntologyConstants.PROP_IS_DECOMPOSED_INTO + " ?step . " +
-                "    OPTIONAL { ?step moa:" + OntologyConstants.PROP_HAS_COMPENSATION + " ?compensation } . " +
-                "  } . " +
-                "  FILTER(?intent != moa:" + OntologyConstants.CLASS_AUTONOMIC_ACTION + " && ?intent != moa:" + OntologyConstants.CLASS_SIMPLE_ACTION + ") " +
-                "}";
-
-        Map<String, List<BindingSet>> allBindings = new LinkedHashMap<>();
+        Map<IRI, List<BindingSet>> allBindings = new LinkedHashMap<>();
         try (RepositoryConnection conn = getRepository().getConnection()) {
             TupleQuery query = conn.prepareTupleQuery(sparql);
             try (TupleQueryResult result = query.evaluate()) {
                 while (result.hasNext()) {
                     BindingSet bs = result.next();
-                    String id = bs.getValue("action").stringValue();
+                    IRI id = (IRI) bs.getValue("action");
                     allBindings.computeIfAbsent(id, k -> new ArrayList<>()).add(bs);
                 }
             }
@@ -114,39 +88,19 @@ public class GraphDBGateway {
         return moaMapper.mapAction(actionId, allBindings);
     }
 
-    public List<ActionData.SimpleAction> findActionsForResource(String resourceIri) {
-        String sparql = "PREFIX moa: <" + moaNamespace + "> " +
-                "SELECT ?action ?intent ?target ?protocol ?instruction ?method ?payload " +
-                "       ?preId ?preType ?prePolicy " +
-                "       ?postId ?postType ?postPolicy " +
-                "WHERE { " +
-                "  ?action moa:" + OntologyConstants.PROP_TARGETS_ENTITY + " <" + resourceIri + "> . " +
-                "  ?action a ?intent . " +
-                "  OPTIONAL { ?action moa:" + OntologyConstants.PROP_HAS_EXECUTION_PROTOCOL + " ?protocol } . " +
-                "  OPTIONAL { ?action moa:" + OntologyConstants.PROP_HAS_EXECUTION_INSTRUCTION + " ?instruction } . " +
-                "  OPTIONAL { ?action moa:" + OntologyConstants.PROP_HAS_HTTP_METHOD + " ?method } . " +
-                "  OPTIONAL { ?action moa:" + OntologyConstants.PROP_HAS_EXECUTION_PAYLOAD + " ?payload } . " +
+    public List<ActionData.SimpleAction> findActionsForResource(IRI resourceIri) {
+        String sparql = sparqlLoader.loadQuery("find-actions-for-resource", Map.of(
+                "moamNamespace", moamNamespace,
+                "resourceIri", resourceIri.stringValue()
+        ));
 
-                "  OPTIONAL { " +
-                "    ?action moa:" + OntologyConstants.PROP_HAS_PRE_CONDITION + " ?preId . " +
-                "    ?preId a ?preType . " +
-                "    ?preId moa:" + OntologyConstants.PROP_POLICY_QUERY_STRING + " ?prePolicy . " +
-                "  } . " +
-                "  OPTIONAL { " +
-                "    ?action moa:" + OntologyConstants.PROP_HAS_POST_CONDITION + " ?postId . " +
-                "    ?postId a ?postType . " +
-                "    ?postId moa:" + OntologyConstants.PROP_POLICY_QUERY_STRING + " ?postPolicy . " +
-                "  } . " +
-                "  FILTER(?intent != moa:" + OntologyConstants.CLASS_AUTONOMIC_ACTION + " && ?intent != moa:" + OntologyConstants.CLASS_SIMPLE_ACTION + ") " +
-                "}";
-
-        Map<String, List<BindingSet>> groups = new LinkedHashMap<>();
+        Map<IRI, List<BindingSet>> groups = new LinkedHashMap<>();
         try (RepositoryConnection conn = getRepository().getConnection()) {
             TupleQuery query = conn.prepareTupleQuery(sparql);
             try (TupleQueryResult result = query.evaluate()) {
                 while (result.hasNext()) {
                     BindingSet bs = result.next();
-                    String actionId = bs.getValue("action").stringValue();
+                    IRI actionId = (IRI) bs.getValue("action");
                     groups.computeIfAbsent(actionId, k -> new ArrayList<>()).add(bs);
                 }
             }
@@ -156,9 +110,13 @@ public class GraphDBGateway {
 
         List<ActionData.SimpleAction> actions = new ArrayList<>();
         for (List<BindingSet> group : groups.values()) {
-            ActionData.SimpleAction action = moaMapper.mapSimpleActionGroup(group);
-            if (action != null) {
-                actions.add(action);
+            try {
+                ActionData.SimpleAction action = moaMapper.mapSimpleActionGroup(group);
+                if (action != null) {
+                    actions.add(action);
+                }
+            } catch (Exception e) {
+                log.warn("Skipping action mapping due to error: {}", e.getMessage());
             }
         }
         return actions;

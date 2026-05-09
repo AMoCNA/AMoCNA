@@ -16,7 +16,7 @@ public record ThemisProperties(
     public record GraphDB(String url, String repositoryId, int timeoutMs) {
     }
 
-    public record Ontology(String moaNamespace) {
+    public record Ontology(String moamNamespace) {
     }
 
     public record Prometheus(String url) {

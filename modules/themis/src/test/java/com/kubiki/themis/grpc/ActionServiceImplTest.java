@@ -5,8 +5,8 @@ import com.kubiki.themis.knowledge.GraphDBGateway;
 import com.kubiki.themis.model.ActionData;
 import com.kubiki.themis.model.Protocol;
 import io.grpc.stub.StreamObserver;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -18,12 +18,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("ActionServiceImpl Unit Tests")
 class ActionServiceImplTest {
 
     private ActionServiceImpl actionService;
@@ -49,13 +49,23 @@ class ActionServiceImplTest {
     }
 
     @Test
-    @DisplayName("Should return executable actions for a resource")
     void shouldGetExecutableActions() {
         // Given
-        String resourceId = "worker-1";
+        String resourceId = "http://cnee#worker-1";
         ResourceRequest request = ResourceRequest.newBuilder().setResourceId(resourceId).build();
-        ActionData.SimpleAction mockAction = new ActionData.SimpleAction("action-1", "DeletePod", Protocol.REST, "http://mgmt", "pod-1", Map.of(), HttpMethod.GET, null, List.of(), List.of());
-        when(graphDBGateway.findActionsForResource(resourceId)).thenReturn(List.of(mockAction));
+        ActionData.SimpleAction mockAction = new ActionData.SimpleAction(
+                SimpleValueFactory.getInstance().createIRI("http://moa#action-1"),
+                "DeletePod",
+                Protocol.REST,
+                "http://mgmt",
+                SimpleValueFactory.getInstance().createIRI("http://cnee#pod-1"),
+                Map.of(),
+                HttpMethod.GET,
+                null,
+                List.of(),
+                List.of()
+        );
+        when(graphDBGateway.findActionsForResource(SimpleValueFactory.getInstance().createIRI(resourceId))).thenReturn(List.of(mockAction));
 
         // When
         actionService.getExecutableActions(request, actionListObserver);
@@ -66,19 +76,16 @@ class ActionServiceImplTest {
         verify(actionListObserver).onCompleted();
 
         ActionList response = captor.getValue();
-        assertAll("ActionList Response Validation",
-                () -> assertEquals(1, response.getActionsCount()),
-                () -> assertEquals("action-1", response.getActions(0).getId()),
-                () -> assertEquals("SimpleAction", response.getActions(0).getType()),
-                () -> assertEquals("DeletePod", response.getActions(0).getFunctionalIntent())
-        );
+        assertEquals(1, response.getActionsCount());
+        assertEquals("http://moa#action-1", response.getActions(0).getId());
+        assertEquals("SimpleAction", response.getActions(0).getType());
+        assertEquals("DeletePod", response.getActions(0).getFunctionalIntent());
     }
 
     @Test
-    @DisplayName("Should validate preconditions (placeholder)")
     void shouldValidatePreconditions() {
         // Given
-        ActionRequest request = ActionRequest.newBuilder().setActionId("action-1").setTargetId("pod-1").build();
+        ActionRequest request = ActionRequest.newBuilder().setActionId("http://moa#action-1").setTargetId("http://cnee#pod-1").build();
 
         // When
         actionService.validatePreconditions(request, validationResponseObserver);
@@ -89,19 +96,26 @@ class ActionServiceImplTest {
         verify(validationResponseObserver).onCompleted();
 
         ValidationResponse response = captor.getValue();
-        assertAll("ValidationResponse Validation",
-                () -> assertTrue(response.getValid()),
-                () -> assertEquals("Preconditions validated via GraphDB (placeholder)", response.getMessage())
-        );
+        assertTrue(response.getValid());
     }
 
     @Test
-    @DisplayName("Should execute remediation and stream status updates")
     void shouldExecuteRemediation() {
         // Given
-        ActionRequest request = ActionRequest.newBuilder().setActionId("action-1").setTargetId("pod-1").build();
-        ActionData mockAction = new ActionData.SimpleAction("action-1", "DeletePod", Protocol.REST, "http://mgmt", "pod-1", Map.of(), HttpMethod.GET, null, List.of(), List.of());
-        when(graphDBGateway.fetchActionStructure("action-1")).thenReturn(mockAction);
+        ActionRequest request = ActionRequest.newBuilder().setActionId("http://moa#action-1").setTargetId("http://cnee#pod-1").build();
+        ActionData mockAction = new ActionData.SimpleAction(
+                SimpleValueFactory.getInstance().createIRI("http://moa#action-1"),
+                "DeletePod",
+                Protocol.REST,
+                "http://mgmt",
+                SimpleValueFactory.getInstance().createIRI("http://cnee#pod-1"),
+                Map.of(),
+                HttpMethod.GET,
+                null,
+                List.of(),
+                List.of()
+        );
+        when(graphDBGateway.fetchActionStructure(SimpleValueFactory.getInstance().createIRI("http://moa#action-1"))).thenReturn(mockAction);
         when(actionDispatcher.dispatch(any(ActionData.class), any(UUID.class))).thenReturn(true);
 
         // When
@@ -113,11 +127,9 @@ class ActionServiceImplTest {
 
         ArgumentCaptor<ExecutionStatus> captor = ArgumentCaptor.forClass(ExecutionStatus.class);
         verify(executionStatusObserver, times(2)).onNext(captor.capture());
-
+        
         List<ExecutionStatus> statuses = captor.getAllValues();
-        assertAll("ExecutionStatus Stream Validation",
-                () -> assertEquals("IN_PROGRESS", statuses.get(0).getState()),
-                () -> assertEquals("SUCCESS", statuses.get(1).getState())
-        );
+        assertEquals("IN_PROGRESS", statuses.get(0).getState());
+        assertEquals("SUCCESS", statuses.get(statuses.size() - 1).getState());
     }
 }

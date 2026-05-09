@@ -3,6 +3,7 @@ package com.kubiki.themis.execution.protocol;
 import com.kubiki.themis.execution.ProtocolExecutor;
 import com.kubiki.themis.model.ActionData;
 import com.kubiki.themis.model.Protocol;
+import org.eclipse.rdf4j.model.IRI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -46,7 +47,7 @@ public class ShellProtocolExecutor implements ProtocolExecutor {
         }
     }
 
-    private void readStream(BufferedReader br, String type, String actionId) {
+    private void readStream(BufferedReader br, String type, IRI actionId) {
         try {
             String line;
             while ((line = br.readLine()) != null) {

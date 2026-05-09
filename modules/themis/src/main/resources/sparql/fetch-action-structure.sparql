@@ -1,27 +1,27 @@
-PREFIX moa: <${moaNamespace}>
+PREFIX moam: <${moamNamespace}>
 SELECT ?action ?intent ?target ?protocol ?instruction ?method ?payload 
        ?preId ?preType ?prePolicy 
        ?postId ?postType ?postPolicy 
        ?step ?compensation WHERE { 
   ?action a ?intent . 
-  OPTIONAL { ?action moa:targetsEntity ?target } . 
-  OPTIONAL { ?action moa:hasExecutionProtocol ?protocol } . 
-  OPTIONAL { ?action moa:hasExecutionInstruction ?instruction } . 
-  OPTIONAL { ?action moa:hasHttpMethod ?method } . 
-  OPTIONAL { ?action moa:hasExecutionPayload ?payload } . 
+  OPTIONAL { ?action moam:targetsEntity ?target } . 
+  OPTIONAL { ?action moam:hasExecutionProtocol ?protocol } . 
+  OPTIONAL { ?action moam:hasExecutionInstruction ?instruction } . 
+  OPTIONAL { ?action moam:hasHttpMethod ?method } . 
+  OPTIONAL { ?action moam:hasExecutionPayload ?payload } . 
   OPTIONAL { 
-    ?action moa:hasPreCondition ?preId . 
+    ?action moam:hasPreCondition ?preId . 
     ?preId a ?preType . 
-    ?preId moa:policyQueryString ?prePolicy . 
+    ?preId moam:policyQueryString ?prePolicy . 
   } . 
   OPTIONAL { 
-    ?action moa:hasPostCondition ?postId . 
+    ?action moam:hasPostCondition ?postId . 
     ?postId a ?postType . 
-    ?postId moa:policyQueryString ?postPolicy . 
+    ?postId moam:policyQueryString ?postPolicy . 
   } . 
   OPTIONAL { 
-    ?action moa:isDecomposedInto ?step . 
-    OPTIONAL { ?step moa:hasCompensation ?compensation } . 
+    ?action moam:isDecomposedInto ?step . 
+    OPTIONAL { ?step moam:hasCompensation ?compensation } . 
   } . 
-  FILTER(?intent != moa:AutonomicAction && ?intent != moa:SimpleAction) 
+  FILTER(?intent != moam:AutonomicAction && ?intent != moam:SimpleAction) 
 }

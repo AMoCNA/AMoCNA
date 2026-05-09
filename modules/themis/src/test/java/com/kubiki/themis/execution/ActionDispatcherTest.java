@@ -4,6 +4,8 @@ import com.kubiki.themis.condition.ConditionEvaluator;
 import com.kubiki.themis.model.ActionData;
 import com.kubiki.themis.model.Protocol;
 import com.kubiki.themis.saga.SagaEngine;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
@@ -18,6 +20,7 @@ import static org.mockito.Mockito.*;
 
 @DisplayName("ActionDispatcher Unit Tests")
 class ActionDispatcherTest {
+    private static final SimpleValueFactory VF = SimpleValueFactory.getInstance();
 
     @Test
     @DisplayName("Should evaluate pre and post conditions successfully")
@@ -26,8 +29,9 @@ class ActionDispatcherTest {
         when(executor.supports(Protocol.REST)).thenReturn(true);
         when(executor.execute(any(), any())).thenReturn(true);
 
+        IRI typeA = VF.createIRI("http://moa#TypeA");
         ConditionEvaluator evaluator = mock(ConditionEvaluator.class);
-        when(evaluator.supports("TypeA")).thenReturn(true);
+        when(evaluator.supports(typeA)).thenReturn(true);
         when(evaluator.evaluate(any())).thenReturn(true);
 
         SagaEngine sagaEngine = mock(SagaEngine.class);
@@ -43,11 +47,11 @@ class ActionDispatcherTest {
 
         ActionDispatcher dispatcher = new ActionDispatcher(List.of(executor), List.of(evaluator), sagaEngine);
 
-        ActionData.ConditionData pre = new ActionData.ConditionData("pre1", "TypeA", "ASK");
-        ActionData.ConditionData post = new ActionData.ConditionData("post1", "TypeA", "ASK");
+        ActionData.ConditionData pre = new ActionData.ConditionData(VF.createIRI("http://moa#pre1"), typeA, "ASK");
+        ActionData.ConditionData post = new ActionData.ConditionData(VF.createIRI("http://moa#post1"), typeA, "ASK");
 
         ActionData.SimpleAction action = new ActionData.SimpleAction(
-                "action1", "Intent", Protocol.REST, "url", "target", Map.of(), HttpMethod.GET, null, List.of(pre), List.of(post)
+                VF.createIRI("http://moa#action1"), "Intent", Protocol.REST, "url", VF.createIRI("http://target"), Map.of(), HttpMethod.GET, null, List.of(pre), List.of(post)
         );
 
         boolean result = dispatcher.dispatch(action, UUID.randomUUID());
@@ -63,8 +67,9 @@ class ActionDispatcherTest {
     @DisplayName("Should fail execution if pre-condition fails")
     void shouldFailIfPreConditionFails() {
         ProtocolExecutor executor = mock(ProtocolExecutor.class);
+        IRI typeA = VF.createIRI("http://moa#TypeA");
         ConditionEvaluator evaluator = mock(ConditionEvaluator.class);
-        when(evaluator.supports("TypeA")).thenReturn(true);
+        when(evaluator.supports(typeA)).thenReturn(true);
         when(evaluator.evaluate(any())).thenReturn(false);
 
         SagaEngine sagaEngine = mock(SagaEngine.class);
@@ -80,10 +85,10 @@ class ActionDispatcherTest {
 
         ActionDispatcher dispatcher = new ActionDispatcher(List.of(executor), List.of(evaluator), sagaEngine);
 
-        ActionData.ConditionData pre = new ActionData.ConditionData("pre1", "TypeA", "ASK");
+        ActionData.ConditionData pre = new ActionData.ConditionData(VF.createIRI("http://moa#pre1"), typeA, "ASK");
 
         ActionData.SimpleAction action = new ActionData.SimpleAction(
-                "action1", "Intent", Protocol.REST, "url", "target", Map.of(), HttpMethod.GET, null, List.of(pre), List.of()
+                VF.createIRI("http://moa#action1"), "Intent", Protocol.REST, "url", VF.createIRI("http://target"), Map.of(), HttpMethod.GET, null, List.of(pre), List.of()
         );
 
         boolean result = dispatcher.dispatch(action, UUID.randomUUID());
@@ -111,12 +116,12 @@ class ActionDispatcherTest {
 
         // Test null
         ActionData.SimpleAction actionNull = new ActionData.SimpleAction(
-                "a1", "I", Protocol.REST, "u", "t", Map.of(), HttpMethod.GET, null, null, null
+                VF.createIRI("http://moa#a1"), "I", Protocol.REST, "u", VF.createIRI("http://target"), Map.of(), HttpMethod.GET, null, null, null
         );
 
         // Test empty
         ActionData.SimpleAction actionEmpty = new ActionData.SimpleAction(
-                "a2", "I", Protocol.REST, "u", "t", Map.of(), HttpMethod.GET, null, List.of(), List.of()
+                VF.createIRI("http://moa#a2"), "I", Protocol.REST, "u", VF.createIRI("http://target"), Map.of(), HttpMethod.GET, null, List.of(), List.of()
         );
 
         assertAll("Empty/Null Conditions Validation",
@@ -137,9 +142,9 @@ class ActionDispatcherTest {
 
         ActionDispatcher dispatcher = new ActionDispatcher(List.of(executor), List.of(), sagaEngine);
 
-        ActionData.ConditionData pre = new ActionData.ConditionData("pre1", "UnknownType", "ASK");
+        ActionData.ConditionData pre = new ActionData.ConditionData(VF.createIRI("http://moa#pre1"), VF.createIRI("http://moa#UnknownType"), "ASK");
         ActionData.SimpleAction action = new ActionData.SimpleAction(
-                "a1", "I", Protocol.REST, "u", "t", Map.of(), HttpMethod.GET, null, List.of(pre), List.of()
+                VF.createIRI("http://moa#a1"), "I", Protocol.REST, "u", VF.createIRI("http://target"), Map.of(), HttpMethod.GET, null, List.of(pre), List.of()
         );
 
         assertFalse(dispatcher.dispatch(action, UUID.randomUUID()), "Should fail when evaluator is missing");
@@ -157,7 +162,7 @@ class ActionDispatcherTest {
         ActionDispatcher dispatcher = new ActionDispatcher(List.of(), List.of(), sagaEngine);
 
         ActionData.SimpleAction action = new ActionData.SimpleAction(
-                "a1", "I", Protocol.REST, "u", "t", Map.of(), HttpMethod.GET, null, List.of(), List.of()
+                VF.createIRI("http://moa#a1"), "I", Protocol.REST, "u", VF.createIRI("http://target"), Map.of(), HttpMethod.GET, null, List.of(), List.of()
         );
 
         assertFalse(dispatcher.dispatch(action, UUID.randomUUID()), "Should fail when executor is missing");

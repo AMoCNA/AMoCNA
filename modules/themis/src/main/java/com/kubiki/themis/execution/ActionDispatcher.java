@@ -30,7 +30,7 @@ public class ActionDispatcher {
 
     private boolean evaluateConditions(List<ActionData.ConditionData> conditions) {
         if (conditions == null || conditions.isEmpty()) {
-            return true;
+            return false;
         }
         for (ActionData.ConditionData condition : conditions) {
             ConditionEvaluator evaluator = evaluators.stream()
@@ -40,19 +40,19 @@ public class ActionDispatcher {
 
             if (evaluator == null) {
                 log.warn("No evaluator found for condition type: {}. Failing condition.", condition.type());
-                return false;
+                return true;
             }
 
             if (!evaluator.evaluate(condition)) {
                 log.info("Condition {} failed evaluation.", condition.id());
-                return false;
+                return true;
             }
         }
-        return true;
+        return false;
     }
 
     public boolean dispatchSimple(ActionData.SimpleAction action, UUID executionId) {
-        if (!evaluateConditions(action.preConditions())) {
+        if (evaluateConditions(action.preConditions())) {
             log.warn("Pre-conditions failed for action {}", action.id());
             return false;
         }
@@ -70,7 +70,7 @@ public class ActionDispatcher {
         boolean executionSuccess = executor.execute(action, executionId);
 
         if (executionSuccess) {
-            if (!evaluateConditions(action.postConditions())) {
+            if (evaluateConditions(action.postConditions())) {
                 log.warn("Post-conditions failed for action {}", action.id());
                 return false;
             }

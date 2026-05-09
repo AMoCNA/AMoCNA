@@ -51,7 +51,7 @@ class SimpleComponentsTest {
         assertEquals(graphdb.hashCode(), new ThemisProperties.GraphDB("url", "repo", 1000).hashCode());
 
         ThemisProperties.Ontology ontology = new ThemisProperties.Ontology("ns");
-        assertEquals("ns", ontology.moaNamespace());
+        assertEquals("ns", ontology.moamNamespace());
         assertNotNull(ontology.toString());
         assertEquals(new ThemisProperties.Ontology("ns"), ontology);
         assertEquals(ontology.hashCode(), new ThemisProperties.Ontology("ns").hashCode());

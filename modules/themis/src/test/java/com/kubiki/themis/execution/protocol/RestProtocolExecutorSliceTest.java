@@ -2,6 +2,7 @@ package com.kubiki.themis.execution.protocol;
 
 import com.kubiki.themis.model.ActionData;
 import com.kubiki.themis.model.Protocol;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
@@ -21,6 +22,7 @@ class RestProtocolExecutorSliceTest {
 
     private RestProtocolExecutor executor;
     private MockRestServiceServer server;
+    private static final SimpleValueFactory VF = SimpleValueFactory.getInstance();
 
     @BeforeEach
     void setup() {
@@ -37,11 +39,11 @@ class RestProtocolExecutorSliceTest {
                 .andRespond(withSuccess());
 
         ActionData.SimpleAction action = new ActionData.SimpleAction(
-                "test-id",
+                VF.createIRI("http://moa#test-id"),
                 "RemediateAction",
                 Protocol.REST,
                 testUrl,
-                "target-resource",
+                VF.createIRI("http://target-resource"),
                 Map.of(),
                 HttpMethod.POST,
                 "{}",
