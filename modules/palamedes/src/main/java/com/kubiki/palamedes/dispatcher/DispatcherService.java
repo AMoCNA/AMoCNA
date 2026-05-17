@@ -1,8 +1,8 @@
 package com.kubiki.palamedes.dispatcher;
 
+import com.kubiki.palamedes.config.RabbitMQConfig;
 import com.kubiki.palamedes.knowledge.GraphDBGateway;
 import com.kubiki.palamedes.model.ActionMessage;
-import com.kubiki.palamedes.config.RabbitMQConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -24,7 +24,7 @@ public class DispatcherService {
         log.info("Dispatching action {} to Themis", message.actionId());
         // Update GraphDB: Set current state to State_InProgress
         // graphDBGateway.updateActionStatus(message.actionId(), "State_InProgress"); 
-        
+
         rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE, RabbitMQConfig.ACTION_ROUTING_KEY, message);
     }
 }

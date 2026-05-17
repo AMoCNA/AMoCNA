@@ -50,7 +50,7 @@ public class ModelMapper {
         // Industrial Rule: Select the most specific Intent
         IRI intent = selectBestIntent(bindings);
         String intentStr = intent.stringValue();
-        
+
         if (isComplexWorkflow(intentStr)) {
             return mapComplexWorkflow(actionId, bindings, allBindings);
         }
@@ -65,9 +65,9 @@ public class ModelMapper {
                 .toList();
 
         return intents.stream()
-                .filter(i -> !i.getLocalName().equals("AutonomicAction") 
-                         && !i.getLocalName().equals("SimpleAction") 
-                         && !i.getLocalName().equals("ComplexWorkflow"))
+                .filter(i -> !i.getLocalName().equals("AutonomicAction")
+                        && !i.getLocalName().equals("SimpleAction")
+                        && !i.getLocalName().equals("ComplexWorkflow"))
                 .findFirst()
                 .orElse(intents.isEmpty() ? null : intents.getFirst());
     }
@@ -90,24 +90,24 @@ public class ModelMapper {
             List<ActionData.Condition> post = extractConditions(bindings, BINDING_POST_ID, BINDING_POST_TYPE, BINDING_POST_POLICY);
 
             return ActionData.SimpleAction.builder()
-                .id(actionId)
-                .functionalIntent(functionalIntent)
-                .layerBoundary(layerBoundary)
-                .executionCost(cost)
-                .protocol(protocol)
-                .target(target)
-                .instruction(instruction)
-                .method(getHttpMethod(bindings).value())
-                .payload(getOptionalString(bindings, BINDING_PAYLOAD))
-                .data(new HashMap<>())
-                .preConditions(pre)
-                .postConditions(post)
-                .expectedStatusCode(getExpectedStatusCode(bindings, protocol))
-                .authMechanism(getOptionalString(bindings, BINDING_AUTH_MECHANISM))
-                .timeoutSeconds(getOptionalInt(bindings, BINDING_TIMEOUT, 30))
-                .isIdempotent(getOptionalBoolean(bindings, BINDING_IS_IDEMPOTENT, true))
-                .maxRetries(getOptionalInt(bindings, BINDING_MAX_RETRIES, 3))
-                .build();
+                    .id(actionId)
+                    .functionalIntent(functionalIntent)
+                    .layerBoundary(layerBoundary)
+                    .executionCost(cost)
+                    .protocol(protocol)
+                    .target(target)
+                    .instruction(instruction)
+                    .method(getHttpMethod(bindings).value())
+                    .payload(getOptionalString(bindings, BINDING_PAYLOAD))
+                    .data(new HashMap<>())
+                    .preConditions(pre)
+                    .postConditions(post)
+                    .expectedStatusCode(getExpectedStatusCode(bindings, protocol))
+                    .authMechanism(getOptionalString(bindings, BINDING_AUTH_MECHANISM))
+                    .timeoutSeconds(getOptionalInt(bindings, BINDING_TIMEOUT, 30))
+                    .isIdempotent(getOptionalBoolean(bindings, BINDING_IS_IDEMPOTENT, true))
+                    .maxRetries(getOptionalInt(bindings, BINDING_MAX_RETRIES, 3))
+                    .build();
         });
     }
 
@@ -162,13 +162,13 @@ public class ModelMapper {
     }
 
     private Result<ActionData> mapComplexWorkflow(
-        IRI actionId,
-        List<BindingSet> bindings,
-        Map<IRI, List<BindingSet>> allBindings
+            IRI actionId,
+            List<BindingSet> bindings,
+            Map<IRI, List<BindingSet>> allBindings
     ) {
         List<ActionData> steps = new ArrayList<>();
         Map<IRI, ActionData> compensations = new HashMap<>();
-        
+
         IRI target = getIRI(bindings, BINDING_TARGET).value();
         IRI functionalIntent = getIRI(bindings, BINDING_FUNCTIONAL_INTENT).value();
         IRI layerBoundary = getIRI(bindings, BINDING_LAYER_BOUNDARY).value();
@@ -210,10 +210,10 @@ public class ModelMapper {
     }
 
     private List<ActionData.Condition> extractConditions(
-        List<BindingSet> bindings,
-        String idVar,
-        String typeVar,
-        String policyVar
+            List<BindingSet> bindings,
+            String idVar,
+            String typeVar,
+            String policyVar
     ) {
         Map<IRI, ActionData.Condition> conditions = new LinkedHashMap<>();
         for (BindingSet bs : bindings) {

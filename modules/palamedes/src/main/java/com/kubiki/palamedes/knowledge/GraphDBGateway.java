@@ -22,13 +22,11 @@ import java.util.stream.Stream;
 @Service
 @RequiredArgsConstructor
 public class GraphDBGateway {
-    private static final Logger log = LoggerFactory.getLogger(GraphDBGateway.class);
-
-    private static final String VAR_ACTION = "action";
     public static final String RESOURCE_IRI = "resource";
     public static final String ACTION_IRI = "action";
     public static final String INTENT_IRI = "intent";
-
+    private static final Logger log = LoggerFactory.getLogger(GraphDBGateway.class);
+    private static final String VAR_ACTION = "action";
     private final SparqlClient sparqlClient;
     private final SparqlRepository sparqlRepository;
     private final ModelMapper modelMapper;
@@ -79,12 +77,12 @@ public class GraphDBGateway {
         IRI targetsEntity = ontologyRegistry.actionsOntology("targetsEntity");
         IRI hasActionID = ontologyRegistry.actionsOntology("hasActionID");
         IRI isDecomposedInto = ontologyRegistry.actionsOntology("isDecomposedInto");
-        
+
         sparqlClient.executeWithConnection(conn -> {
             ValueFactory vf = conn.getValueFactory();
             conn.begin();
             conn.add(parentIri, isDecomposedInto, actionIri);
-            conn.add(actionIri, RDF.TYPE, template.id()); 
+            conn.add(actionIri, RDF.TYPE, template.id());
             conn.add(actionIri, RDF.TYPE, ontologyRegistry.actionsOntology(template instanceof ActionData.ComplexWorkflow ? "ComplexWorkflow" : "SimpleAction"));
             conn.add(actionIri, targetsEntity, target);
             conn.add(actionIri, hasActionID, vf.createLiteral(actionIri.getLocalName()));
@@ -97,7 +95,7 @@ public class GraphDBGateway {
                 }
                 conn.add(actionIri, ontologyRegistry.actionsOntology("hasExpectedStatusCode"), vf.createLiteral(String.valueOf(sa.expectedStatusCode()), XSD.INTEGER));
             }
-            
+
             conn.commit();
             log.info("Materialized action instance {} under parent {}", actionIri, parentIri);
         });
@@ -157,15 +155,15 @@ public class GraphDBGateway {
         String sparql = sparqlRepository.checkIdempotency(actionId.stringValue());
 
         List<BindingSet> results = sparqlClient.executeQuery(sparql, stream -> stream.collect(Collectors.toList()));
-        if (results.isEmpty()) return true; 
-        
+        if (results.isEmpty()) return true;
+
         BindingSet bs = results.getFirst();
         if (bs.getValue("window") == null || bs.getValue("lastTransition") == null) return true;
-        
+
         int window = ((Literal) bs.getValue("window")).intValue();
         OffsetDateTime lastTransition = OffsetDateTime.parse(bs.getValue("lastTransition").stringValue());
         OffsetDateTime now = OffsetDateTime.now();
-        
+
         return now.isAfter(lastTransition.plusSeconds(window));
     }
 

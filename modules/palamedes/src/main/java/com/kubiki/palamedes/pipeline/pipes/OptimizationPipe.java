@@ -19,7 +19,7 @@ public class OptimizationPipe implements MapePipe {
     @Override
     public boolean process(WorkflowContext context) {
         // This pipe processes all active actions to provide visibility into their classification
-        
+
         var data = context.actionData();
         log.info("Action {} Classification:", context.actionId());
         log.info("  - Functional Intent: {}", data.functionalIntent());
@@ -28,7 +28,7 @@ public class OptimizationPipe implements MapePipe {
 
         // In a real industrial engine, we might block or postpone high-cost actions 
         // if they conflict with other running workflows.
-        
+
         return true; // Always continue
     }
 }

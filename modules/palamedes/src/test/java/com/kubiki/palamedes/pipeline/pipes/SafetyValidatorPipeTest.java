@@ -16,19 +16,21 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class SafetyValidatorPipeTest {
-    @Mock private StateRepository stateRepository;
-    @Mock private ConditionFactory conditionFactory;
-    @Mock private GraphDBGateway gateway;
-    @Mock private WorkflowStateMapper mapper;
+    @Mock
+    private StateRepository stateRepository;
+    @Mock
+    private ConditionFactory conditionFactory;
+    @Mock
+    private GraphDBGateway gateway;
+    @Mock
+    private WorkflowStateMapper mapper;
 
     @InjectMocks
     private SafetyValidatorPipe pipe;

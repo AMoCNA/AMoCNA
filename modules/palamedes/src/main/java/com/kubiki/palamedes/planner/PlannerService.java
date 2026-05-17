@@ -29,21 +29,21 @@ public class PlannerService {
 
     public ActionMessage buildActionMessage(ActionData.SimpleAction action, Map<String, String> contextData) {
         log.info("Planning message for action {} (protocol: {})", action.id(), action.protocol());
-        
+
         String instruction = hydrate(action.instruction(), contextData);
         String payload = hydrate(action.payload(), contextData);
-        
+
         return new ActionMessage(
-            action.id().toString(),
-            action.protocol(),
-            instruction,
-            action.method() != null ? action.method().name() : null,
-            payload,
-            action.authMechanism(),
-            action.timeoutSeconds(),
-            action.isIdempotent(),
-            action.maxRetries(),
-            action.expectedStatusCode()
+                action.id().toString(),
+                action.protocol(),
+                instruction,
+                action.method() != null ? action.method().name() : null,
+                payload,
+                action.authMechanism(),
+                action.timeoutSeconds(),
+                action.isIdempotent(),
+                action.maxRetries(),
+                action.expectedStatusCode()
         );
     }
 }

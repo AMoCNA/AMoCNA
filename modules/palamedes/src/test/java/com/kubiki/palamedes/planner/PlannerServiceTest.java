@@ -7,18 +7,20 @@ import com.kubiki.daedalus.core.Formatter;
 import com.kubiki.daedalus.core.TemplateParser;
 import com.kubiki.daedalus.core.format.PlainFormatter;
 import org.junit.jupiter.api.Test;
+
 import java.util.List;
 import java.util.Map;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class PlannerServiceTest {
     private final PlannerService plannerService = new PlannerService(
-        new DefaultDaedalusHydrator(
-            new TemplateParser(),
-            new Formatter(List.of(new PlainFormatter())),
-            new GlobalTemplateContext(),
-            new ObjectMapper()
-        )
+            new DefaultDaedalusHydrator(
+                    new TemplateParser(),
+                    new Formatter(List.of(new PlainFormatter())),
+                    new GlobalTemplateContext(),
+                    new ObjectMapper()
+            )
     );
 
     @Test

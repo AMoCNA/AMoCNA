@@ -6,9 +6,9 @@ import com.kubiki.palamedes.model.ActionData;
 import com.kubiki.palamedes.model.ActionMessage;
 import com.kubiki.palamedes.model.WorkflowState;
 import com.kubiki.palamedes.model.WorkflowStateMapper;
-import com.kubiki.palamedes.planner.PlannerService;
 import com.kubiki.palamedes.pipeline.MapePipe;
 import com.kubiki.palamedes.pipeline.WorkflowContext;
+import com.kubiki.palamedes.planner.PlannerService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,10 +17,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
-/**
- * ActionDispatcherPipe (MAPE-Execute):
- * Hydrates and dispatches actions that are VALIDATED.
- */
 @Order(4)
 @Component
 @RequiredArgsConstructor
@@ -31,26 +27,27 @@ public class ActionDispatcherPipe implements MapePipe {
     private final PlannerService plannerService;
     private final WorkflowStateMapper mapper;
 
-
     @Override
     public boolean process(WorkflowContext context) {
         if (!mapper.getFragment(WorkflowState.VALIDATED).equals(context.metadata().get("currentState"))) {
             return true;
         }
 
-        log.info("Dispatching action {}", context.actionId());
+        log.info("Evaluating dispatch strategies for action {}", context.actionId());
 
-        if (context.actionData() instanceof ActionData.SimpleAction simpleAction) {
-            Map<String, String> hydrationData = Map.of("resourceName", (String) context.metadata().get("resourceName"));
-            ActionMessage message = plannerService.buildActionMessage(simpleAction, hydrationData);
-            
-            // Dispatch to RabbitMQ
-            dispatcherService.dispatch(message);
-            
-            // Transition to InProgress
-            return !stateRepository.transition(context.actionId(), WorkflowState.VALIDATED, WorkflowState.IN_PROGRESS);
-        }
+        return switch (context.actionData()) {
+            case ActionData.SimpleAction simpleAction -> {
+                Map<String, String> hydrationData = Map.of("resourceName", (String) context.metadata().get("resourceName"));
+                ActionMessage message = plannerService.buildActionMessage(simpleAction, hydrationData);
 
-        return true;
+                dispatcherService.dispatch(message);
+
+                yield !stateRepository.transition(context.actionId(), WorkflowState.VALIDATED, WorkflowState.IN_PROGRESS);
+            }
+            case ActionData.ComplexWorkflow _ -> {
+                log.debug("ComplexWorkflow node {} bypasses direct broker routing (HTN pipeline handles children)", context.actionId());
+                yield true;
+            }
+        };
     }
 }

@@ -71,7 +71,7 @@ public class PrometheusConditionStrategy implements ConditionStrategy {
 
             JsonNode response = objectMapper.readTree(responseBody);
             JsonNode statusNode = response.get(FIELD_STATUS);
-            
+
             if (statusNode == null || !RESPONSE_STATUS_SUCCESS.equals(statusNode.asText())) {
                 log.warn("Prometheus query was not successful: {}", responseBody);
                 return false;
@@ -83,7 +83,7 @@ public class PrometheusConditionStrategy implements ConditionStrategy {
                 // In this autonomic model, a non-empty result means the condition (alert) is active
                 return result != null && result.isArray() && !result.isEmpty();
             }
-            
+
             return false;
         } catch (Exception e) {
             log.error("Error evaluating Prometheus condition: {}", e.getMessage());

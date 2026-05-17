@@ -6,5 +6,6 @@ public record AnomalyTarget(
         IRI resourceIri,
         String resourceName,
         IRI intentIri
-) {}
+) {
+}
 

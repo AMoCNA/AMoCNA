@@ -25,9 +25,9 @@ class SparqlRepositoryTest {
     @Test
     void shouldInjectAndHydrateFindAnomalies() {
         assertThat(sparqlRepository).isNotNull();
-        
+
         String query = sparqlRepository.findAnomalies();
-        
+
         assertThat(query).contains("SELECT DISTINCT ?resource");
     }
 
@@ -35,7 +35,7 @@ class SparqlRepositoryTest {
     void shouldHydrateParameterizedQuery() {
         String actionId = "http://example.org/action/123";
         String query = sparqlRepository.findDependents(actionId);
-        
+
         assertThat(query).contains("<" + actionId + ">");
         assertThat(query).contains("dependsOn");
     }

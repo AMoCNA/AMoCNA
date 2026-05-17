@@ -13,6 +13,13 @@ public record Result<T>(T value, String error) {
         return new Result<>(null, error);
     }
 
+    public static <T1, T2, R> Result<R> combine(Result<T1> r1, Result<T2> r2, BiFunction<T1, T2, R> combiner) {
+        if (r1.isSuccess() && r2.isSuccess()) {
+            return Result.success(combiner.apply(r1.value(), r2.value()));
+        }
+        return Result.failure(r1.isSuccess() ? r2.error() : r1.error());
+    }
+
     public boolean isSuccess() {
         return error == null;
     }
@@ -23,13 +30,6 @@ public record Result<T>(T value, String error) {
         } else {
             return Result.failure(error);
         }
-    }
-
-    public static <T1, T2, R> Result<R> combine(Result<T1> r1, Result<T2> r2, BiFunction<T1, T2, R> combiner) {
-        if (r1.isSuccess() && r2.isSuccess()) {
-            return Result.success(combiner.apply(r1.value(), r2.value()));
-        }
-        return Result.failure(r1.isSuccess() ? r2.error() : r1.error());
     }
 
 }

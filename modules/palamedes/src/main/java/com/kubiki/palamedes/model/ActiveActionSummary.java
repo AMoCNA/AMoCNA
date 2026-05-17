@@ -7,5 +7,6 @@ public record ActiveActionSummary(
         IRI resourceIri,
         String resourceName,
         String stateFragment
-) {}
+) {
+}
 

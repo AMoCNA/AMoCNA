@@ -3,10 +3,8 @@ package com.kubiki.palamedes.knowledge;
 import com.kubiki.palamedes.model.ActionData;
 import com.kubiki.palamedes.model.Protocol;
 import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
-import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.impl.MapBindingSet;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
@@ -14,7 +12,8 @@ import org.springframework.http.HttpMethod;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ModelMapperTest {
     private final ModelMapper mapper = new ModelMapper();

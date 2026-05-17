@@ -41,7 +41,7 @@ public class BeanConfig {
             ctx.set("PREFIX::" + ACTIONS_PREFIX_VARIABLE, properties.ontology().actionsPrefix());
             ctx.set("PREFIX::" + RESOURCES_PREFIX_VARIABLE, properties.ontology().resourcesPrefix());
             ctx.set("PREFIX::" + BRIDGE_PREFIX_VARIABLE, properties.ontology().bridgePrefix());
-            
+
             ctx.set("INDIVIDUAL::" + STATE_INITIAL, properties.ontology().states().getOrDefault(PROPERTIES_INITIAL_STATE_NAME, DEFAULT_STATE_INITIAL));
             ctx.set("INDIVIDUAL::" + STATE_PLANNED, properties.ontology().states().getOrDefault(PROPERTIES_PLANNED_STATE_NAME, DEFAULT_STATE_PLANNED));
             ctx.set("INDIVIDUAL::" + STATE_VALIDATED, properties.ontology().states().getOrDefault(PROPERTIES_VALIDATED_STATE_NAME, DEFAULT_STATE_VALIDATED));

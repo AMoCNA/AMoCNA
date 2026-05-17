@@ -11,27 +11,32 @@ import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class SagaManagerTest {
-    @Mock private GraphDBGateway gateway;
-    @Mock private StateRepository stateRepository;
-    @Mock private OntologyRegistry registry;
-    @Mock private ConditionFactory conditionFactory;
-    @Mock private ActionUtils actionUtils;
-    @Mock private WorkflowStateMapper mapper;
-
-    private SagaManager sagaManager;
     private final IRI actionIri = SimpleValueFactory.getInstance().createIRI("http://test/action1");
     private final IRI dependentIri = SimpleValueFactory.getInstance().createIRI("http://test/dependent1");
+    @Mock
+    private GraphDBGateway gateway;
+    @Mock
+    private StateRepository stateRepository;
+    @Mock
+    private OntologyRegistry registry;
+    @Mock
+    private ConditionFactory conditionFactory;
+    @Mock
+    private ActionUtils actionUtils;
+    @Mock
+    private WorkflowStateMapper mapper;
+    private SagaManager sagaManager;
 
     @BeforeEach
     void setUp() {
@@ -42,11 +47,11 @@ class SagaManagerTest {
     @Test
     void shouldUnlockNextStepsOnSuccess() {
         ActionStatusUpdate update = new ActionStatusUpdate("action1", ExecutionStatus.COMPLETED, null, 200);
-        
+
         ActionData data = mock(ActionData.SimpleAction.class);
         when(data.postConditions()).thenReturn(List.of());
         when(gateway.fetchActionStructure(actionIri)).thenReturn(data);
-        
+
         when(stateRepository.transition(eq(actionIri), eq(WorkflowState.IN_PROGRESS), eq(WorkflowState.SUCCEEDED))).thenReturn(true);
         when(gateway.findDependents(actionIri)).thenReturn(List.of(dependentIri));
 
@@ -60,10 +65,10 @@ class SagaManagerTest {
     void shouldTriggerCompensationOnFailure() {
         ActionStatusUpdate update = new ActionStatusUpdate("action1", ExecutionStatus.FAILED_HTTP, "Error", 500);
         when(stateRepository.transition(eq(actionIri), eq(WorkflowState.IN_PROGRESS), eq(WorkflowState.FAILED))).thenReturn(true);
-        
+
         IRI compensationIri = SimpleValueFactory.getInstance().createIRI("http://test/rollback");
         when(gateway.findCompensation(actionIri)).thenReturn(compensationIri);
-        
+
         ActionData originalAction = mock(ActionData.SimpleAction.class);
         IRI targetIri = SimpleValueFactory.getInstance().createIRI("http://test/pod");
         when(originalAction.target()).thenReturn(targetIri);

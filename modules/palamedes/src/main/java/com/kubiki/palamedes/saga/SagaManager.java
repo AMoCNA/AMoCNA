@@ -2,7 +2,6 @@ package com.kubiki.palamedes.saga;
 
 import com.kubiki.palamedes.condition.ConditionFactory;
 import com.kubiki.palamedes.condition.ConditionStrategy;
-import com.kubiki.palamedes.config.PalamedesProperties;
 import com.kubiki.palamedes.knowledge.GraphDBGateway;
 import com.kubiki.palamedes.knowledge.OntologyRegistry;
 import com.kubiki.palamedes.knowledge.StateRepository;
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 /**
  * SagaManager (MAPE-Monitor/Analyze):
@@ -37,9 +35,9 @@ public class SagaManager {
 
     public void handleFeedback(ActionStatusUpdate update) {
         log.info("Handling feedback for action {}: {}", update.actionId(), update.status());
-        
+
         IRI actionIri = ontologyRegistry.actionsOntology(update.actionId());
-        
+
         if (update.status() == ExecutionStatus.COMPLETED) {
             // 1. VERIFICATION: Evaluate Post-conditions
             if (verifyPostConditions(actionIri)) {
@@ -62,7 +60,7 @@ public class SagaManager {
         // A. Unlock next sibling in the sequence
         log.info("Looking for steps dependent on {}", actionIri);
         List<IRI> dependents = gateway.findDependents(actionIri);
-        
+
         if (!dependents.isEmpty()) {
             for (IRI dependent : dependents) {
                 log.info("Unlocking dependent step {}", dependent);
@@ -102,13 +100,13 @@ public class SagaManager {
     }
 
     /**
-     * Petri Net Join Logic: 
+     * Petri Net Join Logic:
      * Verifies if all children in the decomposition are SUCCEEDED.
      */
     private void checkParentCompletion(IRI parentIri) {
         List<IRI> children = gateway.findChildren(parentIri);
         boolean allSucceeded = true;
-        
+
         for (IRI child : children) {
             WorkflowState childState = gateway.getState(child);
             if (childState != WorkflowState.SUCCEEDED) {
@@ -121,7 +119,7 @@ public class SagaManager {
         if (allSucceeded) {
             log.info("All children finished. Marking parent workflow {} as SUCCEEDED", parentIri);
             boolean transitioned = stateRepository.transition(parentIri, WorkflowState.PLANNED, WorkflowState.SUCCEEDED);
-            
+
             if (transitioned) {
                 // Recurse to parent's parent
                 IRI grandParent = gateway.findParent(parentIri);

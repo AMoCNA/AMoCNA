@@ -8,7 +8,6 @@ import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -19,19 +18,23 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class MapePipelineTest {
-    @Mock private MapePipe pipe1;
-    @Mock private MapePipe pipe2;
-    @Mock private GraphDBGateway gateway;
-    @Mock private AnomalyAgent anomalyAgent;
+    @Mock
+    private MapePipe pipe1;
+    @Mock
+    private MapePipe pipe2;
+    @Mock
+    private GraphDBGateway gateway;
+    @Mock
+    private AnomalyAgent anomalyAgent;
 
     @Test
     void shouldExecutePipeline() {
         MapePipeline pipeline = new MapePipeline(List.of(pipe1, pipe2), gateway, anomalyAgent);
-        
+
         IRI actionId = SimpleValueFactory.getInstance().createIRI("http://test/action1");
         var action = new ActiveActionSummary(
                 actionId, null, "resource1", "State_Initial");
-        
+
         when(gateway.findActiveActions()).thenReturn(List.of(action));
         when(gateway.fetchActionStructure(actionId)).thenReturn(mock(ActionData.SimpleAction.class));
         when(pipe1.process(any())).thenReturn(true);
