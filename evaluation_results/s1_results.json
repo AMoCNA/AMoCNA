@@ -1,0 +1,518 @@
+{
+  "docker.io/weaveworksdemos/front-end:0.3.0": {
+    "app": "Sock Shop",
+    "language": "Node.js",
+    "syft_latencies_ms": [
+      21000.0
+    ],
+    "grype_latencies_ms": [
+      189000.0
+    ],
+    "trivy_latencies_ms": [
+      12000.0
+    ],
+    "packages": 2709,
+    "grype_cves": {
+      "total": 761,
+      "critical": 60,
+      "high": 390,
+      "medium": 240,
+      "low": 71
+    },
+    "trivy_cves": {
+      "total": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0
+    }
+  },
+  "docker.io/weaveworksdemos/orders:0.4.0": {
+    "app": "Sock Shop",
+    "language": "Java",
+    "syft_latencies_ms": [
+      22000.0
+    ],
+    "grype_latencies_ms": [
+      239000.0
+    ],
+    "trivy_latencies_ms": [
+      3000.0
+    ],
+    "packages": 897,
+    "grype_cves": {
+      "total": 372,
+      "critical": 55,
+      "high": 163,
+      "medium": 133,
+      "low": 21
+    },
+    "trivy_cves": {
+      "total": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0
+    }
+  },
+  "docker.io/weaveworksdemos/carts:0.3.5": {
+    "app": "Sock Shop",
+    "language": "Java",
+    "syft_latencies_ms": [],
+    "grype_latencies_ms": [],
+    "trivy_latencies_ms": [],
+    "packages": 0,
+    "grype_cves": {
+      "total": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "low": 0
+    },
+    "trivy_cves": {
+      "total": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0
+    }
+  },
+  "docker.io/weaveworksdemos/user:0.4.7": {
+    "app": "Sock Shop",
+    "language": "Go",
+    "syft_latencies_ms": [],
+    "grype_latencies_ms": [],
+    "trivy_latencies_ms": [],
+    "packages": 76,
+    "grype_cves": {
+      "total": 116,
+      "critical": 6,
+      "high": 50,
+      "medium": 52,
+      "low": 0
+    },
+    "trivy_cves": {
+      "total": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0
+    }
+  },
+  "docker.io/weaveworksdemos/catalogue:0.3.5": {
+    "app": "Sock Shop",
+    "language": "Go",
+    "syft_latencies_ms": [],
+    "grype_latencies_ms": [],
+    "trivy_latencies_ms": [],
+    "packages": 76,
+    "grype_cves": {
+      "total": 130,
+      "critical": 8,
+      "high": 54,
+      "medium": 60,
+      "low": 0
+    },
+    "trivy_cves": {
+      "total": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0
+    }
+  },
+  "docker.io/weaveworksdemos/payment:0.4.3": {
+    "app": "Sock Shop",
+    "language": "Go",
+    "syft_latencies_ms": [],
+    "grype_latencies_ms": [],
+    "trivy_latencies_ms": [],
+    "packages": 76,
+    "grype_cves": {
+      "total": 130,
+      "critical": 8,
+      "high": 54,
+      "medium": 60,
+      "low": 0
+    },
+    "trivy_cves": {
+      "total": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0
+    }
+  },
+  "docker.io/weaveworksdemos/shipping:0.4.8": {
+    "app": "Sock Shop",
+    "language": "Java",
+    "syft_latencies_ms": [],
+    "grype_latencies_ms": [],
+    "trivy_latencies_ms": [],
+    "packages": 905,
+    "grype_cves": {
+      "total": 378,
+      "critical": 57,
+      "high": 163,
+      "medium": 137,
+      "low": 0
+    },
+    "trivy_cves": {
+      "total": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0
+    }
+  },
+  "docker.io/weaveworksdemos/queue-master:0.3.1": {
+    "app": "Sock Shop",
+    "language": "Go",
+    "syft_latencies_ms": [],
+    "grype_latencies_ms": [],
+    "trivy_latencies_ms": [],
+    "packages": 920,
+    "grype_cves": {
+      "total": 422,
+      "critical": 58,
+      "high": 178,
+      "medium": 162,
+      "low": 0
+    },
+    "trivy_cves": {
+      "total": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0
+    }
+  },
+  "docker.io/istio/examples-bookinfo-productpage-v1:1.20.2": {
+    "app": "BookInfo",
+    "language": "Python",
+    "syft_latencies_ms": [],
+    "grype_latencies_ms": [],
+    "trivy_latencies_ms": [],
+    "packages": 0,
+    "grype_cves": {
+      "total": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "low": 0
+    },
+    "trivy_cves": {
+      "total": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0
+    }
+  },
+  "docker.io/istio/examples-bookinfo-details-v1:1.20.2": {
+    "app": "BookInfo",
+    "language": "Ruby",
+    "syft_latencies_ms": [],
+    "grype_latencies_ms": [],
+    "trivy_latencies_ms": [],
+    "packages": 0,
+    "grype_cves": {
+      "total": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "low": 0
+    },
+    "trivy_cves": {
+      "total": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0
+    }
+  },
+  "docker.io/istio/examples-bookinfo-reviews-v1:1.20.2": {
+    "app": "BookInfo",
+    "language": "Java",
+    "syft_latencies_ms": [],
+    "grype_latencies_ms": [],
+    "trivy_latencies_ms": [],
+    "packages": 5250,
+    "grype_cves": {
+      "total": 456,
+      "critical": 0,
+      "high": 3,
+      "medium": 309,
+      "low": 0
+    },
+    "trivy_cves": {
+      "total": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0
+    }
+  },
+  "docker.io/istio/examples-bookinfo-reviews-v2:1.20.2": {
+    "app": "BookInfo",
+    "language": "Java",
+    "syft_latencies_ms": [],
+    "grype_latencies_ms": [],
+    "trivy_latencies_ms": [],
+    "packages": 5250,
+    "grype_cves": {
+      "total": 456,
+      "critical": 0,
+      "high": 3,
+      "medium": 309,
+      "low": 0
+    },
+    "trivy_cves": {
+      "total": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0
+    }
+  },
+  "docker.io/istio/examples-bookinfo-reviews-v3:1.20.2": {
+    "app": "BookInfo",
+    "language": "Java",
+    "syft_latencies_ms": [],
+    "grype_latencies_ms": [],
+    "trivy_latencies_ms": [],
+    "packages": 5250,
+    "grype_cves": {
+      "total": 456,
+      "critical": 0,
+      "high": 3,
+      "medium": 309,
+      "low": 0
+    },
+    "trivy_cves": {
+      "total": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0
+    }
+  },
+  "docker.io/istio/examples-bookinfo-ratings-v1:1.20.2": {
+    "app": "BookInfo",
+    "language": "Node.js",
+    "syft_latencies_ms": [],
+    "grype_latencies_ms": [],
+    "trivy_latencies_ms": [],
+    "packages": 3684,
+    "grype_cves": {
+      "total": 459,
+      "critical": 24,
+      "high": 132,
+      "medium": 157,
+      "low": 0
+    },
+    "trivy_cves": {
+      "total": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0
+    }
+  },
+  "gcr.io/google-samples/microservices-demo/frontend:v0.8.0": {
+    "app": "Online Boutique",
+    "language": "Node.js",
+    "syft_latencies_ms": [],
+    "grype_latencies_ms": [],
+    "trivy_latencies_ms": [],
+    "packages": 358,
+    "grype_cves": {
+      "total": 255,
+      "critical": 13,
+      "high": 122,
+      "medium": 109,
+      "low": 0
+    },
+    "trivy_cves": {
+      "total": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0
+    }
+  },
+  "gcr.io/google-samples/microservices-demo/cartservice:v0.8.0": {
+    "app": "Online Boutique",
+    "language": "Java",
+    "syft_latencies_ms": [],
+    "grype_latencies_ms": [],
+    "trivy_latencies_ms": [],
+    "packages": 305,
+    "grype_cves": {
+      "total": 65,
+      "critical": 6,
+      "high": 12,
+      "medium": 41,
+      "low": 0
+    },
+    "trivy_cves": {
+      "total": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0
+    }
+  },
+  "gcr.io/google-samples/microservices-demo/productcatalogservice:v0.8.0": {
+    "app": "Online Boutique",
+    "language": "Go",
+    "syft_latencies_ms": [],
+    "grype_latencies_ms": [],
+    "trivy_latencies_ms": [],
+    "packages": 279,
+    "grype_cves": {
+      "total": 158,
+      "critical": 9,
+      "high": 47,
+      "medium": 93,
+      "low": 0
+    },
+    "trivy_cves": {
+      "total": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0
+    }
+  },
+  "gcr.io/google-samples/microservices-demo/currencyservice:v0.8.0": {
+    "app": "Online Boutique",
+    "language": "Node.js",
+    "syft_latencies_ms": [],
+    "grype_latencies_ms": [],
+    "trivy_latencies_ms": [],
+    "packages": 1372,
+    "grype_cves": {
+      "total": 321,
+      "critical": 22,
+      "high": 145,
+      "medium": 130,
+      "low": 0
+    },
+    "trivy_cves": {
+      "total": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0
+    }
+  },
+  "gcr.io/google-samples/microservices-demo/paymentservice:v0.8.0": {
+    "app": "Online Boutique",
+    "language": "Node.js",
+    "syft_latencies_ms": [],
+    "grype_latencies_ms": [],
+    "trivy_latencies_ms": [],
+    "packages": 1326,
+    "grype_cves": {
+      "total": 318,
+      "critical": 22,
+      "high": 144,
+      "medium": 128,
+      "low": 0
+    },
+    "trivy_cves": {
+      "total": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0
+    }
+  },
+  "gcr.io/google-samples/microservices-demo/shippingservice:v0.8.0": {
+    "app": "Online Boutique",
+    "language": "Java",
+    "syft_latencies_ms": [],
+    "grype_latencies_ms": [],
+    "trivy_latencies_ms": [],
+    "packages": 265,
+    "grype_cves": {
+      "total": 156,
+      "critical": 9,
+      "high": 45,
+      "medium": 93,
+      "low": 0
+    },
+    "trivy_cves": {
+      "total": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0
+    }
+  },
+  "gcr.io/google-samples/microservices-demo/emailservice:v0.8.0": {
+    "app": "Online Boutique",
+    "language": "Python",
+    "syft_latencies_ms": [],
+    "grype_latencies_ms": [],
+    "trivy_latencies_ms": [],
+    "packages": 3834,
+    "grype_cves": {
+      "total": 551,
+      "critical": 21,
+      "high": 185,
+      "medium": 211,
+      "low": 0
+    },
+    "trivy_cves": {
+      "total": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0
+    }
+  },
+  "gcr.io/google-samples/microservices-demo/checkoutservice:v0.8.0": {
+    "app": "Online Boutique",
+    "language": "Go",
+    "syft_latencies_ms": [],
+    "grype_latencies_ms": [],
+    "trivy_latencies_ms": [],
+    "packages": 280,
+    "grype_cves": {
+      "total": 158,
+      "critical": 9,
+      "high": 47,
+      "medium": 93,
+      "low": 0
+    },
+    "trivy_cves": {
+      "total": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0
+    }
+  },
+  "gcr.io/google-samples/microservices-demo/recommendationservice:v0.8.0": {
+    "app": "Online Boutique",
+    "language": "Python",
+    "syft_latencies_ms": [],
+    "grype_latencies_ms": [],
+    "trivy_latencies_ms": [],
+    "packages": 3813,
+    "grype_cves": {
+      "total": 546,
+      "critical": 21,
+      "high": 185,
+      "medium": 206,
+      "low": 0
+    },
+    "trivy_cves": {
+      "total": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0
+    }
+  },
+  "gcr.io/google-samples/microservices-demo/adservice:v0.8.0": {
+    "app": "Online Boutique",
+    "language": "Java",
+    "syft_latencies_ms": [],
+    "grype_latencies_ms": [],
+    "trivy_latencies_ms": [],
+    "packages": 1431,
+    "grype_cves": {
+      "total": 308,
+      "critical": 13,
+      "high": 115,
+      "medium": 144,
+      "low": 0
+    },
+    "trivy_cves": {
+      "total": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0
+    }
+  }
+}

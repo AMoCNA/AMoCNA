@@ -171,13 +171,16 @@ def _create_pull_secret(namespace: str, server: str, user: str, password: str, d
 def _ensure_core_pull_secrets(cfg: ProjectConfig, dry_run: bool = False) -> None:
     """Create ghcr-login secret in core namespaces before workloads start."""
     core_dir = cfg.project_root / "infra" / "core"
-    namespaces = ["metis", "palamedes", "themis", "metrics-adapter"]
+    namespaces = ["metis", "palamedes", "themis", "metrics-adapter", "amocna-scig"]
     user, pat = _require_pull_secret_env()
     server = _registry_server(cfg.registry)
 
     info("Ensuring core namespaces exist...")
     for ns in namespaces:
-        ns_manifest = core_dir / f"{ns}-00-namespace.yaml"
+        if ns == "amocna-scig":
+            ns_manifest = cfg.project_root / "infra" / "scig" / "00-namespace.yaml"
+        else:
+            ns_manifest = core_dir / f"{ns}-00-namespace.yaml"
         if not ns_manifest.is_file():
             warn(f"Namespace manifest not found, skipping: {ns_manifest}")
             continue
@@ -186,7 +189,7 @@ def _ensure_core_pull_secrets(cfg: ProjectConfig, dry_run: bool = False) -> None
     info("Creating/updating ghcr-login image pull secrets for core namespaces...")
     for ns in namespaces:
         _create_pull_secret(ns, server, user, pat, dry_run=dry_run)
-    info("Image pull secrets ready in metis/palamedes/themis/metrics-adapter.")
+    info("Image pull secrets ready in metis/palamedes/themis/metrics-adapter/amocna-scig.")
 
 @app.callback(invoke_without_command=True)
 def deploy_cmd(

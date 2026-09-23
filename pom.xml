@@ -12,7 +12,7 @@
 
   <groupId>com.kubiki</groupId>
   <artifactId>amocna-parent</artifactId>
-  <version>1.12.12-SNAPSHOT</version>
+  <version>1.14.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>amocna-parent</name>

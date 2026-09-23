@@ -7,3 +7,5 @@ resources:
   - redis/
   - scig/
   - prometheus/amocna-monitors.yaml
+  - bookinfo/
+  - online-boutique/

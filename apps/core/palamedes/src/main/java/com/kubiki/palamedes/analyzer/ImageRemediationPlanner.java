@@ -8,6 +8,7 @@ import com.kubiki.palamedes.knowledge.ActionHydrationService;
 import com.kubiki.palamedes.knowledge.ActionRepository;
 import com.kubiki.palamedes.knowledge.WorkloadDiscoveryService;
 import com.kubiki.palamedes.model.ImageUpdateTarget;
+import com.kubiki.palamedes.scig.ScigRedisSyncService;
 import com.kubiki.palamedes.service.RemediationFilterService;
 import com.kubiki.palamedes.utils.ActionUtils;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +39,7 @@ public class ImageRemediationPlanner {
     private final PalamedesProperties properties;
     private final OntologyRegistry ontologyRegistry;
     private final RemediationFilterService filterService;
+    private final ScigRedisSyncService scigRedisSyncService;
 
     public static String parseNamespaceFromDeploymentIri(IRI deploymentIri) {
         String local = URLDecoder.decode(deploymentIri.getLocalName(), StandardCharsets.UTF_8);
@@ -62,6 +64,13 @@ public class ImageRemediationPlanner {
         if (!filterService.isIntentAllowed(intentIri.getLocalName())) {
             log.debug("ImageRemediationPlanner: Skipping scan - {} is filtered out.", intentIri.getLocalName());
             return false;
+        }
+
+        // Sync fresh CVE findings from SCIG Redis scan reports before running topology match
+        try {
+            scigRedisSyncService.syncFromRedis();
+        } catch (Exception e) {
+            log.warn("Failed to sync SCIG Redis vulnerabilities: {}", e.getMessage());
         }
 
         String vulnerablePairs = vulnerabilityCatalog.toSparqlValuesClause();

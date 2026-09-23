@@ -1,0 +1,38 @@
+\begin{table*}[htbp]
+\centering
+\caption{SCIG SBOM generation and CVE detection results across heterogeneous microservice benchmark applications. Latencies are reported as $\overline{x} \pm \sigma$ over iterations.}
+\label{tab:scig_s1_per_image}
+\scriptsize
+\begin{tabular}{llrrrrrrrr}
+\toprule
+\textbf{Application} & \textbf{Service} & \textbf{Lang} & \textbf{Pkgs} & \multicolumn{2}{c}{\textbf{Grype CVEs}} & \multicolumn{2}{c}{\textbf{Trivy CVEs}} & \textbf{Syft (ms)} & \textbf{Grype (ms)} \\
+\cmidrule(lr){5-6} \cmidrule(lr){7-8}
+ & & & & Total & Crit & Total & Crit & & \\
+\midrule
+Sock Shop & front-end:0.3.0 & Node.js & 2709 & 761 & 60 & 0 & 0 & $21000.0 \pm 0.0$ & $189000.0 \pm 0.0$ \\
+Sock Shop & orders:0.4.0 & Java & 897 & 372 & 55 & 0 & 0 & $22000.0 \pm 0.0$ & $239000.0 \pm 0.0$ \\
+Sock Shop & carts:0.3.5 & Java & 0 & 0 & 0 & 0 & 0 & $0.0 \pm 0.0$ & $0.0 \pm 0.0$ \\
+Sock Shop & user:0.4.7 & Go & 76 & 116 & 6 & 0 & 0 & $0.0 \pm 0.0$ & $0.0 \pm 0.0$ \\
+Sock Shop & catalogue:0.3.5 & Go & 76 & 130 & 8 & 0 & 0 & $0.0 \pm 0.0$ & $0.0 \pm 0.0$ \\
+Sock Shop & payment:0.4.3 & Go & 76 & 130 & 8 & 0 & 0 & $0.0 \pm 0.0$ & $0.0 \pm 0.0$ \\
+Sock Shop & shipping:0.4.8 & Java & 905 & 378 & 57 & 0 & 0 & $0.0 \pm 0.0$ & $0.0 \pm 0.0$ \\
+Sock Shop & queue-master:0.3.1 & Go & 920 & 422 & 58 & 0 & 0 & $0.0 \pm 0.0$ & $0.0 \pm 0.0$ \\
+BookInfo & examples-bookinfo-productpage-v1:1.20.2 & Python & 0 & 0 & 0 & 0 & 0 & $0.0 \pm 0.0$ & $0.0 \pm 0.0$ \\
+BookInfo & examples-bookinfo-details-v1:1.20.2 & Ruby & 0 & 0 & 0 & 0 & 0 & $0.0 \pm 0.0$ & $0.0 \pm 0.0$ \\
+BookInfo & examples-bookinfo-reviews-v1:1.20.2 & Java & 5250 & 456 & 0 & 0 & 0 & $0.0 \pm 0.0$ & $0.0 \pm 0.0$ \\
+BookInfo & examples-bookinfo-reviews-v2:1.20.2 & Java & 5250 & 456 & 0 & 0 & 0 & $0.0 \pm 0.0$ & $0.0 \pm 0.0$ \\
+BookInfo & examples-bookinfo-reviews-v3:1.20.2 & Java & 5250 & 456 & 0 & 0 & 0 & $0.0 \pm 0.0$ & $0.0 \pm 0.0$ \\
+BookInfo & examples-bookinfo-ratings-v1:1.20.2 & Node.js & 3684 & 459 & 24 & 0 & 0 & $0.0 \pm 0.0$ & $0.0 \pm 0.0$ \\
+Online Boutique & frontend:v0.8.0 & Node.js & 358 & 255 & 13 & 0 & 0 & $0.0 \pm 0.0$ & $0.0 \pm 0.0$ \\
+Online Boutique & cartservice:v0.8.0 & Java & 305 & 65 & 6 & 0 & 0 & $0.0 \pm 0.0$ & $0.0 \pm 0.0$ \\
+Online Boutique & productcatalogservice:v0.8.0 & Go & 279 & 158 & 9 & 0 & 0 & $0.0 \pm 0.0$ & $0.0 \pm 0.0$ \\
+Online Boutique & currencyservice:v0.8.0 & Node.js & 1372 & 321 & 22 & 0 & 0 & $0.0 \pm 0.0$ & $0.0 \pm 0.0$ \\
+Online Boutique & paymentservice:v0.8.0 & Node.js & 1326 & 318 & 22 & 0 & 0 & $0.0 \pm 0.0$ & $0.0 \pm 0.0$ \\
+Online Boutique & shippingservice:v0.8.0 & Java & 265 & 156 & 9 & 0 & 0 & $0.0 \pm 0.0$ & $0.0 \pm 0.0$ \\
+Online Boutique & emailservice:v0.8.0 & Python & 3834 & 551 & 21 & 0 & 0 & $0.0 \pm 0.0$ & $0.0 \pm 0.0$ \\
+Online Boutique & checkoutservice:v0.8.0 & Go & 280 & 158 & 9 & 0 & 0 & $0.0 \pm 0.0$ & $0.0 \pm 0.0$ \\
+Online Boutique & recommendationservice:v0.8.0 & Python & 3813 & 546 & 21 & 0 & 0 & $0.0 \pm 0.0$ & $0.0 \pm 0.0$ \\
+Online Boutique & adservice:v0.8.0 & Java & 1431 & 308 & 13 & 0 & 0 & $0.0 \pm 0.0$ & $0.0 \pm 0.0$ \\
+\bottomrule
+\end{tabular}
+\end{table*}

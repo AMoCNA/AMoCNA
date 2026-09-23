@@ -1,0 +1,17 @@
+\begin{table}[htbp]
+\centering
+\caption{Cross-scanner CVE detection comparison: Grype vs Trivy across benchmark container images.}
+\label{tab:scig_scanner_comparison}
+\begin{tabular}{lr}
+\toprule
+\textbf{Metric} & \textbf{Value} \\
+\midrule
+Grype unique CVE IDs & 1179 \\
+Trivy unique CVE IDs & 0 \\
+Intersection ($|G \cap T|$) & 0 \\
+Grype-only ($|G \setminus T|$) & 1179 \\
+Trivy-only ($|T \setminus G|$) & 0 \\
+Jaccard similarity $J(G, T)$ & 0.00 \\
+\bottomrule
+\end{tabular}
+\end{table}

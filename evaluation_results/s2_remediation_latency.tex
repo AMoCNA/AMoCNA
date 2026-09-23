@@ -1,0 +1,14 @@
+\begin{table}[htbp]
+\centering
+\caption{SCIG end-to-end vulnerability remediation latency breakdown across microservices. Values are $\overline{x} \pm \sigma$ (ms).}
+\label{tab:scig_s2_remediation}
+\begin{tabular}{lllrrrrrr}
+\toprule
+\textbf{Service} & \textbf{Policy} & \textbf{Sev.} & \textbf{Scan} & \textbf{Sync} & \textbf{Plan} & \textbf{Exec} & \textbf{Rollout} & \textbf{Total} \\
+\midrule
+front-end (100\% OK) & PATCH & HIGH & $0.0 \pm 0.0$ & $727.1 \pm 49.2$ & $0.0 \pm 0.0$ & $0.0 \pm 0.0$ & $10642.6 \pm 35.8$ & $18609.3 \pm 2866.4$ \\
+orders (100\% OK) & MINOR & CRITICAL & $0.0 \pm 0.0$ & $727.1 \pm 49.2$ & $0.0 \pm 0.0$ & $0.0 \pm 0.0$ & $12690.1 \pm 2752.0$ & $18609.3 \pm 2866.4$ \\
+carts (100\% OK) & MINOR & HIGH & $0.0 \pm 0.0$ & $727.1 \pm 49.2$ & $0.0 \pm 0.0$ & $0.0 \pm 0.0$ & $17674.7 \pm 2875.2$ & $18609.3 \pm 2866.4$ \\
+\bottomrule
+\end{tabular}
+\end{table}

@@ -84,6 +84,8 @@ k8s:
     - infra/redis
     - infra/scig
     - infra/core
+    - infra/bookinfo
+    - infra/online-boutique
   undeploy_namespaces:
     - graphdb
     - rabbitmq
@@ -93,6 +95,8 @@ k8s:
     - palamedes
     - metrics-adapter
     - themis
+    - bookinfo
+    - online-boutique
   cluster_resources:
     - { kind: clusterrole, name: pod-reader }
     - { kind: clusterrolebinding, name: read-secrets-global }

@@ -1,0 +1,145 @@
+{
+  "iterations": [
+    {
+      "scig_scan_ms": 0.0,
+      "redis_sync_ms": 783.8777769975422,
+      "planning_ms": 0.0,
+      "total_e2e_ms": 17137.15233899711,
+      "per_service": {
+        "front-end": {
+          "success": true,
+          "final_image": "weaveworksdemos/front-end:0.3.12",
+          "expected_tag": "0.3.12",
+          "policy": "PATCH",
+          "severity": "HIGH",
+          "execution_ms": 0.0,
+          "rollout_ms": 10647.99061300073,
+          "wait_after_scan_ms": 10647.99061300073
+        },
+        "orders": {
+          "success": true,
+          "final_image": "weaveworksdemos/orders:0.4.7",
+          "expected_tag": "0.4.7",
+          "policy": "MINOR",
+          "severity": "CRITICAL",
+          "execution_ms": 0.0,
+          "rollout_ms": 15823.381697999139,
+          "wait_after_scan_ms": 15823.381697999139
+        },
+        "carts": {
+          "success": true,
+          "final_image": "weaveworksdemos/carts:0.4.8",
+          "expected_tag": "0.4.8",
+          "policy": "MINOR",
+          "severity": "HIGH",
+          "execution_ms": 0.0,
+          "rollout_ms": 16169.750174998626,
+          "wait_after_scan_ms": 16169.750174998626
+        }
+      },
+      "redis_mb": 56.40629577636719,
+      "palamedes_metrics": {
+        "cpu_m": 158.0,
+        "mem_mi": 372.0
+      }
+    },
+    {
+      "scig_scan_ms": 0.0,
+      "redis_sync_ms": 700.6561320013134,
+      "planning_ms": 0.0,
+      "total_e2e_ms": 16778.16260899999,
+      "per_service": {
+        "front-end": {
+          "success": true,
+          "final_image": "weaveworksdemos/front-end:0.3.12",
+          "expected_tag": "0.3.12",
+          "policy": "PATCH",
+          "severity": "HIGH",
+          "execution_ms": 0.0,
+          "rollout_ms": 10675.452470000891,
+          "wait_after_scan_ms": 10675.452470000891
+        },
+        "orders": {
+          "success": true,
+          "final_image": "weaveworksdemos/orders:0.4.7",
+          "expected_tag": "0.4.7",
+          "policy": "MINOR",
+          "severity": "CRITICAL",
+          "execution_ms": 0.0,
+          "rollout_ms": 10664.777548001439,
+          "wait_after_scan_ms": 10664.777548001439
+        },
+        "carts": {
+          "success": true,
+          "final_image": "weaveworksdemos/carts:0.4.8",
+          "expected_tag": "0.4.8",
+          "policy": "MINOR",
+          "severity": "HIGH",
+          "execution_ms": 0.0,
+          "rollout_ms": 15864.427537002484,
+          "wait_after_scan_ms": 15864.427537002484
+        }
+      },
+      "redis_mb": 56.425819396972656,
+      "palamedes_metrics": {
+        "cpu_m": 96.0,
+        "mem_mi": 375.0
+      }
+    },
+    {
+      "scig_scan_ms": 0.0,
+      "redis_sync_ms": 696.6580349981086,
+      "planning_ms": 0.0,
+      "total_e2e_ms": 21912.69682699931,
+      "per_service": {
+        "front-end": {
+          "success": true,
+          "final_image": "weaveworksdemos/front-end:0.3.12",
+          "expected_tag": "0.3.12",
+          "policy": "PATCH",
+          "severity": "HIGH",
+          "execution_ms": 0.0,
+          "rollout_ms": 10604.421867999918,
+          "wait_after_scan_ms": 10604.421867999918
+        },
+        "orders": {
+          "success": true,
+          "final_image": "weaveworksdemos/orders:0.4.7",
+          "expected_tag": "0.4.7",
+          "policy": "MINOR",
+          "severity": "CRITICAL",
+          "execution_ms": 0.0,
+          "rollout_ms": 11582.125122000434,
+          "wait_after_scan_ms": 11582.125122000434
+        },
+        "carts": {
+          "success": true,
+          "final_image": "weaveworksdemos/carts:0.4.8",
+          "expected_tag": "0.4.8",
+          "policy": "MINOR",
+          "severity": "HIGH",
+          "execution_ms": 0.0,
+          "rollout_ms": 20990.018267999403,
+          "wait_after_scan_ms": 20990.018267999403
+        }
+      },
+      "redis_mb": 56.40629577636719,
+      "palamedes_metrics": {
+        "cpu_m": 96.0,
+        "mem_mi": 375.0
+      }
+    }
+  ],
+  "success_rates": {
+    "front-end": 1.0,
+    "orders": 1.0,
+    "carts": 1.0
+  },
+  "trigger_scig_scan": false,
+  "pre_eval_observation": {
+    "front-end": "weaveworksdemos/front-end:0.3.12",
+    "orders": "weaveworksdemos/orders:0.4.7",
+    "carts": "weaveworksdemos/carts:0.4.8",
+    "note": "Images before intentional vulnerable reset."
+  }
+}

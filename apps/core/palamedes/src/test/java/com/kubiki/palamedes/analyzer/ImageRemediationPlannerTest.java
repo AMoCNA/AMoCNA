@@ -5,6 +5,7 @@ import com.kubiki.common.vulnerability.VulnerabilityCatalog;
 import com.kubiki.palamedes.config.PalamedesProperties;
 import com.kubiki.palamedes.knowledge.GraphDBGateway;
 import com.kubiki.palamedes.model.ImageUpdateTarget;
+import com.kubiki.palamedes.scig.ScigRedisSyncService;
 import com.kubiki.palamedes.service.RemediationFilterService;
 import com.kubiki.palamedes.utils.ActionUtils;
 import org.eclipse.rdf4j.model.IRI;
@@ -45,6 +46,8 @@ class ImageRemediationPlannerTest {
     @Mock
     private RemediationFilterService filterService;
     @Mock
+    private ScigRedisSyncService scigRedisSyncService;
+    @Mock
     private PalamedesProperties.Vulnerability vulnerabilityProps;
 
     private ImageRemediationPlanner planner;
@@ -52,7 +55,7 @@ class ImageRemediationPlannerTest {
     @BeforeEach
     void setUp() {
         planner = new ImageRemediationPlanner(
-                gateway, gateway, gateway, utils, vulnerabilityCatalog, properties, ontologyRegistry, filterService);
+                gateway, gateway, gateway, utils, vulnerabilityCatalog, properties, ontologyRegistry, filterService, scigRedisSyncService);
     }
 
     @Test
@@ -88,6 +91,7 @@ class ImageRemediationPlannerTest {
         boolean planned = planner.scanCatalogAndPlan();
 
         assertThat(planned).isTrue();
+        verify(scigRedisSyncService).syncFromRedis();
         verify(gateway).findVulnerableWorkloads("(\"weaveworksdemos/front-end\" \"0.3.0\")");
         verify(gateway).createActionWorkflow(deploymentIri, intentIri, "action-1");
 
@@ -105,6 +109,7 @@ class ImageRemediationPlannerTest {
         when(vulnerabilityCatalog.toSparqlValuesClause()).thenReturn("");
 
         assertThat(planner.scanCatalogAndPlan()).isFalse();
+        verify(scigRedisSyncService).syncFromRedis();
         verify(gateway, never()).findVulnerableWorkloads(anyString());
     }
 }

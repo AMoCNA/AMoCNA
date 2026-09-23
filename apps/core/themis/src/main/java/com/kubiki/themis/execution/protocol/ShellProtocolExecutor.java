@@ -3,14 +3,15 @@ package com.kubiki.themis.execution.protocol;
 import com.kubiki.common.model.ActionMessage;
 import com.kubiki.common.model.ExecutionStatus;
 import com.kubiki.common.model.Protocol;
+import com.kubiki.themis.config.ThemisProperties;
 import com.kubiki.themis.execution.ProtocolExecutor;
 import com.kubiki.themis.model.ExecutionResult;
 import io.micrometer.core.annotation.Timed;
 import io.micrometer.core.instrument.MeterRegistry;
-import com.kubiki.themis.config.ThemisProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
@@ -29,6 +30,7 @@ public class ShellProtocolExecutor implements ProtocolExecutor {
     private final MeterRegistry meterRegistry;
     private final ThemisProperties themisProperties;
 
+    @Autowired
     public ShellProtocolExecutor(MeterRegistry meterRegistry, ThemisProperties themisProperties) {
         this.meterRegistry = meterRegistry;
         this.themisProperties = themisProperties;

@@ -24,9 +24,11 @@ spec:
         spec:
           serviceAccountName: scig
           restartPolicy: Never
+          imagePullSecrets:
+            - name: ghcr-login
           containers:
             - name: syft-scan
-              image: ghcr.io/amocna-kr/scig:1.12.12-SNAPSHOT
+              image: ghcr.io/amocna-kr/scig:1.14.1-SNAPSHOT
               imagePullPolicy: IfNotPresent
               command: ["/bin/sh", "/scripts/scan.sh"]
               env:
@@ -38,9 +40,9 @@ spec:
                   value: "172800"
                 # PoC default: scan ConfigMap image list only
                 - name: DISCOVER_CLUSTER_IMAGES
-                  value: "false"
+                  value: "true"
                 - name: SCAN_NAMESPACES
-                  value: sock-shop
+                  value: sock-shop,bookinfo,online-boutique
                 - name: IMAGE_LIST_FILE
                   value: /config/images.txt
               volumeMounts:
