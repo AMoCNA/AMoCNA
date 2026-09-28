@@ -1,6 +1,7 @@
 package com.kubiki.palamedes.analyzer;
 
 import com.kubiki.common.ontology.OntologyRegistry;
+import com.kubiki.common.vulnerability.ImageRepositoryQualifier;
 import com.kubiki.common.vulnerability.UpgradePolicy;
 import com.kubiki.common.vulnerability.VulnerabilityCatalog;
 import com.kubiki.palamedes.config.PalamedesProperties;
@@ -122,7 +123,7 @@ public class ImageRemediationPlanner {
             actionRepository.createActionWorkflow(target.deploymentIri(), intentIri, actionId);
             actionHydrationService.storeActionHydration(actionId, Map.of(
                     "containerName", target.containerName(),
-                    "imageRepository", target.imageRepository(),
+                    "imageRepository", ImageRepositoryQualifier.forKubectl(target.imageRepository()),
                     "targetVersion", target.targetVersion(),
                     "namespace", target.namespace()));
             log.info("Planned image update for deployment {}/{} (service: {}) -> {}:{}",

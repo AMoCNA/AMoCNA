@@ -99,6 +99,8 @@ class ImageRemediationPlannerTest {
         ArgumentCaptor<Map<String, String>> hydrationCaptor = ArgumentCaptor.forClass(Map.class);
         verify(gateway).storeActionHydration(eq("action-1"), hydrationCaptor.capture());
         assertThat(hydrationCaptor.getValue()).containsEntry("targetVersion", "0.3.12");
+        assertThat(hydrationCaptor.getValue())
+                .containsEntry("imageRepository", "docker.io/weaveworksdemos/front-end");
     }
 
     @Test

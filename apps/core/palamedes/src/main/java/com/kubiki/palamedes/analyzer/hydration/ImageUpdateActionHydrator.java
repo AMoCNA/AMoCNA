@@ -1,6 +1,7 @@
 package com.kubiki.palamedes.analyzer.hydration;
 
 import com.kubiki.common.ontology.OntologyRegistry;
+import com.kubiki.common.vulnerability.ImageRepositoryQualifier;
 import com.kubiki.common.vulnerability.UpgradePolicy;
 import com.kubiki.common.vulnerability.VulnerabilityCatalog;
 import com.kubiki.palamedes.config.PalamedesProperties;
@@ -47,7 +48,7 @@ public class ImageUpdateActionHydrator extends BaseActionHydrator {
         Optional<ImageUpdateTarget> details = gateway.findWorkloadDetails(target.resourceIri());
         details.ifPresent(d -> {
             params.put("containerName", d.containerName());
-            params.put("imageRepository", d.imageRepository());
+            params.put("imageRepository", ImageRepositoryQualifier.forKubectl(d.imageRepository()));
             log.info("ImageUpdateActionHydrator: Hydrating details for container {} in repository {}",
                     d.containerName(), d.imageRepository());
 

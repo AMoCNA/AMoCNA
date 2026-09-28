@@ -14,6 +14,7 @@ from amocna_cli.utils.shell import (
     LOCUST_SWARM_PYTHON_TEMPLATE,
     LOCUST_STOP_PYTHON_TEMPLATE,
     LOCUST_STATS_PYTHON_TEMPLATE,
+    LOCUST_P95_PYTHON_TEMPLATE,
     ORDERS_CPU_RESET_PATCH,
     k8s_run_pod,
     k8s_exec,
@@ -71,13 +72,29 @@ def run_sparql(cfg: ProjectConfig, update_query: str) -> None:
     subprocess.run(pod_cmd, input=update_query, text=True, check=True)
 
 
-def set_locust_load(users: int, rate: int) -> None:
+def set_locust_load(
+    users: int,
+    rate: int,
+    host: str = "http://front-end.sock-shop.svc.cluster.local",
+    locust_namespace: str = "sock-shop",
+) -> None:
     """Control Locust swarming programmatically."""
-    info(f"Setting Locust traffic to {users} users (spawn rate {rate})...")
-    python_snippet = LOCUST_SWARM_PYTHON_TEMPLATE.format(users=users, rate=rate)
+    info(f"Setting Locust traffic to {users} users (spawn rate {rate}) on {host}...")
+    python_snippet = LOCUST_SWARM_PYTHON_TEMPLATE.format(users=users, rate=rate, host=host)
     run(
-        k8s_exec("sock-shop", "deploy/locust-master", ["python3", "-c", python_snippet])
+        k8s_exec(locust_namespace, "deploy/locust-master", ["python3", "-c", python_snippet])
     )
+
+
+def get_locust_p95_seconds(locust_namespace: str = "sock-shop") -> float:
+    raw = run_capture(
+        k8s_exec(locust_namespace, "deploy/locust-master", ["python3", "-c", LOCUST_P95_PYTHON_TEMPLATE]),
+        check=False,
+    )
+    try:
+        return float((raw or "0").strip().splitlines()[-1])
+    except ValueError:
+        return 0.0
 
 
 def set_palamedes_filter(intents: list[str], logger: Optional[Any] = None) -> None:
@@ -151,15 +168,16 @@ def set_palamedes_filter(intents: list[str], logger: Optional[Any] = None) -> No
             logger.log("SET_PALAMEDES_FILTER_FAILURE", f"Trigger pod failed with exit code {res.returncode}. Output: {output}")
 
 
-def stop_locust() -> None:
+def stop_locust(locust_namespace: str = "sock-shop") -> None:
     """Stop Locust traffic swarming."""
     info("Stopping Locust traffic...")
     run(
         k8s_exec(
-            "sock-shop",
+            locust_namespace,
             "deploy/locust-master",
             ["python3", "-c", LOCUST_STOP_PYTHON_TEMPLATE],
-        )
+        ),
+        check=False,
     )
 
 

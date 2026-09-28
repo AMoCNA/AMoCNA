@@ -1,0 +1,454 @@
+{
+  "example": 1,
+  "iterations": [
+    {
+      "total_e2e_ms": 33953.500542000256,
+      "sparql_cq1_ms": 4169.989041998633,
+      "sparql_cq1_after_ms": 4987.420792000194,
+      "topology_bindings": 0,
+      "per_service": {
+        "sock-shop/front-end": {
+          "success": true,
+          "final_image": "docker.io/weaveworksdemos/front-end:0.3.12",
+          "expected_tag": "0.3.12",
+          "policy": "PATCH",
+          "severity": "HIGH",
+          "execution_ms": 0.0,
+          "rollout_ms": 272.5187920004828,
+          "wait_after_scan_ms": 272.5187920004828,
+          "app": "Sock Shop",
+          "namespace": "sock-shop",
+          "deployment": "front-end"
+        },
+        "sock-shop/orders": {
+          "success": true,
+          "final_image": "docker.io/weaveworksdemos/orders:0.4.7",
+          "expected_tag": "0.4.7",
+          "policy": "MINOR",
+          "severity": "CRITICAL",
+          "execution_ms": 0.0,
+          "rollout_ms": 10629.72183400052,
+          "wait_after_scan_ms": 10629.72183400052,
+          "app": "Sock Shop",
+          "namespace": "sock-shop",
+          "deployment": "orders"
+        },
+        "sock-shop/carts": {
+          "success": true,
+          "final_image": "docker.io/weaveworksdemos/carts:0.4.8",
+          "expected_tag": "0.4.8",
+          "policy": "MINOR",
+          "severity": "HIGH",
+          "execution_ms": 0.0,
+          "rollout_ms": 10629.175209000095,
+          "wait_after_scan_ms": 10629.175209000095,
+          "app": "Sock Shop",
+          "namespace": "sock-shop",
+          "deployment": "carts"
+        },
+        "online-boutique/frontend": {
+          "success": true,
+          "final_image": "gcr.io/google-samples/microservices-demo/frontend:v0.10.2",
+          "expected_tag": "v0.10.2",
+          "policy": "MINOR",
+          "severity": "HIGH",
+          "execution_ms": 0.0,
+          "rollout_ms": 266.2430829986988,
+          "wait_after_scan_ms": 266.2430829986988,
+          "app": "Online Boutique",
+          "namespace": "online-boutique",
+          "deployment": "frontend"
+        },
+        "bookinfo/productpage-v1": {
+          "success": true,
+          "final_image": "docker.io/istio/examples-bookinfo-productpage-v1:1.20.2",
+          "expected_tag": "1.20.2",
+          "policy": "MINOR",
+          "severity": "HIGH",
+          "execution_ms": 0.0,
+          "rollout_ms": 22391.74875000026,
+          "wait_after_scan_ms": 22391.74875000026,
+          "app": "BookInfo",
+          "namespace": "bookinfo",
+          "deployment": "productpage-v1"
+        }
+      },
+      "palamedes_metrics": {
+        "cpu_m": 74.0,
+        "mem_mi": 349.0
+      },
+      "graphdb_metrics": {
+        "cpu_m": 653.0,
+        "mem_mi": 2436.0
+      }
+    },
+    {
+      "total_e2e_ms": 22718.406042000424,
+      "sparql_cq1_ms": 4359.905958001036,
+      "sparql_cq1_after_ms": 4616.874333998567,
+      "topology_bindings": 0,
+      "per_service": {
+        "sock-shop/front-end": {
+          "success": true,
+          "final_image": "docker.io/weaveworksdemos/front-end:0.3.12",
+          "expected_tag": "0.3.12",
+          "policy": "PATCH",
+          "severity": "HIGH",
+          "execution_ms": 0.0,
+          "rollout_ms": 5592.479375001858,
+          "wait_after_scan_ms": 5592.479375001858,
+          "app": "Sock Shop",
+          "namespace": "sock-shop",
+          "deployment": "front-end"
+        },
+        "sock-shop/orders": {
+          "success": true,
+          "final_image": "docker.io/weaveworksdemos/orders:0.4.7",
+          "expected_tag": "0.4.7",
+          "policy": "MINOR",
+          "severity": "CRITICAL",
+          "execution_ms": 0.0,
+          "rollout_ms": 5466.674957999203,
+          "wait_after_scan_ms": 5466.674957999203,
+          "app": "Sock Shop",
+          "namespace": "sock-shop",
+          "deployment": "orders"
+        },
+        "sock-shop/carts": {
+          "success": true,
+          "final_image": "docker.io/weaveworksdemos/carts:0.4.8",
+          "expected_tag": "0.4.8",
+          "policy": "MINOR",
+          "severity": "HIGH",
+          "execution_ms": 0.0,
+          "rollout_ms": 10838.118791998568,
+          "wait_after_scan_ms": 10838.118791998568,
+          "app": "Sock Shop",
+          "namespace": "sock-shop",
+          "deployment": "carts"
+        },
+        "online-boutique/frontend": {
+          "success": true,
+          "final_image": "gcr.io/google-samples/microservices-demo/frontend:v0.10.2",
+          "expected_tag": "v0.10.2",
+          "policy": "MINOR",
+          "severity": "HIGH",
+          "execution_ms": 0.0,
+          "rollout_ms": 11058.26045899812,
+          "wait_after_scan_ms": 11058.26045899812,
+          "app": "Online Boutique",
+          "namespace": "online-boutique",
+          "deployment": "frontend"
+        },
+        "bookinfo/productpage-v1": {
+          "success": true,
+          "final_image": "docker.io/istio/examples-bookinfo-productpage-v1:1.20.2",
+          "expected_tag": "1.20.2",
+          "policy": "MINOR",
+          "severity": "HIGH",
+          "execution_ms": 0.0,
+          "rollout_ms": 10848.71395799928,
+          "wait_after_scan_ms": 10848.71395799928,
+          "app": "BookInfo",
+          "namespace": "bookinfo",
+          "deployment": "productpage-v1"
+        }
+      },
+      "palamedes_metrics": {
+        "cpu_m": 50.0,
+        "mem_mi": 349.0
+      },
+      "graphdb_metrics": {
+        "cpu_m": 665.0,
+        "mem_mi": 2437.0
+      }
+    },
+    {
+      "total_e2e_ms": 58238.32533300083,
+      "sparql_cq1_ms": 4691.462624999986,
+      "sparql_cq1_after_ms": 5277.06095800022,
+      "topology_bindings": 0,
+      "per_service": {
+        "sock-shop/front-end": {
+          "success": true,
+          "final_image": "docker.io/weaveworksdemos/front-end:0.3.12",
+          "expected_tag": "0.3.12",
+          "policy": "PATCH",
+          "severity": "HIGH",
+          "execution_ms": 0.0,
+          "rollout_ms": 189.28691600012826,
+          "wait_after_scan_ms": 189.28691600012826,
+          "app": "Sock Shop",
+          "namespace": "sock-shop",
+          "deployment": "front-end"
+        },
+        "sock-shop/orders": {
+          "success": true,
+          "final_image": "docker.io/weaveworksdemos/orders:0.4.7",
+          "expected_tag": "0.4.7",
+          "policy": "MINOR",
+          "severity": "CRITICAL",
+          "execution_ms": 0.0,
+          "rollout_ms": 10718.245292002393,
+          "wait_after_scan_ms": 10718.245292002393,
+          "app": "Sock Shop",
+          "namespace": "sock-shop",
+          "deployment": "orders"
+        },
+        "sock-shop/carts": {
+          "success": true,
+          "final_image": "docker.io/weaveworksdemos/carts:0.4.8",
+          "expected_tag": "0.4.8",
+          "policy": "MINOR",
+          "severity": "HIGH",
+          "execution_ms": 0.0,
+          "rollout_ms": 10714.998917002958,
+          "wait_after_scan_ms": 10714.998917002958,
+          "app": "Sock Shop",
+          "namespace": "sock-shop",
+          "deployment": "carts"
+        },
+        "online-boutique/frontend": {
+          "success": true,
+          "final_image": "gcr.io/google-samples/microservices-demo/frontend:v0.10.2",
+          "expected_tag": "v0.10.2",
+          "policy": "MINOR",
+          "severity": "HIGH",
+          "execution_ms": 0.0,
+          "rollout_ms": 178.54887500288896,
+          "wait_after_scan_ms": 178.54887500288896,
+          "app": "Online Boutique",
+          "namespace": "online-boutique",
+          "deployment": "frontend"
+        },
+        "bookinfo/productpage-v1": {
+          "success": true,
+          "final_image": "docker.io/istio/examples-bookinfo-productpage-v1:1.20.2",
+          "expected_tag": "1.20.2",
+          "policy": "MINOR",
+          "severity": "HIGH",
+          "execution_ms": 0.0,
+          "rollout_ms": 15930.75837500146,
+          "wait_after_scan_ms": 15930.75837500146,
+          "app": "BookInfo",
+          "namespace": "bookinfo",
+          "deployment": "productpage-v1"
+        }
+      },
+      "palamedes_metrics": {
+        "cpu_m": 30.0,
+        "mem_mi": 350.0
+      },
+      "graphdb_metrics": {
+        "cpu_m": 0.0,
+        "mem_mi": 0.0
+      }
+    },
+    {
+      "total_e2e_ms": 28389.12770800016,
+      "sparql_cq1_ms": 6866.48837499888,
+      "sparql_cq1_after_ms": 5569.797416999791,
+      "topology_bindings": 0,
+      "per_service": {
+        "sock-shop/front-end": {
+          "success": true,
+          "final_image": "docker.io/weaveworksdemos/front-end:0.3.12",
+          "expected_tag": "0.3.12",
+          "policy": "PATCH",
+          "severity": "HIGH",
+          "execution_ms": 0.0,
+          "rollout_ms": 1494.495625000127,
+          "wait_after_scan_ms": 1494.495625000127,
+          "app": "Sock Shop",
+          "namespace": "sock-shop",
+          "deployment": "front-end"
+        },
+        "sock-shop/orders": {
+          "success": true,
+          "final_image": "docker.io/weaveworksdemos/orders:0.4.7",
+          "expected_tag": "0.4.7",
+          "policy": "MINOR",
+          "severity": "CRITICAL",
+          "execution_ms": 0.0,
+          "rollout_ms": 6675.318208002864,
+          "wait_after_scan_ms": 6675.318208002864,
+          "app": "Sock Shop",
+          "namespace": "sock-shop",
+          "deployment": "orders"
+        },
+        "sock-shop/carts": {
+          "success": true,
+          "final_image": "docker.io/weaveworksdemos/carts:0.4.8",
+          "expected_tag": "0.4.8",
+          "policy": "MINOR",
+          "severity": "HIGH",
+          "execution_ms": 0.0,
+          "rollout_ms": 7299.514332997205,
+          "wait_after_scan_ms": 7299.514332997205,
+          "app": "Sock Shop",
+          "namespace": "sock-shop",
+          "deployment": "carts"
+        },
+        "online-boutique/frontend": {
+          "success": true,
+          "final_image": "gcr.io/google-samples/microservices-demo/frontend:v0.10.2",
+          "expected_tag": "v0.10.2",
+          "policy": "MINOR",
+          "severity": "HIGH",
+          "execution_ms": 0.0,
+          "rollout_ms": 2026.754708000226,
+          "wait_after_scan_ms": 2026.754708000226,
+          "app": "Online Boutique",
+          "namespace": "online-boutique",
+          "deployment": "frontend"
+        },
+        "bookinfo/productpage-v1": {
+          "success": true,
+          "final_image": "docker.io/istio/examples-bookinfo-productpage-v1:1.20.2",
+          "expected_tag": "1.20.2",
+          "policy": "MINOR",
+          "severity": "HIGH",
+          "execution_ms": 0.0,
+          "rollout_ms": 11897.335375000694,
+          "wait_after_scan_ms": 11897.335375000694,
+          "app": "BookInfo",
+          "namespace": "bookinfo",
+          "deployment": "productpage-v1"
+        }
+      },
+      "palamedes_metrics": {
+        "cpu_m": 55.0,
+        "mem_mi": 350.0
+      },
+      "graphdb_metrics": {
+        "cpu_m": 388.0,
+        "mem_mi": 2438.0
+      }
+    },
+    {
+      "total_e2e_ms": 38120.34970899913,
+      "sparql_cq1_ms": 6388.094709000143,
+      "sparql_cq1_after_ms": 6158.5210420016665,
+      "topology_bindings": 0,
+      "per_service": {
+        "sock-shop/front-end": {
+          "success": true,
+          "final_image": "docker.io/weaveworksdemos/front-end:0.3.12",
+          "expected_tag": "0.3.12",
+          "policy": "PATCH",
+          "severity": "HIGH",
+          "execution_ms": 0.0,
+          "rollout_ms": 482.02587500054506,
+          "wait_after_scan_ms": 482.02587500054506,
+          "app": "Sock Shop",
+          "namespace": "sock-shop",
+          "deployment": "front-end"
+        },
+        "sock-shop/orders": {
+          "success": true,
+          "final_image": "docker.io/weaveworksdemos/orders:0.4.7",
+          "expected_tag": "0.4.7",
+          "policy": "MINOR",
+          "severity": "CRITICAL",
+          "execution_ms": 0.0,
+          "rollout_ms": 474.5494580020022,
+          "wait_after_scan_ms": 474.5494580020022,
+          "app": "Sock Shop",
+          "namespace": "sock-shop",
+          "deployment": "orders"
+        },
+        "sock-shop/carts": {
+          "success": true,
+          "final_image": "docker.io/weaveworksdemos/carts:0.4.8",
+          "expected_tag": "0.4.8",
+          "policy": "MINOR",
+          "severity": "HIGH",
+          "execution_ms": 0.0,
+          "rollout_ms": 11153.38383299968,
+          "wait_after_scan_ms": 11153.38383299968,
+          "app": "Sock Shop",
+          "namespace": "sock-shop",
+          "deployment": "carts"
+        },
+        "online-boutique/frontend": {
+          "success": true,
+          "final_image": "gcr.io/google-samples/microservices-demo/frontend:v0.10.2",
+          "expected_tag": "v0.10.2",
+          "policy": "MINOR",
+          "severity": "HIGH",
+          "execution_ms": 0.0,
+          "rollout_ms": 522.7465839998331,
+          "wait_after_scan_ms": 522.7465839998331,
+          "app": "Online Boutique",
+          "namespace": "online-boutique",
+          "deployment": "frontend"
+        },
+        "bookinfo/productpage-v1": {
+          "success": true,
+          "final_image": "docker.io/istio/examples-bookinfo-productpage-v1:1.20.2",
+          "expected_tag": "1.20.2",
+          "policy": "MINOR",
+          "severity": "HIGH",
+          "execution_ms": 0.0,
+          "rollout_ms": 21842.313332999765,
+          "wait_after_scan_ms": 21842.313332999765,
+          "app": "BookInfo",
+          "namespace": "bookinfo",
+          "deployment": "productpage-v1"
+        }
+      },
+      "palamedes_metrics": {
+        "cpu_m": 37.0,
+        "mem_mi": 351.0
+      },
+      "graphdb_metrics": {
+        "cpu_m": 587.0,
+        "mem_mi": 2440.0
+      }
+    }
+  ],
+  "success_rates": {
+    "sock-shop/front-end": 1.0,
+    "sock-shop/orders": 1.0,
+    "sock-shop/carts": 1.0,
+    "online-boutique/frontend": 1.0,
+    "bookinfo/productpage-v1": 1.0
+  },
+  "targets": [
+    {
+      "app": "Sock Shop",
+      "namespace": "sock-shop",
+      "deployment": "front-end",
+      "policy": "PATCH"
+    },
+    {
+      "app": "Sock Shop",
+      "namespace": "sock-shop",
+      "deployment": "orders",
+      "policy": "MINOR"
+    },
+    {
+      "app": "Sock Shop",
+      "namespace": "sock-shop",
+      "deployment": "carts",
+      "policy": "MINOR"
+    },
+    {
+      "app": "Online Boutique",
+      "namespace": "online-boutique",
+      "deployment": "frontend",
+      "policy": "MINOR"
+    },
+    {
+      "app": "BookInfo",
+      "namespace": "bookinfo",
+      "deployment": "productpage-v1",
+      "policy": "MINOR"
+    }
+  ],
+  "sparql_overhead": {
+    "cq1_p50_ms": 4691.462624999986,
+    "cq1_p95_ms": 6866.48837499888,
+    "cq1_n": 5
+  }
+}

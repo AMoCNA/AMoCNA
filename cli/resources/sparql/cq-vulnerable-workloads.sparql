@@ -1,0 +1,21 @@
+PREFIX cnee: <http://www.semanticweb.org/szymo/ontologies/2026/2/CNEEOnt/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+# CQ1: Which workloads use a given image repository/version?
+SELECT DISTINCT ?deploymentName ?containerName ?imageRepository ?version
+WHERE {
+  VALUES (?imageRepository ?version) {
+    ("weaveworksdemos/front-end" "0.3.0")
+    ("google-samples/microservices-demo/frontend" "v0.8.0")
+    ("istio/examples-bookinfo-productpage-v1" "1.16.2")
+  }
+  ?image a cnee:Image ;
+         cnee:resourceName ?imageRepository ;
+         cnee:version ?version .
+  ?container cnee:usesImage ?image ;
+             cnee:resourceName ?containerName .
+  ?deployment cnee:contains ?container ;
+              cnee:resourceName ?deploymentName .
+  ?deployment a cnee:StatelessWorkloadController .
+  FILTER NOT EXISTS { ?deployment cnee:isPartOf ?higher . }
+}

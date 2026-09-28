@@ -1,0 +1,20 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: locust-exporter
+  namespace: monitoring
+  labels:
+    release: prometheus
+spec:
+  selector:
+    matchLabels:
+      app: locust-master
+  namespaceSelector:
+    matchNames:
+      - sock-shop
+      - online-boutique
+      - bookinfo
+  endpoints:
+    - port: metrics
+      path: /metrics
+      interval: 10s

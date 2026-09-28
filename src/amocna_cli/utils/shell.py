@@ -55,7 +55,7 @@ import urllib.request, urllib.parse
 data = urllib.parse.urlencode({{
     'user_count': {users}, 
     'spawn_rate': {rate}, 
-    'host': 'http://front-end.sock-shop.svc.cluster.local'
+    'host': '{host}'
 }}).encode()
 req = urllib.request.Request('http://localhost:8089/swarm', data=data)
 try:
@@ -74,6 +74,23 @@ except Exception as e:
     print("Error:", e)
 """
 
+LOCUST_P95_PYTHON_TEMPLATE = """\
+import urllib.request, json
+try:
+    res = urllib.request.urlopen('http://localhost:8089/stats/requests')
+    data = json.loads(res.read().decode())
+    p95 = data.get('current_response_time_percentile_95')
+    if p95 is None:
+        p95 = 0
+        for row in data.get('stats') or []:
+            if row.get('name') == 'Aggregated':
+                p95 = row.get('max_response_time') or row.get('avg_response_time') or 0
+                break
+    print(float(p95) / 1000.0)
+except Exception:
+    print(0)
+"""
+
 LOCUST_STATS_PYTHON_TEMPLATE = """\
 import urllib.request, json
 try:
@@ -90,8 +107,23 @@ ORDERS_CPU_RESET_PATCH = '{"spec": {"template": {"spec": {"containers": [{"name"
 # ─── Docker Command Builders ──────────────────────────────────────────
 
 def docker_build(image_name: str, dockerfile: str, context: str) -> list[str]:
-    """Build a Docker command list for building an image."""
-    return ["docker", "build", "-t", image_name, "-f", dockerfile, context]
+    """Build a Docker command list for building an image.
+
+    Always target linux/amd64: the k8s workers are amd64. A native Apple
+    Silicon build produces an arm64-only GHCR index that kubelets reject
+    with "no image found in image index for architecture amd64".
+    """
+    return [
+        "docker",
+        "build",
+        "--platform",
+        "linux/amd64",
+        "-t",
+        image_name,
+        "-f",
+        dockerfile,
+        context,
+    ]
 
 def docker_push(image_name: str) -> list[str]:
     """Build a Docker command list for pushing an image."""

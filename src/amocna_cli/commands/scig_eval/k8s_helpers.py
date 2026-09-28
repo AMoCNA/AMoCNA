@@ -265,3 +265,66 @@ def pod_metrics(namespace: str, label_selector: str) -> dict[str, float]:
         elif mem.endswith("Gi"):
             mem_mi += float(mem[:-2]) * 1024.0
     return {"cpu_m": cpu_m, "mem_mi": mem_mi}
+
+
+def namespace_exists(ns: str) -> bool:
+    res = run_kubectl(["get", "namespace", ns], check=False)
+    return res.returncode == 0
+
+
+def require_core_loop_ready() -> None:
+    """Fail fast if Palamedes / Themis / GraphDB are not serving.
+
+    Paper-eval waits minutes per workload; ImagePullBackOff or an unlicensed
+    GraphDB otherwise looks like a 420s planner timeout.
+    """
+    checks = (
+        ("graphdb", "graphdb"),
+        ("palamedes", "palamedes"),
+        ("themis", "themis"),
+        ("metis", "metis"),
+    )
+    missing = []
+    for ns, name in checks:
+        if not namespace_exists(ns) or get_ready_replicas(ns, name) < 1:
+            desc = run_kubectl(
+                [
+                    "get",
+                    "pods",
+                    "-n",
+                    ns,
+                    "-l",
+                    f"app={name}",
+                    "-o",
+                    "jsonpath={range .items[*]}{.metadata.name} {.status.phase} {.status.containerStatuses[0].state}{\"\\n\"}{end}",
+                ],
+                check=False,
+            )
+            detail = (desc.stdout or desc.stderr or "not found").strip()[:500]
+            missing.append(f"{ns}/{name}: {detail or 'no ready replicas'}")
+    if missing:
+        raise RuntimeError(
+            "AMoCNA control plane is not ready (planner cannot run):\n  - "
+            + "\n  - ".join(missing)
+        )
+
+
+def get_ready_replicas(ns: str, deployment: str) -> int:
+    res = run_kubectl(
+        [
+            "get",
+            "deployment",
+            deployment,
+            "-n",
+            ns,
+            "-o",
+            "jsonpath={.status.readyReplicas}",
+        ],
+        check=False,
+    )
+    raw = (res.stdout or "").strip()
+    try:
+        return int(raw) if raw else 0
+    except ValueError:
+        return 0
+

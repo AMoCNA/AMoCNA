@@ -1,5 +1,6 @@
 PREFIX moam: <http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#>
 PREFIX actions: <http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
 # Aggressively delete all action instances and their properties
 DELETE {

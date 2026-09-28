@@ -1,0 +1,15 @@
+\begin{table}[htbp]
+\centering
+\caption{Example 2: SLA-driven horizontal scale-out on three entrypoints. Detection is Locust p95 crossing the SLO; remediation is time to three ready replicas. Values are $\overline{x} \pm \sigma$ (ms) except replica-seconds [offline fixture --- replace after cluster run].}
+\label{tab:paper_e2_scaling}
+\footnotesize
+\begin{tabular}{lrrrrr}
+\toprule
+\textbf{Application} & \textbf{Success} & \textbf{Detect} & \textbf{Scale-out} & \textbf{SLO-viol.\ duration} & \textbf{Replica-s} \\
+\midrule
+Sock Shop & 100\% & $12400.0 \pm 316.2$ & $55800.0 \pm 632.5$ & $43000.0 \pm 0.0$ & $92.0 \pm 1.6$ \\
+Online Boutique & 100\% & $14500.0 \pm 395.3$ & $63000.0 \pm 790.6$ & $48000.0 \pm 0.0$ & $102.0 \pm 1.6$ \\
+BookInfo & 100\% & $11360.0 \pm 284.6$ & $50700.0 \pm 553.4$ & $39000.0 \pm 0.0$ & $82.0 \pm 1.6$ \\
+\bottomrule
+\end{tabular}
+\end{table}

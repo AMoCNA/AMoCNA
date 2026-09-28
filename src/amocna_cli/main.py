@@ -13,6 +13,7 @@ from amocna_cli.commands.forward import app as forward_app
 from amocna_cli.commands.login import app as login_app
 from amocna_cli.commands.benchmark import app as benchmark_app
 from amocna_cli.commands.scig import app as scig_app
+from amocna_cli.commands.paper_eval import app as paper_eval_app
 
 app = typer.Typer(
     name="amocna",
@@ -31,6 +32,7 @@ app.add_typer(forward_app, name="forward")
 app.add_typer(login_app, name="login")
 app.add_typer(benchmark_app, name="benchmark")
 app.add_typer(scig_app, name="scig")
+app.add_typer(paper_eval_app, name="paper-eval")
 
 @app.callback()
 def main_callback(ctx: typer.Context):
