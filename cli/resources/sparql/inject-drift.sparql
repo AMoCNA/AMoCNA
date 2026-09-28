@@ -1,0 +1,4 @@
+PREFIX cnee: <http://www.semanticweb.org/szymo/ontologies/2026/2/CNEEOnt/>
+INSERT DATA {
+  <http://www.semanticweb.org/szymo/ontologies/2026/2/CNEEOnt/Service_sock-shop_orders> cnee:hasState [ a cnee:ConfigDriftState ] .
+}

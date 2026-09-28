@@ -1,0 +1,29 @@
+PREFIX moam: <http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#>
+PREFIX actions: <http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#>
+
+# Aggressively delete all action instances and their properties
+DELETE {
+  ?action ?p ?o .
+  ?s ?p2 ?action .
+}
+WHERE {
+  {
+    # Match by explicit type
+    ?action a ?type .
+    ?type rdfs:subClassOf* actions:AutonomicAction .
+    FILTER(!isBlank(?action))
+  }
+  UNION
+  {
+    # Match by existence of action ID
+    ?action actions:hasActionID ?id .
+  }
+  UNION
+  {
+    # Match by existence of state
+    ?action actions:hasCurrentState ?state .
+  }
+
+  ?action ?p ?o .
+  OPTIONAL { ?s ?p2 ?action . }
+}

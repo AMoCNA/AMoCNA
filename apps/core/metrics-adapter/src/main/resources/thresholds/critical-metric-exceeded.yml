@@ -1,0 +1,12 @@
+name: "critical-metric-exceeded"
+query: "sum(rate(container_cpu_cfs_throttled_periods_total{container='orders'}[1m])) by (pod, namespace)"
+operator: ">"
+value: 1
+anomalyState: "ContainerCPUThrottledState"
+resourceKind: "Pod"
+resourceLabel: "pod"
+namespaceLabel: "namespace"
+persistenceWindow: 1
+cooldownSeconds: 0
+
+

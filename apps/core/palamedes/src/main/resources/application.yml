@@ -1,0 +1,81 @@
+spring:
+  application:
+    name: palamedes
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER:guest}
+    password: ${RABBITMQ_PASS:guest}
+
+server:
+  port: ${SERVER_PORT:8081}
+
+
+amocna:
+  ontology:
+    actions-namespace: ${ONTOLOGY_ACTIONS:http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#}
+    resources-namespace: ${ONTOLOGY_RESOURCES:http://www.semanticweb.org/szymo/ontologies/2026/2/CNEEOnt/}
+    bridge-namespace: ${ONTOLOGY_BRIDGE:http://www.semanticweb.org/patryk/ontologies/2026/4/BridgeOnt#}
+    actions-prefix: "moam"
+    resources-prefix: "cnee"
+    bridge-prefix: "bridge"
+  graphdb:
+    url: ${GRAPHDB_URL:http://localhost:7200}
+    repository-id: ${GRAPHDB_REPO:amocna}
+    timeout-ms: ${GRAPHDB_TIMEOUT:5000}
+
+palamedes:
+  states:
+    action-states:
+      initial: "State_Initial"
+      planned: "State_Planned"
+      validated: "State_Validated"
+      in-progress: "State_InProgress"
+      succeeded: "State_Succeeded"
+      failed: "State_Failed"
+      compensating: "State_Compensating"
+  engine:
+    fallback-pipeline-rate-ms: ${PIPELINE_RATE:6000} # 1 minute
+    fallback-anomaly-scan-rate-ms: ${ANOMALY_SCAN_RATE:60000} # 10 minute
+    default-idempotency-seconds: 300
+    batch-size: 50
+  utilities:
+    step-prefix: "step-"
+    action-prefix: "action-"
+    compensation-prefix: "compensation-"
+    size-of-generated-uuid: 12
+  vulnerability:
+    enabled: ${PALAMEDES_VULNERABILITY_ENABLED:true}
+    scan-interval-ms: ${PALAMEDES_VULNERABILITY_SCAN_INTERVAL_MS:30000}
+    upgrade-policy: ${PALAMEDES_VULNERABILITY_UPGRADE_POLICY:PATCH}
+    catalog-location: ${PALAMEDES_VULNERABILITY_CATALOG_LOCATION:classpath:vulnerabilities/demo-catalog.yaml}
+  scheduler:
+    infrastructure-capacity: ${PALAMEDES_SCHEDULER_INFRASTRUCTURE_CAPACITY:2.0}
+    containerization-capacity: ${PALAMEDES_SCHEDULER_CONTAINERIZATION_CAPACITY:1.5}
+    application-capacity: ${PALAMEDES_SCHEDULER_APPLICATION_CAPACITY:1.0}
+    alpha: ${PALAMEDES_SCHEDULER_ALPHA:0.5}
+    beta: ${PALAMEDES_SCHEDULER_BETA:0.5}
+    default-utilization: ${PALAMEDES_SCHEDULER_DEFAULT_UTILIZATION:0.5}
+    min-dynamic-cost: ${PALAMEDES_SCHEDULER_MIN_DYNAMIC_COST:0.01}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{36} [phase=%X{loop.phase}, step=%X{loop.step}, corrId=%X{correlationId}, actId=%X{actionId}] - %msg%n"
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+logging:
+  structured:
+    format:
+      console: "ecs"

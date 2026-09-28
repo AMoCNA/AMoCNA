@@ -1,0 +1,5 @@
+${SPARQL_PREFIXES}
+SELECT DISTINCT ?dependent
+WHERE {
+  ?dependent ${PREFIX::ACTIONS_PREFIX}:dependsOn ${IRI::actionId} .
+}

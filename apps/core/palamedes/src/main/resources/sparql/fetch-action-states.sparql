@@ -1,0 +1,6 @@
+${SPARQL_PREFIXES}
+SELECT ?action ?state WHERE {
+  VALUES ?action { ${IRI::actionIds} }
+  ?action ${PREFIX::ACTIONS_PREFIX}:hasCurrentState ?stateIri .
+  BIND(REPLACE(STR(?stateIri), "^.*#", "") AS ?state)
+}

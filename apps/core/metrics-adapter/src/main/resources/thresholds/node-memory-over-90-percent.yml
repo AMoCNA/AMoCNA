@@ -1,0 +1,9 @@
+name: "node-memory-over-90-percent"
+query: "node_memory_Active_bytes / node_memory_MemTotal_bytes"
+operator: ">"
+value: 0.9
+anomalyState: "NodeMemoryStarvedState"
+resourceKind: "Node"
+resourceLabel: "instance"
+persistenceWindow: 1
+cooldownSeconds: 0

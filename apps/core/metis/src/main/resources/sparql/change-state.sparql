@@ -1,0 +1,14 @@
+${SPARQL_PREFIXES}
+DELETE {
+  ${IRI::resourceIri} cnee:hasState ?oldState .
+  ?oldState ?p ?o .
+}
+INSERT {
+  ${IRI::resourceIri} cnee:hasState ${IRI::newStateIri} .
+}
+WHERE {
+  OPTIONAL { 
+    ${IRI::resourceIri} cnee:hasState ?oldState .
+    OPTIONAL { ?oldState ?p ?o . }
+  }
+}

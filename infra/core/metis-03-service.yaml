@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: metis
+  namespace: metis
+  labels:
+    app: metis
+spec:
+  selector:
+    app: metis
+  ports:
+    - name: grpc
+      port: 50052
+      targetPort: 50052
+    - name: http
+      port: 8080
+      targetPort: 8080
+  type: ClusterIP

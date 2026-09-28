@@ -1,0 +1,78 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.kubiki.metis.grpc";
+option java_outer_classname = "MetisProto";
+
+package metis;
+
+import "google/protobuf/timestamp.proto";
+
+/**
+ * Metis Sensor Ingestion Service
+ *
+ * Acts as the Monitor phase module of the AMoCNA MRE-K autonomic loop.
+ * Sensors report the existence, relationships, and lifecycle states of
+ * cloud-native entities defined in CNEEOnt; Metis ingests these reports
+ * over gRPC and translates them into SPARQL updates against the GraphDB
+ * knowledge base.
+ */
+service SensorIngestionService {
+  rpc IngestBatch (SensorBatch) returns (IngestResponse);
+}
+
+message SensorBatch {
+  repeated SensorEvent events = 1;
+  string correlation_id       = 2;  // max 128 chars
+}
+
+message SensorEvent {
+  google.protobuf.Timestamp timestamp = 1;
+  oneof event {
+    EntityDiscoveredEvent           entity_discovered           = 2;
+    RelationshipAssertedEvent       relationship_asserted       = 3;
+    StateChangedEvent               state_changed               = 4;
+    EntityDeletedEvent              entity_deleted              = 5;
+    MetricMetadataRegisteredEvent   metric_metadata_registered  = 6;
+  }
+}
+
+message EntityDiscoveredEvent {
+  string resource_iri            = 1;  // fully qualified IRI
+  string ontology_type           = 2;  // fully qualified CNEEOnt class IRI
+  string resource_id             = 3;
+  string resource_name           = 4;
+  map<string, string> properties = 5;
+}
+
+message RelationshipAssertedEvent {
+  string subject_iri = 1;
+  string predicate   = 2;  // fully qualified CNEEOnt property IRI
+  string object_iri  = 3;
+}
+
+message StateChangedEvent {
+  string resource_iri       = 1;
+  string new_state_iri      = 2;  // fully qualified CNEEOnt state class IRI
+  string previous_state_iri = 3;  // optional
+}
+
+message EntityDeletedEvent {
+  string resource_iri  = 1;
+  string ontology_type = 2;
+}
+
+message MetricMetadataRegisteredEvent {
+  string resource_iri            = 1;
+  string metric_name             = 2;
+  string unit                    = 3;
+  string endpoint_url            = 4;
+  map<string, string> labels     = 5;
+}
+
+message IngestResponse {
+  bool   accepted        = 1;
+  string correlation_id  = 2;
+  int32  processed_count = 3;
+  string message         = 4;
+}

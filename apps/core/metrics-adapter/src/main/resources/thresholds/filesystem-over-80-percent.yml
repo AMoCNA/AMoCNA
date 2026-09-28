@@ -1,0 +1,9 @@
+name: "filesystem-over-80-percent"
+query: '1 - (node_filesystem_avail_bytes{mountpoint="/tmp"} / node_filesystem_size_bytes{mountpoint="/tmp"})'
+operator: ">"
+value: 0.8
+anomalyState: "StorageDiskSpaceExhaustedState"
+resourceKind: "Node"
+resourceLabel: "instance"
+persistenceWindow: 1
+cooldownSeconds: 0

@@ -1,0 +1,10 @@
+${SPARQL_PREFIXES}
+SELECT ?containerName ?imageRepository ?currentVersion
+WHERE {
+  ${IRI::workloadIri} ${PREFIX::RESOURCES_PREFIX}:contains ?container .
+  ?container ${PREFIX::RESOURCES_PREFIX}:resourceName ?containerName .
+  ?container ${PREFIX::RESOURCES_PREFIX}:usesImage ?image .
+  ?image ${PREFIX::RESOURCES_PREFIX}:resourceName ?imageRepository .
+  ?image ${PREFIX::RESOURCES_PREFIX}:version ?currentVersion .
+}
+LIMIT 1

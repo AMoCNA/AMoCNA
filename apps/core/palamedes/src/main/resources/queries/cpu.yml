@@ -1,0 +1,3 @@
+name: "cpu"
+nodeQueryTemplate: '1 - avg(rate(node_cpu_seconds_total{mode="idle",instance=~".*%s.*"}[2m]))'
+fallbackQuery: '1 - avg(rate(node_cpu_seconds_total{mode="idle"}[2m]))'

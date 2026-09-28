@@ -1,0 +1,15 @@
+${SPARQL_PREFIXES}
+SELECT ?lastTransition ?window
+WHERE {
+  # Get the window for the intent
+  ${IRI::intent} ${PREFIX::ACTIONS_PREFIX}:idempotencyWindowSeconds ?window .
+
+  # Find the most recent action for this target and intent (in any state)
+  OPTIONAL {
+    ?prevAction a ${IRI::intent} ;
+                ${PREFIX::ACTIONS_PREFIX}:targetsEntity ${IRI::target} ;
+                ${PREFIX::ACTIONS_PREFIX}:hasLastTransitionTimestamp ?lastTransition .
+  }
+}
+ORDER BY DESC(?lastTransition)
+LIMIT 1

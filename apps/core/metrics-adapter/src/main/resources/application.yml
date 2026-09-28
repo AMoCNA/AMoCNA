@@ -1,0 +1,50 @@
+spring:
+  application:
+    name: metrics-adapter
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER:guest}
+    password: ${RABBITMQ_PASS:guest}
+
+amocna:
+  ontology:
+    actions-namespace: ${ONTOLOGY_ACTIONS:http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#}
+    resources-namespace: ${ONTOLOGY_RESOURCES:http://www.semanticweb.org/szymo/ontologies/2026/2/CNEEOnt/}
+    bridge-namespace: ${ONTOLOGY_BRIDGE:http://www.semanticweb.org/patryk/ontologies/2026/4/BridgeOnt#}
+    actions-prefix: "moam"
+    resources-prefix: "cnee"
+    bridge-prefix: "bridge"
+  graphdb:
+    url: ${GRAPHDB_URL:http://localhost:7200}
+    repository-id: ${GRAPHDB_REPO:amocna}
+    timeout-ms: ${GRAPHDB_TIMEOUT:5000}
+  prometheus:
+    url: ${PROMETHEUS_URL:http://localhost:9090}
+
+scanner:
+  interval: 10000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{36} [phase=%X{loop.phase}, step=%X{loop.step}, corrId=%X{correlationId}, actId=%X{actionId}] - %msg%n"
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+logging:
+  structured:
+    format:
+      console: "ecs"
+
+

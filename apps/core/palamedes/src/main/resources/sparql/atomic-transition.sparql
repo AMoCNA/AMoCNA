@@ -1,0 +1,22 @@
+${SPARQL_PREFIXES}
+DELETE { 
+  ${IRI::actionId} ${PREFIX::ACTIONS_PREFIX}:hasCurrentState ${IRI::fromState} . 
+  ${IRI::actionId} ${PREFIX::ACTIONS_PREFIX}:hasLastTransitionTimestamp ?oldTs .
+  ${IRI::actionId} ${PREFIX::ACTIONS_PREFIX}:hasExecutionStatus ?oldStatus .
+}
+INSERT { 
+  ${IRI::actionId} ${PREFIX::ACTIONS_PREFIX}:hasCurrentState ${IRI::toState} . 
+  ${IRI::actionId} ${PREFIX::ACTIONS_PREFIX}:hasLastTransitionTimestamp ?now .
+  ${IRI::actionId} ${PREFIX::ACTIONS_PREFIX}:hasExecutionStatus ?newStatus .
+}
+WHERE { 
+  ${IRI::actionId} ${PREFIX::ACTIONS_PREFIX}:hasCurrentState ${IRI::fromState} .
+  BIND(NOW() AS ?now)
+  OPTIONAL { ${IRI::actionId} ${PREFIX::ACTIONS_PREFIX}:hasLastTransitionTimestamp ?oldTs . }
+  OPTIONAL { ${IRI::actionId} ${PREFIX::ACTIONS_PREFIX}:hasExecutionStatus ?oldStatus . }
+  
+  BIND(IF(${IRI::toState} = ${PREFIX::ACTIONS_PREFIX}:State_Succeeded, "COMPLETED",
+       IF(${IRI::toState} = ${PREFIX::ACTIONS_PREFIX}:State_Failed, "FAILED",
+       IF(${IRI::toState} = ${PREFIX::ACTIONS_PREFIX}:State_InProgress, "IN_PROGRESS",
+       "PENDING"))) AS ?newStatus)
+}

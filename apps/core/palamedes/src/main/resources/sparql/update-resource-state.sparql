@@ -1,0 +1,4 @@
+${SPARQL_PREFIXES}
+DELETE { ${IRI::resourceId} ${PREFIX::RESOURCES_PREFIX}:hasState ?old }
+INSERT { ${IRI::resourceId} ${PREFIX::RESOURCES_PREFIX}:hasState ${IRI::toState} }
+WHERE  { OPTIONAL { ${IRI::resourceId} ${PREFIX::RESOURCES_PREFIX}:hasState ?old } }

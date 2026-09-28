@@ -1,0 +1,21 @@
+scig:
+  sbom-required: false
+  policies:
+    # First match wins (ordered).
+    - name: critical-quarantine
+      match:
+        severityAtLeast: CRITICAL
+      action: delete_pod
+
+    - name: high-patch
+      match:
+        severityAtLeast: HIGH
+      action: patch_image
+      remediation:
+        # Deterministic PoC target when OSV does not provide a fix version.
+        targetImage: docker.io/weaveworksdemos/front-end:0.3.12
+
+    - name: default-observe
+      match:
+        severityAtLeast: LOW
+      action: fail_safe

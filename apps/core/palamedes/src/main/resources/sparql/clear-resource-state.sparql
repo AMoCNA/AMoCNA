@@ -1,0 +1,9 @@
+${SPARQL_PREFIXES}
+DELETE { 
+  ${IRI::resourceId} ${PREFIX::RESOURCES_PREFIX}:hasState ?old .
+  ?old ?p ?o .
+}
+WHERE  { 
+  ${IRI::resourceId} ${PREFIX::RESOURCES_PREFIX}:hasState ?old .
+  OPTIONAL { ?old ?p ?o . }
+}

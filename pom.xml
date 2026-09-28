@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-parent</artifactId>
+      <version>4.0.6</version>
+      <relativePath/>
+  </parent>
+
+  <groupId>com.kubiki</groupId>
+  <artifactId>amocna-parent</artifactId>
+  <version>1.14.1-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <name>amocna-parent</name>
+
+  <modules>
+    <module>apps/core/daedalus</module>
+    <module>apps/core/metis</module>
+    <module>apps/core/palamedes</module>
+    <module>apps/core/themis</module>
+    <module>apps/core/common</module>
+    <module>apps/core/metrics-adapter</module>
+  </modules>
+
+  <properties>
+    <java.version>25</java.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <maven.compiler.release>25</maven.compiler.release>
+
+    <!-- Dependencies -->
+    <spring-boot.version>4.0.6</spring-boot.version>
+    <spring-retry.version>2.0.5</spring-retry.version>
+    <spring-boot-starter-aop.version>3.5.14</spring-boot-starter-aop.version>
+    <fabric8.version>7.0.0</fabric8.version>
+    <grpc-spring-boot-starter.version>3.1.0.RELEASE</grpc-spring-boot-starter.version>
+    <rdf4j.version>4.3.9</rdf4j.version>
+    <graphdb.version>10.8.13</graphdb.version>
+    <wiremock.version>3.5.4</wiremock.version>
+    <jqwik.version>1.9.1</jqwik.version>
+
+    <!-- Protocol Buffers & gRPC -->
+    <protobuf.version>3.25.3</protobuf.version>
+    <grpc-java.version>1.62.2</grpc-java.version>
+
+    <!-- Build Plugins -->
+    <os-maven-plugin.version>1.7.1</os-maven-plugin.version>
+    <maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
+    <protobuf-maven-plugin.version>0.6.1</protobuf-maven-plugin.version>
+    
+    <argLine></argLine>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <!-- Core AMoCNA Modules -->
+      <dependency>
+        <groupId>com.kubiki</groupId>
+        <artifactId>common</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.kubiki</groupId>
+        <artifactId>daedalus</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.kubiki</groupId>
+        <artifactId>metis</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.kubiki</groupId>
+        <artifactId>palamedes</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.kubiki</groupId>
+        <artifactId>themis</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.kubiki</groupId>
+        <artifactId>hephaestus</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.kubiki</groupId>
+        <artifactId>metrics-adapter</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <!-- RDF4J / GraphDB -->
+      <dependency>
+        <groupId>com.ontotext.graphdb</groupId>
+        <artifactId>graphdb-runtime</artifactId>
+        <version>${graphdb.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.rdf4j</groupId>
+        <artifactId>rdf4j-model</artifactId>
+        <version>${rdf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.rdf4j</groupId>
+        <artifactId>rdf4j-repository-sail</artifactId>
+        <version>${rdf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.rdf4j</groupId>
+        <artifactId>rdf4j-repository-api</artifactId>
+        <version>${rdf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.rdf4j</groupId>
+        <artifactId>rdf4j-query</artifactId>
+        <version>${rdf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.rdf4j</groupId>
+        <artifactId>rdf4j-sail-memory</artifactId>
+        <version>${rdf4j.version}</version>
+      </dependency>
+
+      <!-- gRPC -->
+      <dependency>
+        <groupId>net.devh</groupId>
+        <artifactId>grpc-server-spring-boot-starter</artifactId>
+        <version>${grpc-spring-boot-starter.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>net.devh</groupId>
+        <artifactId>grpc-client-spring-boot-starter</artifactId>
+        <version>${grpc-spring-boot-starter.version}</version>
+      </dependency>
+
+      <!-- Testing -->
+      <dependency>
+        <groupId>org.wiremock</groupId>
+        <artifactId>wiremock-standalone</artifactId>
+        <version>${wiremock.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>net.jqwik</groupId>
+        <artifactId>jqwik</artifactId>
+        <version>${jqwik.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework.retry</groupId>
+        <artifactId>spring-retry</artifactId>
+        <version>${spring-retry.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-aop</artifactId>
+        <version>${spring-boot-starter-aop.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.fabric8</groupId>
+        <artifactId>kubernetes-client</artifactId>
+        <version>${fabric8.version}</version>
+      </dependency>
+
+    </dependencies>
+  </dependencyManagement>
+
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <artifactId>maven-clean-plugin</artifactId>
+          <version>3.4.0</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>3.3.1</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.13.0</version>
+          <configuration>
+            <annotationProcessorPaths>
+              <path>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <!-- lombok.version is provided by spring-boot-starter-parent -->
+                <version>${lombok.version}</version>
+              </path>
+              <path>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-configuration-processor</artifactId>
+                <version>${spring-boot.version}</version>
+              </path>
+            </annotationProcessorPaths>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>${maven-surefire-plugin.version}</version>
+          <configuration>
+            <argLine>${argLine} -Dnet.bytebuddy.experimental=true</argLine>
+          </configuration>
+        </plugin>
+        <plugin>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>3.4.2</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-install-plugin</artifactId>
+          <version>3.1.2</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <version>3.1.2</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-site-plugin</artifactId>
+          <version>3.12.1</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-project-info-reports-plugin</artifactId>
+          <version>3.6.1</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+</project>

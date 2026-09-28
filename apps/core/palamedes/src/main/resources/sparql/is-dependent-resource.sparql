@@ -1,0 +1,4 @@
+${SPARQL_PREFIXES}
+ASK {
+  { ${IRI::source} (${PREFIX::RESOURCES_PREFIX}:isHostedOn|${PREFIX::RESOURCES_PREFIX}:dependsOnResource)+ ${IRI::target} }
+}

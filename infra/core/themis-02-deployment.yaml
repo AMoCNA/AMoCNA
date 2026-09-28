@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: themis
+  namespace: themis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: themis
+  template:
+    metadata:
+      labels:
+        app: themis
+    spec:
+      serviceAccountName: themis
+      imagePullSecrets:
+        - name: ghcr-login
+      tolerations:
+        - key: "amocna"
+          operator: "Equal"
+          value: "true"
+          effect: "NoSchedule"
+      nodeSelector:
+        node-role: amocna
+      initContainers:
+        - name: wait-for-rabbitmq
+          image: curlimages/curl:8.12.1
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              URL="http://rabbitmq.rabbitmq.svc.cluster.local:15672/"
+              echo "Waiting for RabbitMQ management at $URL ..."
+              until curl -sf "$URL" > /dev/null; do
+                sleep 2
+              done
+              echo "RabbitMQ is reachable."
+      containers:
+        - name: themis
+          image: ghcr.io/amocna-kr/themis:1.14.1-SNAPSHOT
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              name: http
+            - containerPort: 50051
+              name: grpc
+          env:
+            - name: GRAPHDB_URL
+              value: "http://graphdb.graphdb.svc.cluster.local:7200"
+            - name: GRAPHDB_REPO
+              value: "amocna"
+            - name: RABBITMQ_HOST
+              value: "rabbitmq.rabbitmq.svc.cluster.local"
+            - name: SPRING_RABBITMQ_HOST
+              value: "rabbitmq.rabbitmq.svc.cluster.local"
+            - name: RABBITMQ_PORT
+              value: "5672"
+            - name: RABBITMQ_USER
+              value: "guest"
+            - name: RABBITMQ_PASS
+              value: "guest"
+            - name: THEMIS_EXECUTION_POST_CONDITION_DELAY_MS
+              value: "5000"
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"

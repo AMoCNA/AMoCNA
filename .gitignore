@@ -1,0 +1,55 @@
+# ─── Build outputs ──────────────────────────────────────
+*.class
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+*/**/target/
+
+# ─── IDE ────────────────────────────────────────────────
+.idea/
+*.iml
+.project
+.classpath
+.factorypath
+.settings/
+*.prefs
+.superpowers
+.kiro/
+.vscode/
+*.swp
+*.swo
+
+# ─── Logs ───────────────────────────────────────────────
+*.log
+hs_err_pid*
+replay_pid*
+
+# ─── GraphDB (generated) ────────────────────────────────
+infra/graphdb/graphdb.license.bin
+
+# ─── OS / misc ──────────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.ctxt
+.mtj.tmp/
+
+# ─── Node / Angular ─────────────────────────────────────
+node_modules/
+dist/
+.angular/
+
+# ─── Docker ─────────────────────────────────────────────
+.env
+
+# ─── Project-specific ──────────────────────────────────
+knowledge/**/*
+infra/**/data/*
+
+# --- Python ───────────────────────────────────────────────
+
+__pycache__/
+*.pyc

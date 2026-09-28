@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: palamedes
+  namespace: palamedes
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: palamedes
+  template:
+    metadata:
+      labels:
+        app: palamedes
+    spec:
+      imagePullSecrets:
+        - name: ghcr-login
+      tolerations:
+        - key: "amocna"
+          operator: "Equal"
+          value: "true"
+          effect: "NoSchedule"
+      nodeSelector:
+        node-role: amocna
+      initContainers:
+        - name: wait-for-graphdb
+          image: curlimages/curl:8.12.1
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              URL="http://graphdb.graphdb.svc.cluster.local:7200/protocol"
+              echo "Waiting for GraphDB at $URL ..."
+              until curl -sf "$URL" > /dev/null; do
+                sleep 2
+              done
+              echo "GraphDB is reachable."
+        - name: wait-for-rabbitmq
+          image: curlimages/curl:8.12.1
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              URL="http://rabbitmq.rabbitmq.svc.cluster.local:15672/"
+              echo "Waiting for RabbitMQ management at $URL ..."
+              until curl -sf "$URL" > /dev/null; do
+                sleep 2
+              done
+              echo "RabbitMQ is reachable."
+      containers:
+        - name: palamedes
+          image: ghcr.io/amocna-kr/palamedes:1.14.1-SNAPSHOT
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8081
+              name: http
+          env:
+            - name: GRAPHDB_URL
+              value: "http://graphdb.graphdb.svc.cluster.local:7200"
+            - name: GRAPHDB_REPO
+              value: "amocna"
+            - name: RABBITMQ_HOST
+              value: "rabbitmq.rabbitmq.svc.cluster.local"
+            - name: SPRING_RABBITMQ_HOST
+              value: "rabbitmq.rabbitmq.svc.cluster.local"
+            - name: RABBITMQ_PORT
+              value: "5672"
+            - name: RABBITMQ_USER
+              value: "guest"
+            - name: RABBITMQ_PASS
+              value: "guest"
+            - name: PROMETHEUS_URL
+              value: "http://prometheus-kube-prometheus-prometheus.monitoring.svc.cluster.local:9090"
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
+            - name: JAVA_TOOL_OPTIONS
+              value: "-Xmx3g"
+

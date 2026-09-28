@@ -1,0 +1,36 @@
+${SPARQL_PREFIXES}
+SELECT ?action ?window (MAX(?prevLastTransition) AS ?lastTransition)
+WHERE {
+  VALUES ?action { ${IRI::actionIds} }
+  
+  ?action ${PREFIX::ACTIONS_PREFIX}:targetsEntity ?target .
+  ?action a ?intent .
+  FILTER(?intent != ${PREFIX::ACTIONS_PREFIX}:AutonomicAction && 
+         ?intent != ${PREFIX::ACTIONS_PREFIX}:SimpleAction && 
+         ?intent != ${PREFIX::ACTIONS_PREFIX}:ComplexWorkflow)
+
+  ?intent ${PREFIX::ACTIONS_PREFIX}:idempotencyWindowSeconds ?window .
+
+  OPTIONAL { ?action ${PREFIX::ACTIONS_PREFIX}:hasIdempotencyKey ?key } .
+
+  OPTIONAL {
+    {
+      FILTER(bound(?key))
+      ?prevAction ${PREFIX::ACTIONS_PREFIX}:hasIdempotencyKey ?key ;
+                  ${PREFIX::ACTIONS_PREFIX}:hasCurrentState ${PREFIX::ACTIONS_PREFIX}:${INDIVIDUAL::STATE_SUCCEEDED} ;
+                  ${PREFIX::ACTIONS_PREFIX}:hasLastTransitionTimestamp ?prevLastTransition .
+      FILTER(?prevAction != ?action)
+    }
+    UNION
+    {
+      FILTER(!bound(?key))
+      ?prevAction a ?intent ;
+                  ${PREFIX::ACTIONS_PREFIX}:targetsEntity ?target ;
+                  ${PREFIX::ACTIONS_PREFIX}:hasCurrentState ${PREFIX::ACTIONS_PREFIX}:${INDIVIDUAL::STATE_SUCCEEDED} ;
+                  ${PREFIX::ACTIONS_PREFIX}:hasLastTransitionTimestamp ?prevLastTransition .
+      FILTER(?prevAction != ?action)
+    }
+  }
+}
+GROUP BY ?action ?window
+

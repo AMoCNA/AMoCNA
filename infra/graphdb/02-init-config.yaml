@@ -1,0 +1,91 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: graphdb-init-config
+  namespace: graphdb
+data:
+  repository-config.ttl: |
+    @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+    @prefix rep: <http://www.openrdf.org/config/repository#>.
+    @prefix sr: <http://www.openrdf.org/config/repository/sail#>.
+    @prefix sail: <http://www.openrdf.org/config/sail#>.
+    @prefix owlim: <http://www.ontotext.com/trree/owlim#>.
+
+    [] a rep:Repository ;
+       rep:repositoryID "amocna" ;
+       rdfs:label "AMoCNA Repository" ;
+       rep:repositoryImpl [
+          rep:repositoryType "graphdb:SailRepository" ;
+          sr:sailImpl [
+             sail:sailType "graphdb:Sail" ;
+             owlim:owlim-license "" ;
+             owlim:base-URL "http://example.org/owlim#" ;
+             owlim:defaultNS "" ;
+             owlim:entity-index-size "10000000" ;
+             owlim:entity-id-size  "32" ;
+             owlim:imports "" ;
+             owlim:repository-type "file-repository" ;
+             owlim:ruleset "owl-max" ;
+             owlim:storage-folder "storage" ;
+             owlim:enable-context-index "false" ;
+             owlim:cache-size "200" ;
+             owlim:in-memory-literal-properties "true" ;
+             owlim:enable-literal-index "true" ;
+             owlim:check-for-inconsistencies "false" ;
+             owlim:disable-sameAs  "false" ;
+             owlim:query-timeout  "0" ;
+             owlim:query-limit-results  "0" ;
+             owlim:throw-QueryLimitException-on-timeout "false" ;
+             owlim:read-only "false" ;
+             owlim:non-interpretable-file-format "false" ;
+          ]
+       ].
+  init-script.sh: |
+    #!/bin/bash
+    # Wait for GraphDB to start
+    until curl -s http://localhost:7200/protocol > /dev/null; do
+      echo "Waiting for GraphDB..."
+      sleep 5
+    done
+
+    # 1. Apply License — write to GraphDB work directory
+    if [ -f "/opt/graphdb/init/license/graphdb.license" ]; then
+      echo "Writing license to GraphDB work directory..."
+      mkdir -p /opt/graphdb/home/work
+      cp /opt/graphdb/init/license/graphdb.license /opt/graphdb/home/work/graphdb.license
+      echo "License file written to /opt/graphdb/home/work/graphdb.license"
+    else
+      echo "No license file found. Skipping."
+    fi
+
+    # 2. Create repository (init container clears on-disk repo data before GraphDB starts)
+    REPO_CHECK=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:7200/repositories/amocna/size)
+    if [ "$REPO_CHECK" = "200" ]; then
+      echo "Removing existing repository 'amocna' via REST API..."
+      curl -sf -X DELETE http://localhost:7200/rest/repositories/amocna
+    fi
+    echo "Creating repository 'amocna'..."
+    curl -sf -X POST http://localhost:7200/rest/repositories \
+      -H "Content-Type: multipart/form-data" \
+      -F "config=@/opt/graphdb/init/repository-config.ttl"
+
+    # 3. Upload ontologies
+    for f in /opt/graphdb/init/ontologies/*.rdf; do
+      if [ -f "$f" ]; then
+        echo "Uploading $f..."
+        curl -X POST http://localhost:7200/repositories/amocna/statements \
+          -H "Content-Type: application/rdf+xml" \
+          -T "$f"
+      fi
+    done
+
+    # 4. Upload MoaMont action blueprints
+    for f in /opt/graphdb/init/ontologies/*.ttl; do
+      if [ -f "$f" ]; then
+        echo "Uploading blueprint $f..."
+        curl -sf -X POST http://localhost:7200/repositories/amocna/statements \
+          -H "Content-Type: text/turtle" \
+          -T "$f"
+      fi
+    done
+    echo "Init complete."

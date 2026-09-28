@@ -1,0 +1,30 @@
+.git
+.github
+.idea
+.vscode
+.kiro
+.antigravitycli
+
+# Build outputs (rebuild inside Docker)
+**/target/
+**/node_modules/
+**/dist/
+
+# IDE
+**/.project
+**/.classpath
+**/.factorypath
+**/.settings/
+*.iml
+
+# Docs and knowledge
+knowledge/
+*.md
+!README.md
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

@@ -1,0 +1,30 @@
+spring:
+  rabbitmq:
+    host: localhost
+    port: 5672
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration
+
+palamedes:
+  graphdb:
+    url: http://localhost:7200
+    repository-id: test
+    timeout-ms: 1000
+  ontology:
+    actions-namespace: "http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#"
+    actions-prefix: "moam"
+    resources-namespace: "http://www.semanticweb.org/szymo/ontologies/2026/2/CNEEOnt/"
+    resources-prefix: "cnee"
+    bridge-namespace: "http://www.semanticweb.org/patryk/ontologies/2026/4/BridgeOnt#"
+    bridge-prefix: "bridge"
+    states:
+      initial: "State_Initial"
+      planned: "State_Planned"
+      validated: "State_Validated"
+      in-progress: "State_InProgress"
+      succeeded: "State_Succeeded"
+      failed: "State_Failed"
+      compensating: "State_Compensating"
+  engine:
+    pipeline-rate-ms: 1000

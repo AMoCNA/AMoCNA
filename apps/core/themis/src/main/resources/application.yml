@@ -1,0 +1,64 @@
+spring:
+  application:
+    name: themis
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER:guest}
+    password: ${RABBITMQ_PASS:guest}
+
+server:
+  port: ${SERVER_PORT:8080}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{36} [phase=%X{loop.phase}, step=%X{loop.step}, corrId=%X{correlationId}, actId=%X{actionId}] - %msg%n"
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+logging:
+  structured:
+    format:
+      console: "ecs"
+
+amocna:
+  ontology:
+    actions-namespace: ${ONTOLOGY_ACTIONS:http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#}
+    resources-namespace: ${ONTOLOGY_RESOURCES:http://www.semanticweb.org/szymo/ontologies/2026/2/CNEEOnt/}
+    bridge-namespace: ${ONTOLOGY_BRIDGE:http://www.semanticweb.org/patryk/ontologies/2026/4/BridgeOnt#}
+    actions-prefix: "moam"
+    resources-prefix: "cnee"
+    bridge-prefix: "bridge"
+  graphdb:
+    url: ${GRAPHDB_URL:http://localhost:7200}
+    repository-id: ${GRAPHDB_REPO:amocna}
+    timeout-ms: ${GRAPHDB_TIMEOUT:5000}
+  prometheus:
+    url: ${PROMETHEUS_URL:http://localhost:9090}
+
+themis:
+  secret:
+    bearer-token: ${THEMIS_BEARER_TOKEN:}
+  execution:
+    post-condition-delay-ms: ${THEMIS_POST_CONDITION_DELAY_MS:5000}
+    default-timeout-seconds: ${THEMIS_DEFAULT_TIMEOUT_SECONDS:30}
+    default-shell-path: ${THEMIS_DEFAULT_SHELL_PATH:/bin/sh}
+    circuit-breaker:
+      failure-rate-threshold: ${THEMIS_CB_FAILURE_RATE_THRESHOLD:50}
+      wait-duration-in-open-state-seconds: ${THEMIS_CB_WAIT_DURATION_SECONDS:10}
+      permitted-number-of-calls-in-half-open-state: ${THEMIS_CB_PERMITTED_CALLS_HALF_OPEN:2}
+      sliding-window-size: ${THEMIS_CB_SLIDING_WINDOW_SIZE:10}

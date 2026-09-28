@@ -1,0 +1,40 @@
+${SPARQL_PREFIXES}
+SELECT ?lastTransition ?window
+WHERE {
+  # 1. Identify the target and intent of the CURRENT action
+  ${IRI::actionId} ${PREFIX::ACTIONS_PREFIX}:targetsEntity ?target .
+  ${IRI::actionId} a ?intent .
+  
+  # Filter out generic types to find the specific Intent class
+  FILTER(?intent != ${PREFIX::ACTIONS_PREFIX}:AutonomicAction && 
+         ?intent != ${PREFIX::ACTIONS_PREFIX}:SimpleAction && 
+         ?intent != ${PREFIX::ACTIONS_PREFIX}:ComplexWorkflow)
+  
+  # 2. Get the window for this intent
+  ?intent ${PREFIX::ACTIONS_PREFIX}:idempotencyWindowSeconds ?window .
+
+  OPTIONAL { ${IRI::actionId} ${PREFIX::ACTIONS_PREFIX}:hasIdempotencyKey ?key } .
+
+  # 3. Find any OTHER action with same key or same target/intent that SUCCEEDED
+  OPTIONAL {
+    {
+      FILTER(bound(?key))
+      ?prevAction ${PREFIX::ACTIONS_PREFIX}:hasIdempotencyKey ?key ;
+                  ${PREFIX::ACTIONS_PREFIX}:hasCurrentState ${PREFIX::ACTIONS_PREFIX}:${INDIVIDUAL::STATE_SUCCEEDED} ;
+                  ${PREFIX::ACTIONS_PREFIX}:hasLastTransitionTimestamp ?lastTransition .
+      FILTER(?prevAction != ${IRI::actionId})
+    }
+    UNION
+    {
+      FILTER(!bound(?key))
+      ?prevAction a ?intent ;
+                  ${PREFIX::ACTIONS_PREFIX}:targetsEntity ?target ;
+                  ${PREFIX::ACTIONS_PREFIX}:hasCurrentState ${PREFIX::ACTIONS_PREFIX}:${INDIVIDUAL::STATE_SUCCEEDED} ;
+                  ${PREFIX::ACTIONS_PREFIX}:hasLastTransitionTimestamp ?lastTransition .
+      FILTER(?prevAction != ${IRI::actionId})
+    }
+  }
+}
+ORDER BY DESC(?lastTransition)
+LIMIT 1
+

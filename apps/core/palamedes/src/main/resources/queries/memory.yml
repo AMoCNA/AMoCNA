@@ -1,0 +1,3 @@
+name: "memory"
+nodeQueryTemplate: 'node_memory_Active_bytes{instance=~".*%s.*"} / node_memory_MemTotal_bytes{instance=~".*%s.*"}'
+fallbackQuery: 'sum(node_memory_Active_bytes) / sum(node_memory_MemTotal_bytes)'

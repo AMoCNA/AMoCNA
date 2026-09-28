@@ -1,0 +1,10 @@
+@prefix moam: <http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+moam:RestartAction moam:hasExecutionProtocol "REST" ;
+                   moam:hasExecutionInstruction "http://kubernetes-management:8097/api/v1/restart/${resourceName}" ;
+                   moam:hasHttpMethod "POST" ;
+                   moam:hasExpectedStatusCode "200"^^xsd:integer ;
+                   moam:hasFunctionalIntent moam:RestartAction ;
+                   moam:hasLayerBoundary moam:ContainerizationLayer ;
+                   moam:hasExecutionCost [ a moam:ExecutionCost ; moam:costValue "2.0"^^xsd:float ] .

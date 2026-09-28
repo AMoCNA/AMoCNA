@@ -1,0 +1,69 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: scig
+  namespace: amocna-scig
+  labels:
+    app: scig
+    amocna.io/pillar: scig
+spec:
+  # Daily at 02:00 UTC
+  schedule: "0 2 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      ttlSecondsAfterFinished: 86400
+      template:
+        metadata:
+          labels:
+            app: scig
+            amocna.io/pillar: scig
+        spec:
+          serviceAccountName: scig
+          restartPolicy: Never
+          imagePullSecrets:
+            - name: ghcr-login
+          containers:
+            - name: syft-scan
+              image: ghcr.io/amocna-kr/scig:1.14.1-SNAPSHOT
+              imagePullPolicy: IfNotPresent
+              command: ["/bin/sh", "/scripts/scan.sh"]
+              env:
+                - name: REDIS_HOST
+                  value: redis.redis.svc.cluster.local
+                - name: REDIS_PORT
+                  value: "6379"
+                - name: SBOM_TTL_SECONDS
+                  value: "172800"
+                # PoC default: scan ConfigMap image list only
+                - name: DISCOVER_CLUSTER_IMAGES
+                  value: "true"
+                - name: SCAN_NAMESPACES
+                  value: sock-shop,bookinfo,online-boutique
+                - name: IMAGE_LIST_FILE
+                  value: /config/images.txt
+              volumeMounts:
+                - name: scripts
+                  mountPath: /scripts
+                  readOnly: true
+                - name: config
+                  mountPath: /config
+                  readOnly: true
+              resources:
+                requests:
+                  cpu: 200m
+                  memory: 512Mi
+                limits:
+                  cpu: "2"
+                  memory: 2Gi
+          volumes:
+            - name: scripts
+              configMap:
+                name: scig-scripts
+                defaultMode: 0755
+            - name: config
+              configMap:
+                name: scig-images

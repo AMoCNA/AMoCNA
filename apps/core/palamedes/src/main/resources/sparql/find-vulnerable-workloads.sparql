@@ -1,0 +1,26 @@
+${SPARQL_PREFIXES}
+SELECT DISTINCT ?deployment ?deploymentName ?containerName ?imageRepository ?currentVersion ?service ?serviceName
+WHERE {
+  VALUES (?imageRepository ?currentVersion) {
+    ${PLAIN::vulnerablePairs}
+  }
+
+  ?image a cnee:Image .
+  ?image cnee:resourceName ?imageRepository .
+  ?image cnee:version ?currentVersion .
+  ?container cnee:usesImage ?image .
+  ?container cnee:resourceName ?containerName .
+  ?deployment cnee:contains ?container .
+  ?deployment cnee:resourceName ?deploymentName .
+  ?deployment a cnee:StatelessWorkloadController .
+  FILTER NOT EXISTS { ?deployment cnee:isPartOf ?higher . }
+  OPTIONAL {
+    ?service cnee:contains ?deployment .
+    ?service cnee:resourceName ?serviceName .
+  }
+  FILTER NOT EXISTS {
+    ?action ${PREFIX::ACTIONS_PREFIX}:targetsEntity ?deployment .
+    ?action ${PREFIX::ACTIONS_PREFIX}:hasCurrentState ?currentState .
+    FILTER(?currentState IN (${PREFIX::ACTIONS_PREFIX}:${INDIVIDUAL::STATE_INITIAL}, ${PREFIX::ACTIONS_PREFIX}:${INDIVIDUAL::STATE_PLANNED}, ${PREFIX::ACTIONS_PREFIX}:${INDIVIDUAL::STATE_VALIDATED}, ${PREFIX::ACTIONS_PREFIX}:${INDIVIDUAL::STATE_INPROGRESS}, ${PREFIX::ACTIONS_PREFIX}:${INDIVIDUAL::STATE_COMPENSATING}))
+  }
+}

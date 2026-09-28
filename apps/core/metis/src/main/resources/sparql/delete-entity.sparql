@@ -1,0 +1,10 @@
+${SPARQL_PREFIXES}
+DELETE {
+  ${IRI::resourceIri} ?p ?o .
+  ?s ?p2 ${IRI::resourceIri} .
+}
+WHERE {
+  { ${IRI::resourceIri} ?p ?o }
+  UNION
+  { ?s ?p2 ${IRI::resourceIri} }
+}

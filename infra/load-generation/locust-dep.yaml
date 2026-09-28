@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: locust-master
+  namespace: sock-shop
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: locust-master
+  template:
+    metadata:
+      labels:
+        app: locust-master
+    spec:
+      nodeSelector:
+        node-role: load-gen
+      containers:
+      - name: master
+        image: locustio/locust
+        args: ["--master"]
+        ports:
+        - containerPort: 8089
+        - containerPort: 5557
+        volumeMounts:
+        - name: locust-script
+          mountPath: /home/locust
+      volumes:
+      - name: locust-script
+        configMap:
+          name: locust-script
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: locust-master
+  namespace: sock-shop
+spec:
+  selector:
+    app: locust-master
+  ports:
+  - name: web
+    port: 8089
+    targetPort: 8089
+  - name: communication
+    port: 5557
+    targetPort: 5557
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: locust-worker
+  namespace: sock-shop
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: locust-worker
+  template:
+    metadata:
+      labels:
+        app: locust-worker
+    spec:
+      nodeSelector:
+        node-role: load-gen
+      containers:
+      - name: worker
+        image: locustio/locust
+        args: ["--worker", "--master-host=locust-master"]
+        env:
+        - name: LOCUST_TARGET_HOST
+          value: "http://front-end.sock-shop.svc.cluster.local"
+        volumeMounts:
+        - name: locust-script
+          mountPath: /home/locust
+      volumes:
+      - name: locust-script
+        configMap:
+          name: locust-script

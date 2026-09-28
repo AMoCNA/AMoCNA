@@ -1,0 +1,9 @@
+{
+  "grype_total_unique": 1179,
+  "trivy_total_unique": 0,
+  "intersection": 0,
+  "grype_only": 1179,
+  "trivy_only": 0,
+  "jaccard_similarity": 0.0,
+  "source": "redis_meta_refresh"
+}

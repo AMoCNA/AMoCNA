@@ -1,0 +1,5 @@
+${SPARQL_PREFIXES}
+SELECT ?query WHERE {
+${IRI::action} ${IRI::property} ?cond .
+?cond ${PREFIX::ACTIONS_PREFIX}:policyQueryString ?query .
+}

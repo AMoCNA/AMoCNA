@@ -1,0 +1,12 @@
+${SPARQL_PREFIXES}
+SELECT DISTINCT ?action ?resource ?resourceName ?state
+WHERE {
+  ?action ${PREFIX::ACTIONS_PREFIX}:hasCurrentState ?stateIri .
+  ?action ${PREFIX::ACTIONS_PREFIX}:targetsEntity ?resource .
+  ?resource ${PREFIX::RESOURCES_PREFIX}:resourceName ?resourceName .
+  
+  # Filter for non-terminal states
+  FILTER(?stateIri IN (${PREFIX::ACTIONS_PREFIX}:${INDIVIDUAL::STATE_INITIAL}, ${PREFIX::ACTIONS_PREFIX}:${INDIVIDUAL::STATE_PLANNED}, ${PREFIX::ACTIONS_PREFIX}:${INDIVIDUAL::STATE_VALIDATED}, ${PREFIX::ACTIONS_PREFIX}:${INDIVIDUAL::STATE_INPROGRESS}, ${PREFIX::ACTIONS_PREFIX}:${INDIVIDUAL::STATE_COMPENSATING}))
+  
+  BIND(REPLACE(STR(?stateIri), "^.*#", "") AS ?state)
+}

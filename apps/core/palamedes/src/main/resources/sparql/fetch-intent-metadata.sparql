@@ -1,0 +1,7 @@
+${SPARQL_PREFIXES}
+SELECT DISTINCT ?intent ?riskMultiplier ?cardinalityCap ?isHealing WHERE {
+  VALUES ?intent { ${IRI::intentIds} }
+  OPTIONAL { ?intent ${PREFIX::ACTIONS_PREFIX}:hasRiskMultiplier ?riskMultiplier } .
+  OPTIONAL { ?intent ${PREFIX::ACTIONS_PREFIX}:hasCardinalityCap ?cardinalityCap } .
+  OPTIONAL { ?intent ${PREFIX::ACTIONS_PREFIX}:isHealingIntent ?isHealing } .
+}

@@ -1,0 +1,7 @@
+${SPARQL_PREFIXES}
+SELECT ?event ?payload
+WHERE {
+  ?event a ${PREFIX::ACTIONS_PREFIX}:OutboxEvent ;
+         ${PREFIX::ACTIONS_PREFIX}:eventPayload ?payload ;
+         ${PREFIX::ACTIONS_PREFIX}:eventStatus "PENDING" .
+}

@@ -1,0 +1,78 @@
+@prefix moam: <http://www.semanticweb.org/patryk/ontologies/2026/4/MoaMont#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Scenario 1
+moam:ScaleUpAction moam:hasExecutionProtocol "SHELL" ;
+                   moam:hasExecutionInstruction "kubectl scale deployment ${resourceName} --replicas=3 -n ${namespace}" ;
+                   moam:hasExpectedStatusCode "0"^^xsd:integer ;
+                   moam:hasFunctionalIntent moam:HorizontalScalingUpIntent ;
+                   moam:hasLayerBoundary moam:ContainerizationLayer ;
+                   moam:idempotencyWindowSeconds "300"^^xsd:integer ;
+                   moam:hasExecutionCost [ a moam:ExecutionCost ; moam:costValue "2.0"^^xsd:float ] .
+
+# Scenario 1 (Scale Down)
+moam:ScaleDownAction moam:hasExecutionProtocol "SHELL" ;
+                     moam:hasExecutionInstruction "kubectl scale deployment ${resourceName} --replicas=1 -n ${namespace}" ;
+                     moam:hasExpectedStatusCode "0"^^xsd:integer ;
+                     moam:hasFunctionalIntent moam:HorizontalScalingDownIntent ;
+                     moam:hasLayerBoundary moam:ContainerizationLayer ;
+                     moam:idempotencyWindowSeconds "300"^^xsd:integer ;
+                     moam:hasExecutionCost [ a moam:ExecutionCost ; moam:costValue "1.0"^^xsd:float ] .
+
+# Scenario 2
+moam:ScaleVerticallyAction moam:hasExecutionProtocol "SHELL" ;
+                            moam:hasExecutionInstruction "kubectl patch deployment ${resourceName} -n ${namespace} --patch '{\"spec\": {\"template\": {\"spec\": {\"containers\": [{\"name\": \"${resourceName}\", \"resources\": {\"requests\": {\"cpu\": \"1\"}, \"limits\": {\"cpu\": \"1\"}}}]}}}}'" ;
+                            moam:hasExpectedStatusCode "0"^^xsd:integer ;
+                            moam:hasFunctionalIntent moam:VerticalScalingUpIntent ;
+                            moam:hasLayerBoundary moam:ContainerizationLayer ;
+                            moam:idempotencyWindowSeconds "300"^^xsd:integer ;
+                            moam:hasExecutionCost [ a moam:ExecutionCost ; moam:costValue "1.5"^^xsd:float ] .
+
+# Scenario 3
+moam:ImageUpdateAction moam:hasExecutionProtocol "SHELL" ;
+                        moam:hasExecutionInstruction "kubectl set image deployment/${resourceName} ${containerName}=${imageRepository}:${targetVersion} -n ${namespace}" ;
+                        moam:hasExpectedStatusCode "0"^^xsd:integer ;
+                        moam:hasFunctionalIntent moam:ImageUpdateIntent ;
+                        moam:hasLayerBoundary moam:ContainerizationLayer ;
+                        moam:idempotencyWindowSeconds "300"^^xsd:integer ;
+                        moam:hasExecutionCost [ a moam:ExecutionCost ; moam:costValue "1.0"^^xsd:float ] .
+
+# Scenario 4
+moam:ConfigRemediationBlueprint moam:hasFunctionalIntent moam:SagaRemediationIntent ;
+     moam:isDecomposedInto moam:PatchConfigAction ,
+                           moam:RestartPodAction .
+
+moam:PatchConfigAction moam:hasExecutionProtocol "SHELL" ;
+                       moam:hasExecutionInstruction "kubectl patch configmap ${resourceName}-config -n ${namespace} --type merge -p '{\"data\":{\"updated\":\"true\"}}'" ;
+                       moam:hasExpectedStatusCode "0"^^xsd:integer ;
+                       moam:hasFunctionalIntent moam:PatchConfigIntent ;
+                       moam:hasCompensation moam:RollbackConfigAction ;
+                       moam:hasLayerBoundary moam:ContainerizationLayer ;
+                       moam:idempotencyWindowSeconds "300"^^xsd:integer ;
+                       moam:hasExecutionCost [ a moam:ExecutionCost ; moam:costValue "0.5"^^xsd:float ] .
+
+moam:RestartPodAction moam:hasExecutionProtocol "SHELL" ;
+                      moam:hasExecutionInstruction "kubectl rollout restart deployment/${resourceName} -n ${namespace}" ;
+                      moam:hasExpectedStatusCode "0"^^xsd:integer ;
+                      moam:hasFunctionalIntent moam:RestartPodIntent ;
+                      moam:hasLayerBoundary moam:ContainerizationLayer ;
+                      moam:dependsOn moam:PatchConfigAction ; 
+                      moam:idempotencyWindowSeconds "300"^^xsd:integer ;
+                      moam:hasExecutionCost [ a moam:ExecutionCost ; moam:costValue "1.5"^^xsd:float ] .
+
+moam:RollbackConfigAction moam:hasExecutionProtocol "SHELL" ;
+                          moam:hasExecutionInstruction "kubectl patch configmap ${resourceName}-config -n ${namespace} --type merge -p '{\"data\":{\"updated\":\"false\"}}'" ;
+                          moam:hasExpectedStatusCode "0"^^xsd:integer ;
+                          moam:hasFunctionalIntent moam:RollbackConfigIntent ;
+                          moam:hasLayerBoundary moam:ContainerizationLayer ;
+                          moam:idempotencyWindowSeconds "300"^^xsd:integer ;
+                          moam:hasExecutionCost [ a moam:ExecutionCost ; moam:costValue "0.5"^^xsd:float ] .
+
+# Scenario 7 — Registry Credential Remediation
+moam:AddImagePullSecretAction moam:hasExecutionProtocol "SHELL" ;
+                              moam:hasExecutionInstruction "kubectl patch deployment ${resourceName} -n ${namespace} --type merge -p '{\"spec\":{\"template\":{\"spec\":{\"imagePullSecrets\":[{\"name\":\"${pullSecretName}\"}]}}}}'" ;
+                              moam:hasExpectedStatusCode "0"^^xsd:integer ;
+                              moam:hasFunctionalIntent moam:AddImagePullSecretIntent ;
+                              moam:hasLayerBoundary moam:ContainerizationLayer ;
+                              moam:idempotencyWindowSeconds "300"^^xsd:integer ;
+                              moam:hasExecutionCost [ a moam:ExecutionCost ; moam:costValue "0.5"^^xsd:float ] .

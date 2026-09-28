@@ -1,0 +1,14 @@
+\begin{table}[htbp]
+\centering
+\caption{SCIG scanning scalability across heterogeneous microservice applications. Values are $\overline{x} \pm \sigma$.}
+\label{tab:scig_s3_scalability}
+\begin{tabular}{lrrrrr}
+\toprule
+\textbf{Scope} & \textbf{Images} & \textbf{Total (s)} & \textbf{Per-Image (s)} & \textbf{Redis (MB)} & \textbf{CVEs} \\
+\midrule
+Sock Shop & 17 & $4675.0 \pm 0.0$ & $275.0 \pm 0.0$ & $156.8 \pm 0.1$ & 5579 \\
+Sock Shop + BookInfo & 21 & $4675.0 \pm 0.0$ & $222.6 \pm 0.0$ & $156.9 \pm 0.0$ & 7406 \\
+All 3 Applications & 32 & $5760.0 \pm 0.0$ & $180.0 \pm 0.0$ & $156.9 \pm 0.0$ & 10795 \\
+\bottomrule
+\end{tabular}
+\end{table}

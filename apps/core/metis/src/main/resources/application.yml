@@ -1,0 +1,52 @@
+spring:
+  threads:
+    virtual:
+      enabled: true
+  profiles:
+    active: dev
+  main:
+    web-application-type: servlet
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER:guest}
+    password: ${RABBITMQ_PASS:guest}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{36} [phase=%X{loop.phase}, step=%X{loop.step}, corrId=%X{correlationId}, actId=%X{actionId}] - %msg%n"
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+logging:
+  structured:
+    format:
+      console: "ecs"
+
+grpc:
+  server:
+    port: 50052
+
+metis:
+  graphdb:
+    url: ${METIS_GRAPHDB_URL:http://graphdb:7200}
+    repositoryId: ${METIS_GRAPHDB_REPOSITORYID:amocna}
+    timeoutMs: 5000
+  ontology:
+    cneeNamespace: "http://www.semanticweb.org/szymo/ontologies/2026/2/CNEEOnt/"
+  sensor:
+    enabled: ${METIS_SENSOR_ENABLED:true}
+    namespaces: ${METIS_SENSOR_NAMESPACES:}
+    batch-size: 50
+    flush-interval-ms: 500

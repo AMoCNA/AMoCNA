@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: metis
+  namespace: metis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: metis
+  template:
+    metadata:
+      labels:
+        app: metis
+    spec:
+      serviceAccountName: metis
+      imagePullSecrets:
+        - name: ghcr-login
+      tolerations:
+        - key: "amocna"
+          operator: "Equal"
+          value: "true"
+          effect: "NoSchedule"
+      nodeSelector:
+        node-role: amocna
+      initContainers:
+        - name: wait-for-graphdb
+          image: curlimages/curl:8.12.1
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              URL="http://graphdb.graphdb.svc.cluster.local:7200/protocol"
+              echo "Waiting for GraphDB at $URL ..."
+              until curl -sf "$URL" > /dev/null; do
+                sleep 2
+              done
+              echo "GraphDB is reachable."
+        - name: wait-for-rabbitmq
+          image: curlimages/curl:8.12.1
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              URL="http://rabbitmq.rabbitmq.svc.cluster.local:15672/"
+              echo "Waiting for RabbitMQ management at $URL ..."
+              until curl -sf "$URL" > /dev/null; do
+                sleep 2
+              done
+              echo "RabbitMQ is reachable."
+      containers:
+        - name: metis
+          image: ghcr.io/amocna-kr/metis:1.14.1-SNAPSHOT
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 50052
+              name: grpc
+            - containerPort: 8080
+              name: http
+          env:
+            - name: METIS_GRAPHDB_URL
+              value: "http://graphdb.graphdb.svc.cluster.local:7200"
+            - name: METIS_GRAPHDB_REPOSITORYID
+              value: "amocna"
+            - name: RABBITMQ_HOST
+              value: "rabbitmq.rabbitmq.svc.cluster.local"
+            - name: RABBITMQ_PORT
+              value: "5672"
+            - name: METIS_SENSOR_ENABLED
+              value: "true"
+            - name: METIS_SENSOR_NAMESPACES
+              value: "hephaestus-business,sock-shop,amocna-benchmark"
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
+            - name: JAVA_TOOL_OPTIONS
+              value: "-Xmx3g"
+

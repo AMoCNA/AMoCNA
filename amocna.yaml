@@ -1,0 +1,108 @@
+project:
+  name: amocna
+  group_id: com.kubiki
+  parent_pom: pom.xml
+  # Override with AMOCNA_REGISTRY env var or --registry flag
+  registry: ghcr.io/amocna-kr
+
+# ─── Core apps ─────────────────────────────────────────────────────────
+# Managed by the parent POM. Version-synced via `./amocna.py version`.
+core_apps:
+  daedalus:
+    path: apps/core/daedalus
+    type: maven-lib
+    description: Daedalus Templating Module
+
+  common:
+    path: apps/core/common
+    type: maven-lib
+    description: Common libraries for other modules
+
+  metrics-adapter:
+    path: apps/core/metrics-adapter
+    type: maven-app
+    image_name: metrics-adapter
+    dockerfile: apps/core/metrics-adapter/deployment/metrics-adapter.dockerfile
+    description: Prometheus Metrics Adapter, feeds palamedes module with anomalies from metrics
+
+  metis:
+    path: apps/core/metis
+    type: maven-app
+    dockerfile: apps/core/metis/deployment/metis.dockerfile
+    image_name: metis
+    ports:
+      grpc: 50052
+    description: Metis Knowledge Representation & Management
+
+  palamedes:
+    path: apps/core/palamedes
+    type: maven-app
+    dockerfile: apps/core/palamedes/deployment/palamedes.dockerfile
+    image_name: palamedes
+    ports:
+      http: 8081
+    description: Palamedes Reasoner and Planner
+
+  themis:
+    path: apps/core/themis
+    type: maven-app
+    dockerfile: apps/core/themis/deployment/themis.dockerfile
+    image_name: themis
+    ports:
+      http: 8080
+      grpc: 50051
+    description: Themis Autonomic Action Executor
+
+# ─── Standalone images (not Maven modules) ─────────────────────────────
+standalone_apps:
+  scig:
+    path: infra/scig
+    type: docker-image
+    image_name: scig
+    dockerfile: infra/scig/scig.dockerfile
+    description: SCIG sensor image (SBOM generation for ASPOF supply-chain pillar)
+
+# ─── Kubernetes port-forwarding shortcuts ──────────────────────────────
+forward:
+  graphdb:
+    namespace: graphdb
+    service: graphdb
+    local_port: 7200
+    remote_port: 7200
+
+  grafana:
+    namespace: monitoring
+    pod_label: "app.kubernetes.io/name=grafana"
+    local_port: 3000
+    remote_port: 3000
+
+# ─── Kubernetes deployment manifest directories ───────────────────────
+k8s:
+  deploy_order:
+    - infra/graphdb
+    - infra/rabbitmq
+    - infra/redis
+    - infra/scig
+    - infra/core
+    - infra/bookinfo
+    - infra/online-boutique
+  undeploy_namespaces:
+    - graphdb
+    - rabbitmq
+    - redis
+    - amocna-scig
+    - metis
+    - palamedes
+    - metrics-adapter
+    - themis
+    - bookinfo
+    - online-boutique
+  cluster_resources:
+    - { kind: clusterrole, name: pod-reader }
+    - { kind: clusterrolebinding, name: read-secrets-global }
+    - { kind: clusterrole, name: scig-pod-reader }
+    - { kind: clusterrolebinding, name: scig-pod-reader }
+  # GraphDB hostPath PV (infra/graphdb/01-storage.yaml) — wiped on undeploy unless --keep-graphdb-data
+  graphdb_storage:
+    host_path: /data/graphdb
+    node_hostname: kube-worker-extra-77df2b39

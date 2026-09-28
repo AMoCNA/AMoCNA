@@ -1,0 +1,10 @@
+name: "orders-latency-persistent"
+query: "sum(rate(request_duration_seconds_sum{name='orders'}[1m])) by (name, namespace) / sum(rate(request_duration_seconds_count{name='orders'}[1m])) by (name, namespace)"
+operator: ">"
+value: 0.1
+anomalyState: "ResponseTimeSlaViolatedState"
+resourceKind: "Service"
+resourceLabel: "name"
+namespaceLabel: "namespace"
+persistenceWindow: 1
+cooldownSeconds: 0

@@ -1,0 +1,124 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: graphdb
+  namespace: graphdb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: graphdb
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: graphdb
+    spec:
+      tolerations:
+        - key: "amocna"
+          operator: "Equal"
+          value: "true"
+          effect: "NoSchedule"
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: node-role
+                    operator: In
+                    values:
+                      - amocna
+      initContainers:
+        - name: graphdb-init
+          image: ontotext/graphdb:11.3.3
+          command: ["/bin/bash", "-c"]
+          args:
+            - |
+              # Set home directory to the mounted volume
+              export GDB_HOME=/opt/graphdb/home
+
+              # Reset repository files (covers failed hostPath wipe or redeploy without undeploy)
+              echo "Resetting GraphDB repository data on PV..."
+              rm -rf "$GDB_HOME/data/repositories/amocna"
+              rm -rf "$GDB_HOME/data/repositories/lock"
+              
+              # Copy license to the correct location on PV
+              mkdir -p $GDB_HOME/work
+              if [ -f "/opt/graphdb/init/license/graphdb.license" ]; then
+                cp /opt/graphdb/init/license/graphdb.license $GDB_HOME/work/graphdb.license
+                echo "License copied to $GDB_HOME/work/graphdb.license"
+              fi
+
+              # Start GraphDB in background for initialization
+              /opt/graphdb/dist/bin/graphdb -Dgraphdb.home=$GDB_HOME &
+              GRAPHDB_PID=$!
+
+              # Wait for it to be ready
+              echo "Waiting for GraphDB to start..."
+              until curl -s http://localhost:7200/protocol > /dev/null 2>&1; do
+                sleep 3
+              done
+              echo "GraphDB is up."
+
+              # Run the init script
+              /opt/graphdb/init/init-script.sh
+
+              # Stop GraphDB so the main container can start cleanly
+              kill $GRAPHDB_PID 2>/dev/null
+              wait $GRAPHDB_PID 2>/dev/null || true
+              echo "Init complete."
+          env:
+            - name: GDB_HEAP_SIZE
+              value: "1G"
+          volumeMounts:
+            - name: graphdb-data
+              mountPath: /opt/graphdb/home
+            - name: init-config
+              mountPath: /opt/graphdb/init
+            - name: ontologies
+              mountPath: /opt/graphdb/init/ontologies
+            - name: license
+              mountPath: /opt/graphdb/init/license
+      containers:
+        - name: graphdb
+          image: ontotext/graphdb:11.3.3
+          ports:
+            - containerPort: 7200
+          env:
+            - name: GDB_HEAP_SIZE
+              value: "2G"
+          resources:
+            requests:
+              memory: "2Gi"
+              cpu: "500m"
+            limits:
+              memory: "3Gi"
+              cpu: "2000m"
+          readinessProbe:
+            httpGet:
+              path: /protocol
+              port: 7200
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          volumeMounts:
+            - name: graphdb-data
+              mountPath: /opt/graphdb/home
+      volumes:
+        - name: graphdb-data
+          persistentVolumeClaim:
+            claimName: graphdb-pvc
+        - name: init-config
+          configMap:
+            name: graphdb-init-config
+            defaultMode: 0755
+        - name: ontologies
+          configMap:
+            name: graphdb-ontologies
+        - name: license
+          secret:
+            secretName: graphdb-license
+            optional: true
+            items:
+              - key: GRAPHDB_LICENSE
+                path: graphdb.license

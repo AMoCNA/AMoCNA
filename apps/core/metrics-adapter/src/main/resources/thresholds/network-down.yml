@@ -1,0 +1,9 @@
+name: "network-down"
+query: "node_network_up"
+operator: "=="
+value: 0
+anomalyState: "NetworkPartitionState"
+resourceKind: "Node"
+resourceLabel: "instance"
+persistenceWindow: 1
+cooldownSeconds: 0

@@ -1,0 +1,25 @@
+${SPARQL_PREFIXES}
+SELECT DISTINCT ?action ?payload WHERE {
+  VALUES ?action { ${IRI::actionIds} }
+  
+  {
+    # Case A: Standard action step or directly linked compensation step
+    ?parent (${PREFIX::ACTIONS_PREFIX}:isDecomposedInto|${PREFIX::ACTIONS_PREFIX}:hasCompensation)* ?action .
+    ?parent ${PREFIX::ACTIONS_PREFIX}:hydrationPayload ?payload .
+  }
+  UNION
+  {
+    # Case B: Compensation action (detached instance, resolved via ontology and resource matching)
+    ?action a ?compIntent .
+    ?stepIntent ${PREFIX::ACTIONS_PREFIX}:hasCompensation ?compIntent .
+    ?stepInstance a ?stepIntent .
+    
+    # Match the resource to find the corresponding step instance in the current execution
+    ?action ${PREFIX::ACTIONS_PREFIX}:targetsEntity ?resource .
+    ?stepInstance ${PREFIX::ACTIONS_PREFIX}:targetsEntity ?resource .
+    
+    # Search up the decomposition hierarchy from the matched step instance to find the hydrated parent
+    ?parent (${PREFIX::ACTIONS_PREFIX}:isDecomposedInto)* ?stepInstance .
+    ?parent ${PREFIX::ACTIONS_PREFIX}:hydrationPayload ?payload .
+  }
+}

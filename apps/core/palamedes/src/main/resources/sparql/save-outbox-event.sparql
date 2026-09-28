@@ -1,0 +1,7 @@
+${SPARQL_PREFIXES}
+INSERT DATA {
+  ${IRI::eventIri} a ${PREFIX::ACTIONS_PREFIX}:OutboxEvent ;
+            ${PREFIX::ACTIONS_PREFIX}:eventPayload ${LITERAL::payload} ;
+            ${PREFIX::ACTIONS_PREFIX}:eventStatus "PENDING" ;
+            ${PREFIX::ACTIONS_PREFIX}:eventTimestamp ${LITERAL::timestamp} .
+}

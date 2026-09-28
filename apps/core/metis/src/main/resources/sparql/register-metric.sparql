@@ -1,0 +1,10 @@
+${SPARQL_PREFIXES}
+INSERT {
+  ${IRI::resourceIri}  cnee:metricsEndpoint ${endpointUrl}^^xsd:anyURI .
+  ${IRI::metricIri}  rdf:type cnee:Metric .
+  ${IRI::metricIri}  cnee:resourceName ${metricName}^^xsd:string .
+  ${IRI::resourceIri}  cnee:emitsTelemetry ${IRI::metricIri} .
+}
+WHERE {
+  FILTER NOT EXISTS { ${IRI::resourceIri} cnee:emitsTelemetry ${IRI::metricIri} }
+}

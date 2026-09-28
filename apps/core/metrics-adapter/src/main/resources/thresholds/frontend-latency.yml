@@ -1,0 +1,10 @@
+name: "frontend-latency"
+query: "sum(rate(request_duration_seconds_sum{name='front-end'}[1m])) by (name, namespace) / sum(rate(request_duration_seconds_count{name='front-end'}[1m])) by (name, namespace)"
+operator: ">"
+value: 0.50
+anomalyState: "ResponseTimeSlaViolatedState"
+resourceKind: "Service"
+resourceLabel: "name"
+namespaceLabel: "namespace"
+persistenceWindow: 1
+cooldownSeconds: 0

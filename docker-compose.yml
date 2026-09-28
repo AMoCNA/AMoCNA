@@ -1,0 +1,119 @@
+# ─────────────────────────────────────────────────────────────────────
+# AMoCNA Core Stack — Local Development
+# ─────────────────────────────────────────────────────────────────────
+# Spins up the core AMoCNA services with all dependencies.
+#
+# Usage:
+#   docker compose up -d              # start all
+#   docker compose up themis metis    # start selected services + deps
+#   docker compose logs -f themis     # follow logs
+#   docker compose down -v            # tear down + remove volumes
+# ─────────────────────────────────────────────────────────────────────
+
+services:
+  # ── Core Services ──────────────────────────────────────────────────
+
+  themis:
+    build:
+      context: .
+      dockerfile: apps/core/themis/deployment/themis.dockerfile
+    ports:
+      - "8080:8080"
+      - "50051:50051"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_RABBITMQ_HOST=rabbitmq
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+
+  palamedes:
+    build:
+      context: .
+      dockerfile: apps/core/palamedes/deployment/palamedes.dockerfile
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - GRAPHDB_URL=http://graphdb:7200
+      - GRAPHDB_REPO=amocna
+      - PROMETHEUS_URL=http://prometheus:9090
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      graphdb:
+        condition: service_started
+      graphdb-provisioner:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  metis:
+    build:
+      context: .
+      dockerfile: apps/core/metis/deployment/metis.dockerfile
+    ports:
+      - "50052:50052"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - METIS_GRAPHDB_URL=http://graphdb:7200
+      - METIS_PALAMEDES_HOST=palamedes
+    depends_on:
+      graphdb:
+        condition: service_started
+      graphdb-provisioner:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  # ── Infrastructure Dependencies ────────────────────────────────────
+
+  rabbitmq:
+    build:
+      context: infra/rabbitmq
+      dockerfile: rabbitmq.dockerfile
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "check_running"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  graphdb:
+    image: ontotext/graphdb:11.3.3
+    ports:
+      - "7200:7200"
+    environment:
+      - GDB_HEAP_SIZE=1G
+    volumes:
+      - graphdb-data:/opt/graphdb/home
+      - ./infra/graphdb/graphdb.license:/opt/graphdb/home/work/graphdb.license:ro
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    restart: unless-stopped
+
+  # ── One-shot: GraphDB repository provisioning ──────────────────────
+
+  graphdb-provisioner:
+    build:
+      context: .
+      dockerfile: infra/graphdb/graphdb-provisioner.dockerfile
+    environment:
+      - GRAPHDB_URL=http://graphdb:7200
+      - REPOSITORY_ID=amocna
+    depends_on:
+      graphdb:
+        condition: service_started
+    restart: "no"
+
+volumes:
+  graphdb-data:

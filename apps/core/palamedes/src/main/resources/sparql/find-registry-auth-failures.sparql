@@ -1,0 +1,31 @@
+${SPARQL_PREFIXES}
+SELECT DISTINCT ?deployment ?deploymentName ?namespace ?pullSecretName WHERE {
+  # Failing pod: stuck ImagePullBackOff, pulls from a registry, but has no pull secret of its own.
+  # Metis writes the state class directly as the hasState value (cnee:hasState cnee:ImagePullBackOffState).
+  ?failPod cnee:hasState cnee:ImagePullBackOffState .
+  ?failPod cnee:pullsImageFrom ?registry .
+  ?failPod cnee:namespace ?namespace .
+  FILTER NOT EXISTS { ?failPod cnee:authenticatesWith ?own . }
+
+  # Patch target: the topmost owner (the Deployment) reachable via the isPartOf chain
+  ?failPod cnee:isPartOf+ ?deployment .
+  ?deployment a cnee:Workload ;
+              cnee:resourceName ?deploymentName ;
+              cnee:namespace ?namespace .
+  FILTER NOT EXISTS { ?deployment cnee:isPartOf ?higher . }
+
+  # Sibling inference: another pod in the same namespace pulls from the same registry
+  # WITH a working pull secret -> that secret already exists in the namespace
+  ?sibling cnee:pullsImageFrom ?registry ;
+           cnee:authenticatesWith ?secret ;
+           cnee:namespace ?namespace .
+  ?secret cnee:resourceName ?pullSecretName .
+  FILTER(?sibling != ?failPod)
+
+  # Skip deployments that already have an open action workflow
+  FILTER NOT EXISTS {
+    ?action ${PREFIX::ACTIONS_PREFIX}:targetsEntity ?deployment .
+    ?action ${PREFIX::ACTIONS_PREFIX}:hasCurrentState ?currentState .
+    FILTER(?currentState IN (${PREFIX::ACTIONS_PREFIX}:${INDIVIDUAL::STATE_INITIAL}, ${PREFIX::ACTIONS_PREFIX}:${INDIVIDUAL::STATE_PLANNED}, ${PREFIX::ACTIONS_PREFIX}:${INDIVIDUAL::STATE_VALIDATED}, ${PREFIX::ACTIONS_PREFIX}:${INDIVIDUAL::STATE_INPROGRESS}, ${PREFIX::ACTIONS_PREFIX}:${INDIVIDUAL::STATE_COMPENSATING}))
+  }
+}

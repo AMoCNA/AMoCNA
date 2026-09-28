@@ -1,0 +1,19 @@
+${SPARQL_PREFIXES}
+SELECT DISTINCT ?resource ?resourceName ?intent
+WHERE {
+    ?resource ${PREFIX::RESOURCES_PREFIX}:hasCurrentState ?state .
+    ?state a ?anomalyType .
+    ?resource ${PREFIX::RESOURCES_PREFIX}:resourceName ?resourceName .
+
+    ?anomalyType rdfs:subClassOf ?restriction .
+    ?restriction a owl:Restriction .
+    ?restriction owl:onProperty ${PREFIX::BRIDGE_PREFIX}:isResolvedByIntent .
+    ?restriction owl:someValuesFrom ?intent .
+
+    FILTER NOT EXISTS {
+        ?action ${PREFIX::ACTIONS_PREFIX}:targetsEntity ?resource .
+        ?action ${PREFIX::ACTIONS_PREFIX}:hasCurrentState ?currentState .
+        FILTER(?action = ${IRI::actionId})
+        FILTER(?currentState IN (${PREFIX::ACTIONS_PREFIX}:${INDIVIDUAL::STATE_INITIAL}, ${PREFIX::ACTIONS_PREFIX}:${INDIVIDUAL::STATE_PLANNED}, ${PREFIX::ACTIONS_PREFIX}:${INDIVIDUAL::STATE_VALIDATED}, ${PREFIX::ACTIONS_PREFIX}:${INDIVIDUAL::STATE_INPROGRESS}, ${PREFIX::ACTIONS_PREFIX}:${INDIVIDUAL::STATE_COMPENSATING}))
+    }
+}

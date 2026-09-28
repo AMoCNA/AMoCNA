@@ -1,0 +1,12 @@
+PREFIX cnee: <http://www.semanticweb.org/szymo/ontologies/2026/2/CNEEOnt/>
+DELETE {
+  ?s ?p ?o .
+}
+WHERE {
+  ?s ?p ?o .
+  FILTER(
+    CONTAINS(STR(?s), "s6-failing")
+    || CONTAINS(STR(?s), "s6-sibling")
+    || CONTAINS(STR(?s), "Secret_sock-shop_regcred")
+  )
+}

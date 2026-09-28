@@ -1,0 +1,166 @@
+${SPARQL_PREFIXES}
+SELECT DISTINCT ?action ?intent ?target ?protocol ?instruction ?method ?payload ?expectedStatusCode
+    ?preId ?preType ?prePolicy
+    ?postId ?postType ?postPolicy
+    ?step ?compensation
+    ?functionalIntent ?layerBoundary ?costValue ?idempotencyWindowSeconds
+    ?authMechanism ?timeoutSeconds ?isIdempotent ?maxRetries ?priority ?executionDelay ?idempotencyKey WHERE {
+  VALUES ?root { ${IRI::actionId} }
+
+  # 1. Discover all action nodes in the hierarchy.
+  ?root (${PREFIX::ACTIONS_PREFIX}:isDecomposedInto|${PREFIX::ACTIONS_PREFIX}:hasCompensation|a/(${PREFIX::ACTIONS_PREFIX}:isDecomposedInto|${PREFIX::ACTIONS_PREFIX}:hasCompensation)|a/^${PREFIX::ACTIONS_PREFIX}:hasFunctionalIntent/(${PREFIX::ACTIONS_PREFIX}:isDecomposedInto|${PREFIX::ACTIONS_PREFIX}:hasCompensation))* ?action .
+
+  # 2. Identify all types (intents) for each node (including from blueprint).
+  { ?action a ?intent . }
+  UNION
+  {
+    ?action a ?blueprintIntent .
+    FILTER(!isBlank(?blueprintIntent))
+    ?blueprint ${PREFIX::ACTIONS_PREFIX}:hasFunctionalIntent ?blueprintIntent .
+    ?blueprint a ?intent .
+  }
+
+  # 3. Resolve properties with Blueprint Inheritance
+  OPTIONAL { ?action ${PREFIX::ACTIONS_PREFIX}:targetsEntity ?target } .
+
+  # Action Classification
+  OPTIONAL { ?action ${PREFIX::ACTIONS_PREFIX}:hasFunctionalIntent ?f1 } .
+  OPTIONAL { ?intent ${PREFIX::ACTIONS_PREFIX}:hasFunctionalIntent ?f2 } .
+
+  # Blueprint Resolution & Properties
+  OPTIONAL {
+    ?action a ?blueprintIntent .
+    FILTER(!isBlank(?blueprintIntent))
+    ?blueprint ${PREFIX::ACTIONS_PREFIX}:hasFunctionalIntent ?blueprintIntent .
+    OPTIONAL { ?blueprint ${PREFIX::ACTIONS_PREFIX}:hasLayerBoundary ?l3 }
+    OPTIONAL { 
+      ?blueprint ${PREFIX::ACTIONS_PREFIX}:hasExecutionCost ?bc . 
+      ?bc ${PREFIX::ACTIONS_PREFIX}:costValue ?bv 
+    }
+    OPTIONAL { ?blueprint ${PREFIX::ACTIONS_PREFIX}:hasExecutionProtocol ?bp }
+    OPTIONAL { ?blueprint ${PREFIX::ACTIONS_PREFIX}:hasExecutionInstruction ?bi }
+    OPTIONAL { ?blueprint ${PREFIX::ACTIONS_PREFIX}:hasHttpMethod ?bm }
+    OPTIONAL { ?blueprint ${PREFIX::ACTIONS_PREFIX}:hasExpectedStatusCode ?bs }
+    OPTIONAL { ?blueprint ${PREFIX::ACTIONS_PREFIX}:idempotencyWindowSeconds ?bw }
+    OPTIONAL { ?blueprint ${PREFIX::ACTIONS_PREFIX}:isDecomposedInto ?s3 }
+    OPTIONAL { ?blueprint ${PREFIX::ACTIONS_PREFIX}:hasAuthMechanism ?bAuth }
+    OPTIONAL { ?blueprint ${PREFIX::ACTIONS_PREFIX}:timeoutSeconds ?bTimeout }
+    OPTIONAL { ?blueprint ${PREFIX::ACTIONS_PREFIX}:isIdempotent ?bIdempotent }
+    OPTIONAL { ?blueprint ${PREFIX::ACTIONS_PREFIX}:maxRetries ?bRetries }
+    OPTIONAL { ?blueprint ${PREFIX::ACTIONS_PREFIX}:hasExecutionPayload ?bPayload }
+    OPTIONAL { ?blueprint ${PREFIX::ACTIONS_PREFIX}:hasPriority ?bPriority }
+    OPTIONAL { ?blueprint ${PREFIX::ACTIONS_PREFIX}:hasExecutionDelay ?bDelay }
+    OPTIONAL { ?blueprint ${PREFIX::ACTIONS_PREFIX}:hasIdempotencyKey ?bIdempotencyKey }
+  } .
+
+  BIND(COALESCE(?f1, ?f2, ?blueprintIntent) AS ?functionalIntent) .
+
+  OPTIONAL { ?action ${PREFIX::ACTIONS_PREFIX}:hasLayerBoundary ?l1 } .
+  OPTIONAL { ?intent ${PREFIX::ACTIONS_PREFIX}:hasLayerBoundary ?l2 } .
+  BIND(COALESCE(?l1, ?l2, ?l3) AS ?layerBoundary) .
+
+  OPTIONAL {
+    ?action ${PREFIX::ACTIONS_PREFIX}:hasExecutionCost ?c1 .
+    ?c1 ${PREFIX::ACTIONS_PREFIX}:costValue ?v1 .
+  } .
+  OPTIONAL {
+    ?intent ${PREFIX::ACTIONS_PREFIX}:hasExecutionCost ?c2 .
+    ?c2 ${PREFIX::ACTIONS_PREFIX}:costValue ?v2 .
+  } .
+  BIND(COALESCE(?v1, ?v2, ?bv) AS ?costValue) .
+
+  # Protocol Details
+  OPTIONAL { ?action ${PREFIX::ACTIONS_PREFIX}:hasExecutionProtocol ?p1 } .
+  OPTIONAL { ?intent ${PREFIX::ACTIONS_PREFIX}:hasExecutionProtocol ?p2 } .
+  BIND(COALESCE(?p1, ?p2, ?bp) AS ?protocol) .
+
+  OPTIONAL { ?action ${PREFIX::ACTIONS_PREFIX}:hasExecutionInstruction ?i1 } .
+  OPTIONAL { ?intent ${PREFIX::ACTIONS_PREFIX}:hasExecutionInstruction ?i2 } .
+  BIND(COALESCE(?i1, ?i2, ?bi) AS ?instruction) .
+
+  OPTIONAL { ?action ${PREFIX::ACTIONS_PREFIX}:hasHttpMethod ?m1 } .
+  OPTIONAL { ?intent ${PREFIX::ACTIONS_PREFIX}:hasHttpMethod ?m2 } .
+  BIND(COALESCE(?m1, ?m2, ?bm) AS ?method) .
+
+  OPTIONAL { ?action ${PREFIX::ACTIONS_PREFIX}:hasExpectedStatusCode ?s1 } .
+  OPTIONAL { ?intent ${PREFIX::ACTIONS_PREFIX}:hasExpectedStatusCode ?s2 } .
+  BIND(COALESCE(?s1, ?s2, ?bs) AS ?expectedStatusCode) .
+
+  # Idempotency
+  OPTIONAL { ?action ${PREFIX::ACTIONS_PREFIX}:idempotencyWindowSeconds ?w1 } .
+  OPTIONAL { ?intent ${PREFIX::ACTIONS_PREFIX}:idempotencyWindowSeconds ?w2 } .
+  BIND(COALESCE(?w1, ?w2, ?bw) AS ?idempotencyWindowSeconds) .
+
+  # Auth Mechanism
+  OPTIONAL { ?action ${PREFIX::ACTIONS_PREFIX}:hasAuthMechanism ?auth1 } .
+  OPTIONAL { ?intent ${PREFIX::ACTIONS_PREFIX}:hasAuthMechanism ?auth2 } .
+  BIND(COALESCE(?auth1, ?auth2, ?bAuth) AS ?authMechanism) .
+
+  # Timeout Seconds
+  OPTIONAL { ?action ${PREFIX::ACTIONS_PREFIX}:timeoutSeconds ?timeout1 } .
+  OPTIONAL { ?intent ${PREFIX::ACTIONS_PREFIX}:timeoutSeconds ?timeout2 } .
+  BIND(COALESCE(?timeout1, ?timeout2, ?bTimeout) AS ?timeoutSeconds) .
+
+  # Is Idempotent
+  OPTIONAL { ?action ${PREFIX::ACTIONS_PREFIX}:isIdempotent ?idemp1 } .
+  OPTIONAL { ?intent ${PREFIX::ACTIONS_PREFIX}:isIdempotent ?idemp2 } .
+  BIND(COALESCE(?idemp1, ?idemp2, ?bIdempotent) AS ?isIdempotent) .
+
+  # Max Retries
+  OPTIONAL { ?action ${PREFIX::ACTIONS_PREFIX}:maxRetries ?retries1 } .
+  OPTIONAL { ?intent ${PREFIX::ACTIONS_PREFIX}:maxRetries ?retries2 } .
+  BIND(COALESCE(?retries1, ?retries2, ?bRetries) AS ?maxRetries) .
+
+  # Execution Payload
+  OPTIONAL { ?action ${PREFIX::ACTIONS_PREFIX}:hasExecutionPayload ?pay1 } .
+  OPTIONAL { ?intent ${PREFIX::ACTIONS_PREFIX}:hasExecutionPayload ?pay2 } .
+  BIND(COALESCE(?pay1, ?pay2, ?bPayload) AS ?payload) .
+
+  # Priority
+  OPTIONAL { ?action ${PREFIX::ACTIONS_PREFIX}:hasPriority ?priority1 } .
+  OPTIONAL { ?intent ${PREFIX::ACTIONS_PREFIX}:hasPriority ?priority2 } .
+  BIND(COALESCE(?priority1, ?priority2, ?bPriority) AS ?priority) .
+
+  # Execution Delay
+  OPTIONAL { ?action ${PREFIX::ACTIONS_PREFIX}:hasExecutionDelay ?delay1 } .
+  OPTIONAL { ?intent ${PREFIX::ACTIONS_PREFIX}:hasExecutionDelay ?delay2 } .
+  BIND(COALESCE(?delay1, ?delay2, ?bDelay) AS ?executionDelay) .
+
+  # Idempotency Key
+  OPTIONAL { ?action ${PREFIX::ACTIONS_PREFIX}:hasIdempotencyKey ?idempKey1 } .
+  OPTIONAL { ?intent ${PREFIX::ACTIONS_PREFIX}:hasIdempotencyKey ?idempKey2 } .
+  BIND(COALESCE(?idempKey1, ?idempKey2, ?bIdempotencyKey) AS ?idempotencyKey) .
+
+  # 4. Conditions
+  OPTIONAL {
+    { ?action ${PREFIX::ACTIONS_PREFIX}:hasPreCondition ?preId . }
+    UNION
+    { ?intent ${PREFIX::ACTIONS_PREFIX}:hasPreCondition ?preId . }
+    ?preId a ?preType .
+    ?preId ${PREFIX::ACTIONS_PREFIX}:policyQueryString ?prePolicy .
+  } .
+  OPTIONAL {
+    { ?action ${PREFIX::ACTIONS_PREFIX}:hasPostCondition ?postId . }
+    UNION
+    { ?intent ${PREFIX::ACTIONS_PREFIX}:hasPostCondition ?postId . }
+    ?postId a ?postType .
+    ?postId ${PREFIX::ACTIONS_PREFIX}:policyQueryString ?postPolicy .
+  } .
+
+  # 5. Decomposition Links
+  OPTIONAL { ?action ${PREFIX::ACTIONS_PREFIX}:isDecomposedInto ?s1 } .
+  OPTIONAL { ?intent ${PREFIX::ACTIONS_PREFIX}:isDecomposedInto ?s2 } .
+  BIND(COALESCE(?s1, ?s2, ?s3) AS ?step) .
+
+  # 6. Compensations
+  OPTIONAL {
+    { ?step ${PREFIX::ACTIONS_PREFIX}:hasCompensation ?compensation . }
+    UNION
+    { ?step a ?stepIntent .
+      ?stepIntent ${PREFIX::ACTIONS_PREFIX}:hasCompensation ?compensation . }
+    UNION
+    { ?step a ?stepIntent .
+      ?stepBlueprint ${PREFIX::ACTIONS_PREFIX}:hasFunctionalIntent ?stepIntent .
+      ?stepBlueprint ${PREFIX::ACTIONS_PREFIX}:hasCompensation ?compensation . }
+  } .
+}

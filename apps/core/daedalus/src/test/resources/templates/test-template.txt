@@ -1,0 +1,2 @@
+Hello ${name}, welcome to ${place}!
+Global: ${GLOBAL_VAR}

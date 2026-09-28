@@ -1,0 +1,48 @@
+{
+  "Sock Shop": {
+    "namespaces": "sock-shop",
+    "image_count": 17,
+    "total_times_s": [
+      4675.0
+    ],
+    "per_image_times_s": [
+      275.0
+    ],
+    "redis_mem_mb": [
+      156.8,
+      156.8789291381836
+    ],
+    "cve_count": 5579,
+    "method": "discover Job wait-for-complete (N=1)"
+  },
+  "Sock Shop + BookInfo": {
+    "namespaces": "sock-shop,bookinfo",
+    "image_count": 21,
+    "total_times_s": [
+      4675.0
+    ],
+    "per_image_times_s": [
+      222.61904761904762
+    ],
+    "redis_mem_mb": [
+      156.8789291381836
+    ],
+    "cve_count": 7406,
+    "method": "Redis inventory; wall-time lower-bounded by Sock Shop discover"
+  },
+  "All 3 Applications": {
+    "namespaces": "sock-shop,bookinfo,online-boutique",
+    "image_count": 32,
+    "total_times_s": [
+      5760.0
+    ],
+    "per_image_times_s": [
+      180.0
+    ],
+    "redis_mem_mb": [
+      156.8789291381836
+    ],
+    "cve_count": 10795,
+    "method": "historical completed CronJob wall time 96m + Redis inventory"
+  }
+}

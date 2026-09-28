@@ -1,0 +1,4 @@
+${SPARQL_PREFIXES}
+DELETE WHERE {
+  ${IRI::eventIri} ?p ?o .
+}

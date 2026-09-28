@@ -1,0 +1,22 @@
+[project]
+name = "amocna-cli"
+version = "0.1.0"
+description = "CLI to manage AMoCNA MAPE-K loop modules"
+readme = "README.md"
+authors = [
+  { name = "Zajdel Patryk", email = "57092803+xMOROx@users.noreply.github.com" },
+]
+requires-python = ">=3.12"
+dependencies = [
+  "pydantic>=2.13.4",
+  "pyyaml>=6.0.3",
+  "rich>=15.0.0",
+  "typer>=0.26.3",
+]
+
+[project.scripts]
+amocna = "amocna_cli.main:main"
+
+[build-system]
+requires = ["uv_build>=0.11.17,<0.12.0"]
+build-backend = "uv_build"

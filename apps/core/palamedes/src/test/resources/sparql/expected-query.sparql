@@ -1,0 +1,24 @@
+PREFIX acs: <http://example.com/actions#>
+PREFIX res: <http://example.com/resources#>
+PREFIX br: <http://example.com/bridge#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+SELECT DISTINCT ?resource ?resourceName ?intent
+WHERE {
+    ?resource res:hasCurrentState ?state .
+    ?state a ?anomalyType .
+    ?resource res:resourceName ?resourceName .
+
+    ?anomalyType rdfs:subClassOf ?restriction .
+    ?restriction a owl:Restriction .
+    ?restriction owl:onProperty br:isResolvedByIntent .
+    ?restriction owl:someValuesFrom ?intent .
+
+    FILTER NOT EXISTS {
+        ?action acs:targetsEntity ?resource .
+        ?action acs:hasCurrentState ?currentState .
+        FILTER(?action = <http://example.com/resources#Action_123>)
+        FILTER(?currentState IN (acs:State_Initial, acs:State_Planned, acs:State_Validated, acs:State_InProgress, acs:State_Compensating))
+    }
+}
