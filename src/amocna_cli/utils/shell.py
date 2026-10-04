@@ -90,8 +90,18 @@ ORDERS_CPU_RESET_PATCH = '{"spec": {"template": {"spec": {"containers": [{"name"
 # ─── Docker Command Builders ──────────────────────────────────────────
 
 def docker_build(image_name: str, dockerfile: str, context: str) -> list[str]:
-    """Build a Docker command list for building an image."""
-    return ["docker", "build", "-t", image_name, "-f", dockerfile, context]
+    """Build linux/amd64 images (cluster workers are amd64)."""
+    return [
+        "docker",
+        "build",
+        "--platform",
+        "linux/amd64",
+        "-t",
+        image_name,
+        "-f",
+        dockerfile,
+        context,
+    ]
 
 def docker_push(image_name: str) -> list[str]:
     """Build a Docker command list for pushing an image."""

@@ -28,7 +28,7 @@ spec:
             - name: ghcr-login
           containers:
             - name: syft-scan
-              image: ghcr.io/amocna-kr/scig:1.14.1-SNAPSHOT
+              image: ghcr.io/amocna/scig:1.14.1-SNAPSHOT
               imagePullPolicy: IfNotPresent
               command: ["/bin/sh", "/scripts/scan.sh"]
               env:
