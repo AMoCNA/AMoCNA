@@ -12,7 +12,7 @@ class ProjectInfo(BaseModel):
     name: str = "amocna"
     group_id: str = "com.kubiki"
     parent_pom: str = "pom.xml"
-    registry: str = "ghcr.io/amocna-kr"
+    registry: str = "ghcr.io/amocna"
 
 class AppDef(BaseModel):
     name: str
