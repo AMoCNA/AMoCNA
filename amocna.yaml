@@ -3,7 +3,7 @@ project:
   group_id: com.kubiki
   parent_pom: pom.xml
   # Override with AMOCNA_REGISTRY env var or --registry flag
-  registry: ghcr.io/amocna-kr
+  registry: ghcr.io/amocna
 
 # ─── Core apps ─────────────────────────────────────────────────────────
 # Managed by the parent POM. Version-synced via `./amocna.py version`.

@@ -26,8 +26,8 @@ Build and push via CLI (tag defaults to parent POM version):
 Manual equivalent:
 
 ```bash
-docker build -f infra/scig/scig.dockerfile -t ghcr.io/amocna-kr/scig:1.12.12-SNAPSHOT .
-docker push ghcr.io/amocna-kr/scig:1.12.12-SNAPSHOT
+docker build -f infra/scig/scig.dockerfile -t ghcr.io/amocna/scig:1.12.12-SNAPSHOT .
+docker push ghcr.io/amocna/scig:1.12.12-SNAPSHOT
 ```
 
 `./amocna.py version` keeps the CronJob image tag in sync with other infra manifests.

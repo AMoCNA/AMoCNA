@@ -110,10 +110,23 @@ def bump_version(current: str, part: BumpPart) -> str:
 
     return ".".join(segments) + suffix
 
-def sync_infra_versions(infra_dir: Path, new_version: str, dry_run: bool = False) -> list[tuple[Path, str, str]]:
-    """Scan all yaml files in infra_dir and replace ghcr.io/amocna-kr/<app>:<tag> with new_version."""
+def _infra_image_tag_pattern(registry: str) -> re.Pattern[str]:
+    return re.compile(rf"(image:\s*{re.escape(registry)}/[\w-]+:)([0-9a-zA-Z.-]+)")
+
+
+def _infra_image_scan_pattern(registry: str) -> re.Pattern[str]:
+    return re.compile(rf"image:\s*{re.escape(registry)}/([\w-]+):([0-9a-zA-Z.-]+)")
+
+
+def sync_infra_versions(
+    infra_dir: Path,
+    new_version: str,
+    dry_run: bool = False,
+    registry: str = "ghcr.io/amocna",
+) -> list[tuple[Path, str, str]]:
+    """Scan infra yaml and replace `<registry>/<app>:<tag>` with new_version."""
     updated = []
-    pattern = re.compile(r"(image:\s*ghcr\.io/amocna-kr/[\w-]+:)([0-9a-zA-Z.-]+)")
+    pattern = _infra_image_tag_pattern(registry)
     
     # scan both .yaml and .yml files
     for suffix in ("*.yaml", "*.yml"):
@@ -183,7 +196,7 @@ def version_cmd(
         # Show infra manifests status
         console.print(f"\n  [bold]Infra Manifests[/bold]:")
         infra_dir = cfg.project_root / "infra"
-        pattern = re.compile(r"image:\s*ghcr\.io/amocna-kr/([\w-]+):([0-9a-zA-Z.-]+)")
+        pattern = _infra_image_scan_pattern(cfg.registry)
         infra_status = {}
         for path in sorted(infra_dir.rglob("*.yaml")) + sorted(infra_dir.rglob("*.yml")):
             if not path.is_file():
@@ -202,7 +215,7 @@ def version_cmd(
                 )
                 console.print(f"    {img_name:<18}: {match}")
         else:
-            console.print("    No ghcr.io/amocna-kr images found in infra")
+            console.print(f"    No {cfg.registry} images found in infra")
         console.print()
         return
 
@@ -222,7 +235,9 @@ def version_cmd(
         for label, pom in poms_to_update:
             console.print(f"  Would update: [bold]{label}[/bold]:{label:<25} [dim]{pom}[/dim]")
         
-        infra_updates = sync_infra_versions(cfg.project_root / "infra", new_version, dry_run=True)
+        infra_updates = sync_infra_versions(
+            cfg.project_root / "infra", new_version, dry_run=True, registry=cfg.registry
+        )
         for path, old, new in infra_updates:
             rel_path = path.relative_to(cfg.project_root)
             console.print(f"  Would update: [bold]infra image tag[/bold]:{label:<25} [dim]{rel_path}[/dim] ({old} → {new})")
@@ -248,7 +263,9 @@ def version_cmd(
             warn(f"No change needed for {label}")
 
     # Apply infra updates
-    infra_updates = sync_infra_versions(cfg.project_root / "infra", new_version, dry_run=False)
+    infra_updates = sync_infra_versions(
+        cfg.project_root / "infra", new_version, dry_run=False, registry=cfg.registry
+    )
     for path, old, new in infra_updates:
         rel_path = path.relative_to(cfg.project_root)
         info(f"Updated infra image tag in {rel_path}: {old} → {new}")

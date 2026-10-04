@@ -107,12 +107,7 @@ ORDERS_CPU_RESET_PATCH = '{"spec": {"template": {"spec": {"containers": [{"name"
 # ─── Docker Command Builders ──────────────────────────────────────────
 
 def docker_build(image_name: str, dockerfile: str, context: str) -> list[str]:
-    """Build a Docker command list for building an image.
-
-    Always target linux/amd64: the k8s workers are amd64. A native Apple
-    Silicon build produces an arm64-only GHCR index that kubelets reject
-    with "no image found in image index for architecture amd64".
-    """
+    """Build linux/amd64 images (cluster workers are amd64)."""
     return [
         "docker",
         "build",
