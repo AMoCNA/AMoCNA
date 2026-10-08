@@ -26,3 +26,21 @@ vulnerabilities:
       - "0.4.8"
     severity: HIGH
     minUpgradeLevel: MINOR
+
+  - id: CVE-2024-DEMO-004
+    imageRepository: google-samples/microservices-demo/frontend
+    affectedVersions:
+      - "v0.8.0"
+    fixedVersions:
+      - "v0.10.2"
+    severity: HIGH
+    minUpgradeLevel: MINOR
+
+  - id: CVE-2024-DEMO-005
+    imageRepository: istio/examples-bookinfo-productpage-v1
+    affectedVersions:
+      - "1.16.2"
+    fixedVersions:
+      - "1.20.2"
+    severity: HIGH
+    minUpgradeLevel: MINOR

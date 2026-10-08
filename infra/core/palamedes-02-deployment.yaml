@@ -75,6 +75,10 @@ spec:
               value: "http://prometheus-kube-prometheus-prometheus.monitoring.svc.cluster.local:9090"
             - name: SPRING_PROFILES_ACTIVE
               value: "prod"
+            - name: PALAMEDES_SCHEDULER_CONTAINERIZATION_CAPACITY
+              value: "32"
+            - name: PALAMEDES_SCHEDULER_APPLICATION_CAPACITY
+              value: "32"
             - name: JAVA_TOOL_OPTIONS
               value: "-Xmx3g"
 

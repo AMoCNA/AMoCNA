@@ -79,7 +79,8 @@ def _deploy_graphdb(cfg: ProjectConfig, dry_run: bool = False) -> None:
         finally:
             license_bin.unlink(missing_ok=True)
     else:
-        warn(f"No license found. Place graphdb.license in {graphdb_dir}")
+        error(f"No license found. Place graphdb.license in {graphdb_dir}")
+        raise typer.Exit(code=1)
 
     info("Creating graphdb-ontologies ConfigMap (OWL + action blueprints)...")
     ontology_files = _collect_ontology_rdf_files(graphdb_dir, ontology_dir)

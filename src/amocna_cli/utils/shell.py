@@ -55,7 +55,7 @@ import urllib.request, urllib.parse
 data = urllib.parse.urlencode({{
     'user_count': {users}, 
     'spawn_rate': {rate}, 
-    'host': 'http://front-end.sock-shop.svc.cluster.local'
+    'host': '{host}'
 }}).encode()
 req = urllib.request.Request('http://localhost:8089/swarm', data=data)
 try:
@@ -72,6 +72,34 @@ try:
     print("Success")
 except Exception as e:
     print("Error:", e)
+"""
+
+LOCUST_RESET_PYTHON_TEMPLATE = """\
+import urllib.request
+try:
+    urllib.request.urlopen('http://localhost:8089/stats/reset')
+    print("Success")
+except Exception as e:
+    print("Error:", e)
+"""
+
+LOCUST_P95_PYTHON_TEMPLATE = """\
+import urllib.request, json
+try:
+    res = urllib.request.urlopen('http://localhost:8089/stats/requests')
+    data = json.loads(res.read().decode())
+    raw = data.get('current_response_time_percentile_95')
+    if raw is None:
+        percentiles = data.get('current_response_time_percentiles') or {}
+        raw = percentiles.get('response_time_percentile_0.95')
+    if raw is None:
+        for row in data.get('stats') or []:
+            if row.get('name') == 'Aggregated':
+                raw = row.get('response_time_percentile_0.95') or row.get('avg_response_time') or 0
+                break
+    print(float(raw or 0) / 1000.0)
+except Exception:
+    print(0)
 """
 
 LOCUST_STATS_PYTHON_TEMPLATE = """\

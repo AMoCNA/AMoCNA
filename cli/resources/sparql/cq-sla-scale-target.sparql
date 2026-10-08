@@ -1,0 +1,11 @@
+PREFIX cnee: <http://www.semanticweb.org/szymo/ontologies/2026/2/CNEEOnt/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+# CQ2: Which resources currently have ResponseTimeSlaViolatedState, and the
+# highest isPartOf parent that Palamedes would scale?
+SELECT DISTINCT ?resource ?resourceName
+WHERE {
+  ?resource cnee:hasState ?state .
+  ?state a cnee:ResponseTimeSlaViolatedState .
+  ?resource cnee:resourceName ?resourceName .
+}

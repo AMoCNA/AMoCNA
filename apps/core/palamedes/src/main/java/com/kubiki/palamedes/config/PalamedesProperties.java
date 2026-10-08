@@ -137,13 +137,11 @@ public record PalamedesProperties(
             if (opposingIntents == null) {
                 opposingIntents = DEFAULT_OPPOSING_INTENTS;
             }
-            if (layerCapacities == null) {
-                layerCapacities = Map.of(
-                        "Infrastructure", infrastructureCapacity,
-                        "Containerization", containerizationCapacity,
-                        "Application", applicationCapacity
-                );
-            }
+            layerCapacities = Map.of(
+                    "Infrastructure", infrastructureCapacity,
+                    "Containerization", containerizationCapacity,
+                    "Application", applicationCapacity
+            );
         }
 
         public Scheduler() {

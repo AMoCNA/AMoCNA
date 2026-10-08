@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: locust-master
-  namespace: sock-shop
+  namespace: online-boutique
 spec:
   replicas: 1
   selector:
@@ -30,9 +30,9 @@ spec:
         command: ["python3", "/home/locust/locust-exporter.py"]
         env:
         - name: LOCUST_METRIC_NAMESPACE
-          value: sock-shop
+          value: online-boutique
         - name: LOCUST_METRIC_NAME
-          value: front-end
+          value: frontend
         ports:
         - name: metrics
           containerPort: 9646
@@ -42,13 +42,13 @@ spec:
       volumes:
       - name: locust-script
         configMap:
-          name: locust-script
+          name: locust-script-boutique
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: locust-master
-  namespace: sock-shop
+  namespace: online-boutique
   labels:
     app: locust-master
 spec:
@@ -69,7 +69,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: locust-worker
-  namespace: sock-shop
+  namespace: online-boutique
 spec:
   replicas: 4
   selector:
@@ -88,11 +88,11 @@ spec:
         args: ["--worker", "--master-host=locust-master"]
         env:
         - name: LOCUST_TARGET_HOST
-          value: "http://front-end.sock-shop.svc.cluster.local"
+          value: "http://frontend.online-boutique.svc.cluster.local"
         volumeMounts:
         - name: locust-script
           mountPath: /home/locust
       volumes:
       - name: locust-script
         configMap:
-          name: locust-script
+          name: locust-script-boutique

@@ -206,12 +206,20 @@ The `benchmark` subcommand provides automated control loops to run evaluation sc
 #### Scenario 1: Horizontal Scaling (Scale-Out)
 
 - **Goal**: Evaluate autonomic response to sudden SLA breaches (response time spikes).
-- **Process**: Generates traffic using 1,000 baseline users, then triggers a breach by boosting Locust concurrency to 3,000 users. It polls Kubernetes replica scaling metrics to verify the scale-out to 3 replicas.
+- **Process**: Baseline Locust load, then a user spike. Polls ready replicas until the entry deployment reaches 3. Defaults to Sock Shop `front-end`. Override the target with `AMOCNA_SCALE_NAMESPACE` (`sock-shop`, `online-boutique`, or `bookinfo`).
 - **Execution**:
 
   ```bash
   ./amocna.py benchmark run --scenario 1
+  AMOCNA_SCALE_NAMESPACE=online-boutique ./amocna.py benchmark run --scenario 1
+  AMOCNA_SCALE_NAMESPACE=bookinfo ./amocna.py benchmark run --scenario 1
   ```
+
+Paper-oriented $N$-repeat tables (patching + scaling on all three apps):
+
+```bash
+./amocna.py paper-eval run --example all -i 5 -o ./evaluation_results
+```
 
 #### Scenario 2: Vertical Scaling
 

@@ -43,11 +43,14 @@ spec:
               rm -rf "$GDB_HOME/data/repositories/amocna"
               rm -rf "$GDB_HOME/data/repositories/lock"
               
-              # Copy license to the correct location on PV
+              # Copy license to the correct location on PV. GraphDB 11 rejects all SPARQL without it.
               mkdir -p $GDB_HOME/work
               if [ -f "/opt/graphdb/init/license/graphdb.license" ]; then
                 cp /opt/graphdb/init/license/graphdb.license $GDB_HOME/work/graphdb.license
                 echo "License copied to $GDB_HOME/work/graphdb.license"
+              else
+                echo "ERROR: graphdb.license is missing. Create secret graphdb/graphdb-license (key GRAPHDB_LICENSE) and redeploy."
+                exit 1
               fi
 
               # Start GraphDB in background for initialization

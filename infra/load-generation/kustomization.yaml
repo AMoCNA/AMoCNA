@@ -3,6 +3,8 @@ kind: Kustomization
 
 resources:
 - locust-dep.yaml
+- locust-boutique.yaml
+- locust-bookinfo.yaml
 - docker-stress.yaml
 
 configMapGenerator:
@@ -10,3 +12,17 @@ configMapGenerator:
   namespace: sock-shop
   files:
   - locustfile.py
+  - locust-exporter.py
+- name: locust-script-boutique
+  namespace: online-boutique
+  files:
+  - locustfile.py=locustfile_boutique.py
+  - locust-exporter.py
+- name: locust-script-bookinfo
+  namespace: bookinfo
+  files:
+  - locustfile.py=locustfile_bookinfo.py
+  - locust-exporter.py
+
+generatorOptions:
+  disableNameSuffixHash: true

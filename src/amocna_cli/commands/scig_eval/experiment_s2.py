@@ -9,40 +9,15 @@ from pathlib import Path
 
 from rich.console import Console
 
-from . import k8s_helpers as kh
-from .latex_generator import generate_s2_remediation_latency_table
+from amocna_cli.commands.paper_eval.targets import PATCH_TARGETS
+from amocna_cli.commands.scig_eval import k8s_helpers as kh
+from amocna_cli.commands.scig_eval.latex_generator import generate_s2_remediation_latency_table
 
 console = Console()
 
-REMEDIATION_TARGETS = [
-    {
-        "namespace": "sock-shop",
-        "deployment": "front-end",
-        "container": "front-end",
-        "vulnerable_image": "docker.io/weaveworksdemos/front-end:0.3.0",
-        "expected_tag": "0.3.12",
-        "policy": "PATCH",
-        "severity": "HIGH",
-    },
-    {
-        "namespace": "sock-shop",
-        "deployment": "orders",
-        "container": "orders",
-        "vulnerable_image": "docker.io/weaveworksdemos/orders:0.4.0",
-        "expected_tag": "0.4.7",
-        "policy": "MINOR",
-        "severity": "CRITICAL",
-    },
-    {
-        "namespace": "sock-shop",
-        "deployment": "carts",
-        "container": "carts",
-        "vulnerable_image": "docker.io/weaveworksdemos/carts:0.3.5",
-        "expected_tag": "0.4.8",
-        "policy": "MINOR",
-        "severity": "HIGH",
-    },
-]
+
+def _active_targets() -> list[dict]:
+    return [t for t in PATCH_TARGETS if kh.namespace_exists(t["namespace"])]
 
 
 def _reset_vulnerable(target: dict) -> None:
@@ -63,24 +38,13 @@ def _enable_image_update_intent() -> None:
 
 def _clean_stuck_actions() -> None:
     """Clear non-terminal actions so find-vulnerable-workloads is not filtered out."""
-    from pathlib import Path
-    import subprocess
+    from amocna_cli.commands.paper_eval.sparql import load_cli_sparql, run_sparql_update
+    from amocna_cli.config import find_project_root
 
-    script = Path("cli/resources/sparql/clean-actions.sparql")
-    if not script.exists():
-        console.print("[yellow]clean-actions.sparql not found — skipping GraphDB cleanup[/yellow]")
-        return
     try:
-        res = subprocess.run(
-            [".cursor/skills/graphdb-sparql/scripts/run_sparql.py", "--file", str(script), "--update"],
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-        if res.returncode == 0:
-            console.print("  Cleared stuck GraphDB actions")
-        else:
-            console.print(f"  [yellow]Action cleanup warning: {res.stderr or res.stdout}[/yellow]")
+        query = load_cli_sparql(find_project_root(), "clean-actions.sparql")
+        run_sparql_update(query)
+        console.print("  Cleared stuck GraphDB actions")
     except Exception as e:
         console.print(f"  [yellow]Action cleanup skipped: {e}[/yellow]")
 
@@ -124,9 +88,13 @@ def run_s2(
     scan_timeout_s: int = 3600,
     trigger_scig_scan: bool = False,
 ) -> dict:
+    targets = _active_targets()
+    if not targets:
+        raise RuntimeError("No patch targets: deploy sock-shop, online-boutique, and/or bookinfo.")
+
     console.print(
         f"[bold green]S2: E2E remediation via Palamedes/Themis "
-        f"({iterations} iterations, no CLI patch, "
+        f"({iterations} iterations, {len(targets)} workloads, no CLI patch, "
         f"scig_scan={trigger_scig_scan})[/bold green]"
     )
     results: dict = {"iterations": [], "success_rates": {}, "trigger_scig_scan": trigger_scig_scan}
@@ -137,7 +105,7 @@ def run_s2(
 
     pre_eval = {
         t["deployment"]: kh.get_deployment_image(t["namespace"], t["deployment"])
-        for t in REMEDIATION_TARGETS
+        for t in targets
     }
     results["pre_eval_observation"] = {
         **pre_eval,
@@ -149,7 +117,7 @@ def run_s2(
         if i > 0:
             _clean_stuck_actions()
         t0 = time.perf_counter()
-        for target in REMEDIATION_TARGETS:
+        for target in targets:
             console.print(f"  Reset {target['deployment']} → {target['vulnerable_image']}")
             _reset_vulnerable(target)
 
@@ -173,10 +141,10 @@ def run_s2(
             f"  Waiting (parallel, {remediation_timeout_s}s) for autonomous remediations..."
         )
         per_service: dict = {}
-        with ThreadPoolExecutor(max_workers=len(REMEDIATION_TARGETS)) as pool:
+        with ThreadPoolExecutor(max_workers=len(targets)) as pool:
             futures = [
                 pool.submit(_wait_one, target, remediation_timeout_s)
-                for target in REMEDIATION_TARGETS
+                for target in targets
             ]
             for fut in as_completed(futures):
                 dep, data = fut.result()
@@ -201,7 +169,7 @@ def run_s2(
         }
         results["iterations"].append(iter_data)
 
-    for target in REMEDIATION_TARGETS:
+    for target in targets:
         dep = target["deployment"]
         oks = [
             1

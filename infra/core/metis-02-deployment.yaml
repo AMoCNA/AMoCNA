@@ -71,7 +71,7 @@ spec:
             - name: METIS_SENSOR_ENABLED
               value: "true"
             - name: METIS_SENSOR_NAMESPACES
-              value: "hephaestus-business,sock-shop,amocna-benchmark"
+              value: "hephaestus-business,sock-shop,amocna-benchmark,online-boutique,bookinfo"
             - name: SPRING_PROFILES_ACTIVE
               value: "prod"
             - name: JAVA_TOOL_OPTIONS

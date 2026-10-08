@@ -1,5 +1,5 @@
-name: "frontend-latency"
-query: "locust_p95_response_time_seconds{namespace='sock-shop',name='front-end'}"
+name: "boutique-frontend-locust-latency"
+query: "locust_p95_response_time_seconds{namespace='online-boutique',name='frontend'}"
 operator: ">"
 value: 0.85
 anomalyState: "ResponseTimeSlaViolatedState"
