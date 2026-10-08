@@ -1,9 +1,9 @@
 name: "frontend-latency"
-query: "sum(rate(request_duration_seconds_sum{name='front-end'}[1m])) by (name, namespace) / sum(rate(request_duration_seconds_count{name='front-end'}[1m])) by (name, namespace)"
+query: "locust_p95_response_time_seconds{namespace='sock-shop',name='front-end'}"
 operator: ">"
 value: 0.85
 anomalyState: "ResponseTimeSlaViolatedState"
-resourceKind: "Service"
+resourceKind: "Deployment"
 resourceLabel: "name"
 namespaceLabel: "namespace"
 persistenceWindow: 1

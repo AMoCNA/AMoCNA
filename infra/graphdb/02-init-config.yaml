@@ -55,7 +55,8 @@ data:
       cp /opt/graphdb/init/license/graphdb.license /opt/graphdb/home/work/graphdb.license
       echo "License file written to /opt/graphdb/home/work/graphdb.license"
     else
-      echo "No license file found. Skipping."
+      echo "ERROR: graphdb.license is missing; SPARQL will fail with 'No license was set'."
+      exit 1
     fi
 
     # 2. Create repository (init container clears on-disk repo data before GraphDB starts)

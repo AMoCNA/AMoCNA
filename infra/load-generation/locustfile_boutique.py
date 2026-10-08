@@ -1,8 +1,16 @@
-from locust import HttpUser, task, between
+from locust import HttpUser, constant_pacing, task
 
 
 class BoutiqueUser(HttpUser):
-    wait_time = between(0.3, 1.0)
+    """One HTTP call per second per user so Locust user_count is approx. req/s."""
+
+    network_timeout = 2.0
+    connection_timeout = 2.0
+    wait_time = constant_pacing(1)
+
+    def on_start(self):
+        self.client.headers["Connection"] = "close"
+
 
     @task(5)
     def home(self):

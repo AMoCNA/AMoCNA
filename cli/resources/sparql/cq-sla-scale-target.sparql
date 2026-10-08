@@ -3,12 +3,9 @@ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
 # CQ2: Which resources currently have ResponseTimeSlaViolatedState, and the
 # highest isPartOf parent that Palamedes would scale?
-SELECT DISTINCT ?resource ?resourceName ?root ?rootName
+SELECT DISTINCT ?resource ?resourceName
 WHERE {
   ?resource cnee:hasState ?state .
   ?state a cnee:ResponseTimeSlaViolatedState .
   ?resource cnee:resourceName ?resourceName .
-  ?resource (cnee:isPartOf)* ?root .
-  FILTER NOT EXISTS { ?root cnee:isPartOf ?higher . }
-  ?root cnee:resourceName ?rootName .
 }

@@ -76,6 +76,12 @@ forward:
     local_port: 3000
     remote_port: 3000
 
+  prometheus:
+    namespace: monitoring
+    service: prometheus-kube-prometheus-prometheus
+    local_port: 9090
+    remote_port: 9090
+
 # ─── Kubernetes deployment manifest directories ───────────────────────
 k8s:
   deploy_order:

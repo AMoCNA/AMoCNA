@@ -2,7 +2,7 @@ import os
 import time
 from amocna_cli.commands.benchmark.base import Scenario
 from amocna_cli.commands.benchmark.registry import ScenarioRegistry
-from amocna_cli.commands.paper_eval.targets import SCALE_TARGETS
+from amocna_cli.commands.paper_eval.targets import load_scale_targets
 from amocna_cli.utils.ui import run, run_capture
 from amocna_cli.utils.shell import (
     k8s_scale,
@@ -13,7 +13,7 @@ from amocna_cli.utils.shell import (
 
 def _scale_target_from_env() -> dict:
     ns = os.environ.get("AMOCNA_SCALE_NAMESPACE", "sock-shop")
-    for target in SCALE_TARGETS:
+    for target in load_scale_targets():
         if target["namespace"] == ns:
             override = dict(target)
             if os.environ.get("AMOCNA_SCALE_DEPLOYMENT"):
@@ -25,7 +25,7 @@ def _scale_target_from_env() -> dict:
             if os.environ.get("AMOCNA_BASELINE_USERS"):
                 override["baseline_users"] = int(os.environ["AMOCNA_BASELINE_USERS"])
             return override
-    return SCALE_TARGETS[0]
+    return load_scale_targets()[0]
 
 
 @ScenarioRegistry.register

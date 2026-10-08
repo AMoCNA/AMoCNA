@@ -308,6 +308,40 @@ def require_core_loop_ready() -> None:
             + "\n  - ".join(missing)
         )
 
+    probe = run_kubectl(
+        [
+            "exec",
+            "deploy/graphdb",
+            "-n",
+            "graphdb",
+            "--",
+            "curl",
+            "-sS",
+            "-o",
+            "/tmp/amocna-sparql-probe.json",
+            "-w",
+            "%{http_code}",
+            "-H",
+            "Accept: application/sparql-results+json",
+            "--data-urlencode",
+            "query=SELECT (COUNT(*) AS ?c) WHERE { ?s ?p ?o }",
+            "http://127.0.0.1:7200/repositories/amocna",
+        ],
+        check=False,
+    )
+    status = (probe.stdout or "").strip().splitlines()[-1] if probe.stdout else ""
+    if status != "200":
+        body = run_kubectl(
+            ["exec", "deploy/graphdb", "-n", "graphdb", "--", "head", "-c", "240", "/tmp/amocna-sparql-probe.json"],
+            check=False,
+        )
+        detail = (body.stdout or probe.stderr or f"HTTP {status or 'unknown'}").strip()[:240]
+        raise RuntimeError(
+            "GraphDB SPARQL is not usable (license or repository). "
+            f"HTTP {status or 'unknown'}: {detail}. "
+            "Create secret graphdb/graphdb-license with key GRAPHDB_LICENSE and redeploy GraphDB."
+        )
+
 
 def get_ready_replicas(ns: str, deployment: str) -> int:
     res = run_kubectl(

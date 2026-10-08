@@ -90,7 +90,7 @@ def generate_e2_tables(results: dict) -> dict[str, str]:
         "\\centering",
         "\\caption{Example 2: SLA-driven horizontal scale-out on three entrypoints. "
         "Detection is Locust p95 crossing the SLO; remediation is time to "
-        "three ready replicas. Values are $\\overline{x} \\pm \\sigma$ (ms) except replica-seconds"
+        "three ready replicas. Values are $\\overline{x} \\pm \\sigma$ (s) except replica-seconds"
         + (" [offline fixture --- replace after cluster run]" if results.get("offline") else "")
         + ".}",
         "\\label{tab:paper_e2_scaling}",
@@ -103,13 +103,18 @@ def generate_e2_tables(results: dict) -> dict[str, str]:
     ]
     for app, data in results.get("apps", {}).items():
         runs = data.get("runs", [])
-        detect = compute_stats([r["t_slo_ms"] for r in runs if r.get("t_slo_ms") is not None])
-        ready = compute_stats([r["t_ready_ms"] for r in runs if r.get("t_ready_ms") is not None])
-        viol = compute_stats([r.get("slo_violation_ms", 0.0) for r in runs])
+        detect = compute_stats(
+            [r["t_slo_ms"] / 1000.0 for r in runs if r.get("t_slo_ms") is not None]
+        )
+        ready = compute_stats(
+            [r["t_ready_ms"] / 1000.0 for r in runs if r.get("t_ready_ms") is not None]
+        )
+        viol = compute_stats([r.get("slo_violation_ms", 0.0) / 1000.0 for r in runs])
         cost = compute_stats([r.get("replica_seconds", 0.0) for r in runs])
         lines.append(
-            f"{app} & {_success_pct(data.get('success_rate'))} & {detect.latex_str()} & "
-            f"{ready.latex_str()} & {viol.latex_str()} & {cost.latex_str(precision=1)} \\\\"
+            f"{app} & {_success_pct(data.get('success_rate'))} & {detect.latex_str(precision=2)} & "
+            f"{ready.latex_str(precision=2)} & {viol.latex_str(precision=2)} & "
+            f"{cost.latex_str(precision=2)} \\\\"
         )
     lines.extend(["\\bottomrule", "\\end{tabular}", "\\end{table}", ""])
 

@@ -14,7 +14,7 @@ from amocna_cli.commands.paper_eval.sparql import (
     run_sparql_select,
     run_sparql_update,
 )
-from amocna_cli.commands.paper_eval.targets import SCALE_TARGETS
+from amocna_cli.commands.paper_eval.targets import load_scale_targets
 from amocna_cli.commands.scig_eval import k8s_helpers as kh
 from amocna_cli.config import ProjectConfig
 from amocna_cli.utils.ui import run
@@ -39,15 +39,29 @@ def _inject_sla_state(namespace: str, deployment: str) -> None:
     update = (
         "PREFIX cnee: <http://www.semanticweb.org/szymo/ontologies/2026/2/CNEEOnt/>\n"
         "INSERT DATA {\n"
-        f"  <{iri}> cnee:hasState [ a cnee:ResponseTimeSlaViolatedState ] .\n"
+        f"  <{iri}> a cnee:StatelessWorkloadController ;\n"
+        f"    cnee:resourceName \"{deployment}\" ;\n"
+        f"    cnee:hasState [ a cnee:ResponseTimeSlaViolatedState ] .\n"
         "}\n"
     )
     run_sparql_update(update)
 
 
+def _clean_stuck_actions() -> None:
+    from amocna_cli.commands.paper_eval.sparql import load_cli_sparql
+    from amocna_cli.config import find_project_root
+
+    try:
+        query = load_cli_sparql(find_project_root(), "clean-actions.sparql")
+        run_sparql_update(query)
+        console.print("  Cleared stuck GraphDB actions")
+    except Exception as e:
+        console.print(f"  [yellow]Action cleanup skipped: {e}[/yellow]")
+
+
 def available_scale_targets() -> list[dict]:
     present = []
-    for target in SCALE_TARGETS:
+    for target in load_scale_targets():
         if not kh.namespace_exists(target["namespace"]):
             console.print(f"  [yellow]Skipping {target['app']}: namespace missing[/yellow]")
             continue
@@ -74,6 +88,7 @@ def run_example2(
 ) -> dict:
     from amocna_cli.commands.benchmark import (
         get_locust_p95_seconds,
+        reset_locust_stats,
         set_locust_load,
         set_palamedes_filter,
         stop_locust,
@@ -89,7 +104,8 @@ def run_example2(
         f"({len(targets)} apps, {iterations} iterations)[/bold green]"
     )
     kh.require_core_loop_ready()
-    set_palamedes_filter(["HorizontalScalingUpIntent", "HorizontalScalingDownIntent"])
+    set_palamedes_filter(["HorizontalScalingUpIntent"])
+    _clean_stuck_actions()
     cq_query = load_cli_sparql(cfg.project_root, "cq-sla-scale-target.sparql")
 
     results: dict = {"example": 2, "apps": {}, "iterations_requested": iterations}
@@ -107,6 +123,8 @@ def run_example2(
 
         for i in range(iterations):
             console.print(f"  Iteration {i + 1}/{iterations}")
+            _clean_stuck_actions()
+            reset_locust_stats(locust_ns)
             run(k8s_scale(ns, dep, 1), check=False)
             deadline_ready = time.time() + 120
             while time.time() < deadline_ready and kh.get_ready_replicas(ns, dep) < 1:

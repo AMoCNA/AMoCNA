@@ -71,7 +71,7 @@ metadata:
   name: locust-worker
   namespace: sock-shop
 spec:
-  replicas: 3
+  replicas: 4
   selector:
     matchLabels:
       app: locust-worker

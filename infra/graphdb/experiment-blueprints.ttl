@@ -8,7 +8,7 @@ moam:ScaleUpAction moam:hasExecutionProtocol "SHELL" ;
                    moam:hasFunctionalIntent moam:HorizontalScalingUpIntent ;
                    moam:hasLayerBoundary moam:ContainerizationLayer ;
                    moam:idempotencyWindowSeconds "300"^^xsd:integer ;
-                   moam:hasExecutionCost [ a moam:ExecutionCost ; moam:costValue "2.0"^^xsd:float ] .
+                   moam:hasExecutionCost [ a moam:ExecutionCost ; moam:costValue "1.0"^^xsd:float ] .
 
 # Scenario 1 (Scale Down)
 moam:ScaleDownAction moam:hasExecutionProtocol "SHELL" ;

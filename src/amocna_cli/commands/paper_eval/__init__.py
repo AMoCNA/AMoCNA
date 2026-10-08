@@ -13,6 +13,54 @@ app = typer.Typer(help="Paper evaluation: image patching and SLA scale-out on th
 console = Console()
 
 
+@app.command("calibrate")
+def paper_eval_calibrate(
+    output_dir: str = typer.Option("./evaluation_results", "--output-dir", "-o"),
+    apps: str | None = typer.Option(
+        None,
+        "--apps",
+        help="Comma-separated namespaces (sock-shop, online-boutique, bookinfo)",
+    ),
+    hold_s: int = typer.Option(25, "--hold", help="Seconds to hold each RPS sample before reading Locust p95"),
+):
+    """Find 1-replica and 3-replica req/s so plot/example 2 cross the SLO then recover."""
+    from amocna_cli.commands.paper_eval.calibrate import run_calibrate
+
+    run_calibrate(output_dir=Path(output_dir), apps=apps, hold_s=hold_s)
+
+
+@app.command("plot")
+def paper_eval_plot(
+    output_dir: str = typer.Option("./evaluation_results", "--output-dir", "-o"),
+    replot: str | None = typer.Option(
+        None,
+        "--replot",
+        help="Redraw figures from series JSON in this directory; does not touch the cluster",
+    ),
+    prometheus_url: str | None = typer.Option(
+        None,
+        "--prometheus-url",
+        help="Prometheus base URL. Default: port-forward the monitoring Prometheus service",
+    ),
+    timeout_s: int = typer.Option(420, "--timeout", help="Seconds to wait for scale-out and SLO recovery after the spike"),
+    apps: str | None = typer.Option(
+        None,
+        "--apps",
+        help="Comma-separated namespaces (sock-shop, online-boutique, bookinfo)",
+    ),
+):
+    """Record one SLA scale-out per app from Prometheus and write the three-panel figures."""
+    from amocna_cli.commands.paper_eval.figures import run_plot
+
+    run_plot(
+        output_dir=Path(output_dir),
+        replot_dir=Path(replot) if replot else None,
+        prometheus_url=prometheus_url,
+        observe_timeout_s=timeout_s,
+        apps=apps,
+    )
+
+
 @app.command("run")
 def paper_eval_run(
     ctx: typer.Context,

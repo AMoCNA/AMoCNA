@@ -15,6 +15,7 @@ from amocna_cli.utils.shell import (
     LOCUST_STOP_PYTHON_TEMPLATE,
     LOCUST_STATS_PYTHON_TEMPLATE,
     LOCUST_P95_PYTHON_TEMPLATE,
+    LOCUST_RESET_PYTHON_TEMPLATE,
     ORDERS_CPU_RESET_PATCH,
     k8s_run_pod,
     k8s_exec,
@@ -166,6 +167,18 @@ def set_palamedes_filter(intents: list[str], logger: Optional[Any] = None) -> No
             logger.log("SET_PALAMEDES_FILTER_SUCCESS", f"Trigger pod output: {output}")
         else:
             logger.log("SET_PALAMEDES_FILTER_FAILURE", f"Trigger pod failed with exit code {res.returncode}. Output: {output}")
+
+
+def reset_locust_stats(locust_namespace: str = "sock-shop") -> None:
+    """Clear Locust histograms so p95 is not leftover from a previous spike."""
+    run(
+        k8s_exec(
+            locust_namespace,
+            "deploy/locust-master",
+            ["python3", "-c", LOCUST_RESET_PYTHON_TEMPLATE],
+        ),
+        check=False,
+    )
 
 
 def stop_locust(locust_namespace: str = "sock-shop") -> None:
